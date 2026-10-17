@@ -1,4 +1,6 @@
-### HackGB-Education
+### SusOrSafe
+
+www.susorsaf.courses www.susorsafe.study
 
 Welcome to the HackGB-Education project. Follow the steps below to set up your environment and get the server running. 
 
@@ -19,7 +21,6 @@ python -m venv .venv
 # Install the required dependencies
 pip install -r requirements.txt
 
-Use code with caution.
 
 ### 2. Run the Server
 
@@ -28,5 +29,3 @@ Once your environment is set up and active, start the development server using t
 bash
 
 python manage.py startserver
-
-Use code with caution.
