@@ -1,0 +1,96 @@
+
+/* ==========================================================
+   SusorSafe — visual system
+   ========================================================== */
+:root{
+  color-scheme:dark;
+@@ -18,8 +18,8 @@
+  --amber:#ffcb5c;
+  --violet:#9d8cff;
+  --danger:#ff6b7a;
+  --font:"Plus Jakarta Sans","Segoe UI",system-ui,-apple-system,sans-serif;
+  --display:"Fredoka","Plus Jakarta Sans",system-ui,sans-serif;
+  --maxw:1180px;
+  --radius:24px;
+  --shadow:0 24px 60px -24px rgba(0,0,0,.7);
+@@ -132,7 +132,7 @@
+.brand-text strong{font-size:1.18rem;font-weight:900;letter-spacing:.06em}
+.brand-text small{
+  font-family:var(--display);
+  font-size:.54rem;letter-spacing:.12em;color:var(--muted-2);
+  margin-top:4px;
+}
+@@ -315,7 +315,8 @@
+  border:1px solid rgba(92,225,196,.28);
+  background:rgba(92,225,196,.07);
+  color:#c9fff2;
+  font-size:.72rem;font-weight:700;letter-spacing:.12em;
+  text-transform:uppercase;
+}
+.pulse-dot{
+  width:8px;height:8px;border-radius:50%;
+@@ -325,10 +326,10 @@
+}
+.hero h1{
+  margin:0 0 22px;
+  font-size:clamp(2.6rem,5vw,3.75rem);
+  line-height:1.06;
+  letter-spacing:-.045em;
+  font-weight:800;
+}
+.hl{
+  position:relative;display:inline-block;
+@@ -515,7 +516,7 @@
+  box-shadow:0 0 0 1px color-mix(in srgb,var(--r) 35%,transparent) inset,0 24px 50px -30px color-mix(in srgb,var(--r) 60%,transparent);
+}
+.route-card.is-active::after{
+  content:"CURRENT MODE";
+  position:absolute;top:-10px;right:18px;
+  padding:3px 10px;border-radius:999px;
+  background:var(--r);color:#0b1026;
+@@ -529,7 +530,7 @@
+  border:1px solid color-mix(in srgb,var(--r) 28%,transparent);
+  margin-bottom:18px;
+}
+.route-age{font-size:.73rem;font-weight:800;letter-spacing:.1em;color:var(--r);margin:0 0 8px;text-transform:uppercase}
+.route-card h3{margin:0 0 10px;font-size:1.35rem;line-height:1.3;font-weight:900}
+.route-desc{margin:0 0 16px;color:var(--muted);font-size:.9rem;line-height:1.7}
+.route-card ul{margin:0 0 22px;padding:0;list-style:none;display:grid;gap:7px}
+@@ -949,7 +950,7 @@
+  border-bottom:1px solid rgba(34,35,58,.25);
+  padding-bottom:4px;margin-bottom:6px;
+}
+.cert-sign small{font-family:var(--display);font-size:.7rem;letter-spacing:.12em;color:#6f6a55;display:block;line-height:1.7}
+.cert-lock{
+  position:absolute;inset:0;
+@@ -1125,11 +1126,11 @@
+.strength[data-level="4"]{--sc:#c8f65a}
+.strength .bars i.is-on{background:var(--sc);box-shadow:0 0 12px -2px var(--sc)}
+.strength-meta{
+  display:flex;align-items:center;justify-content:space-between;gap:4px 12px;
+  margin-top:9px;font-size:.78rem;flex-wrap:wrap;
+}
+.strength-label{font-weight:800;color:var(--sc)}
+.strength-time{color:var(--muted-2);text-align:right}
+.strength-time b{color:#dbe2f6;font-weight:700}
+.checklist{
+@@ -1433,7 +1434,8 @@
+.chat-head small{display:block;font-size:.68rem;color:var(--muted-2)}
+.chat-head .online{
+  margin-left:auto;display:inline-flex;align-items:center;gap:5px;
+  font-size:.6rem;letter-spacing:.04em;color:var(--mint);
+  white-space:nowrap;
+}
+.chat-head .online::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--mint)}
+.chat-log{
+@@ -1617,8 +1619,11 @@
+  .brand-text small{font-size:.52rem}
+  .hero{padding-top:34px}
+  .hero h1{font-size:clamp(2.05rem,8.6vw,2.7rem)}
+  .eyebrow{font-size:.66rem;padding:6px 12px;letter-spacing:.1em}
+  .brand-text small{display:none}
+  .strength-meta{flex-direction:column;align-items:flex-start;gap:2px}
+  .strength-time{text-align:left}
+  .hero-notes{font-size:.75rem;gap:6px 14px}
+  .hero-art{max-width:400px;margin-top:26px}
+  .chip{padding:8px 10px;border-radius:12px}

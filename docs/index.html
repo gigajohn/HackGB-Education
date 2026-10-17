@@ -1,0 +1,601 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#080b1c">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="SusorSafe">
+<meta name="mobile-web-app-capable" content="yes">
+<title>SusorSafe — Cybersecurity you can play</title>
+<meta name="description" content="A cybersecurity playground for ages 8 to 88. Seven short lessons on attacks, pressure, fake sites, passwords, 2FA, privacy and public Wi-Fi. Earn coins, dress your explorer and collect a certificate. No sign-up. Nothing leaves your browser.">
+<link rel="icon" href="icons/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="stylesheet" href="fonts.css">
+<link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="v2.css">
+</head>
+<body data-mode="kid">
+<a class="skip-link" href="#lessons">Skip to the lessons</a>
+<noscript>
+  <div class="noscript"><div class="wrap"><b>SusorSafe needs JavaScript.</b> The lessons, games and local progress all run in your browser. Enable JavaScript and reload.</div></div>
+</noscript>
+<svg class="svg-sprite" aria-hidden="true" focusable="false">
+  <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3 20 6v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6l8-3Z"/><path d="m8.8 12 2.2 2.2 4.4-4.6"/></symbol>
+  <symbol id="i-key" viewBox="0 0 24 24"><circle cx="8" cy="8" r="4.2"/><path d="m11.2 11.2 8 8"/><path d="m15.8 15.8 2.2-2.2"/><path d="m18.2 18.2 2.2-2.2"/></symbol>
+@@ -32,32 +42,36 @@
+  <symbol id="i-eye" viewBox="0 0 24 24"><path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12Z"/><circle cx="12" cy="12" r="3.2"/></symbol>
+  <symbol id="i-cloud" viewBox="0 0 24 24"><path d="M7 18h10a4 4 0 0 0 .4-8A6 6 0 0 0 6 9.3 4.4 4.4 0 0 0 7 18Z"/><path d="M12 12v5M9.5 14.5 12 12l2.5 2.5"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18"/></symbol>
+  <symbol id="i-coin" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="m12 7.5 1.5 3 3.3.5-2.4 2.3.6 3.3-3-1.6-3 1.6.6-3.3-2.4-2.3 3.3-.5L12 7.5Z"/></symbol>
+  <symbol id="i-wifi" viewBox="0 0 24 24"><path d="M3.5 9a13 13 0 0 1 17 0"/><path d="M6.5 12.5a8.5 8.5 0 0 1 11 0"/><path d="M9.5 16a4 4 0 0 1 5 0"/><circle cx="12" cy="19" r="1"/></symbol>
+  <symbol id="i-play" viewBox="0 0 24 24"><path d="m8 5 11 7-11 7V5Z"/></symbol>
+</svg>
+<header class="site-header">
+  <div class="wrap header-inner">
+    <a class="brand" href="#top" aria-label="SusorSafe, back to top">
+      <span class="brand-mark"><svg class="ico"><use href="#i-shield"/></svg></span>
+      <span class="brand-text"><strong>SusorSafe</strong><small>SAFETY PLAYGROUND</small></span>
+    </a>
+    <nav class="main-nav" aria-label="Main navigation">
+      <a href="#lessons">Lessons</a>
+      <a href="#toolkit">Toolkit</a>
+      <a href="#parents">Parents &amp; teachers</a>
+      <a href="#install">Install</a>
+    </nav>
+    <div class="header-tools">
+      <div class="mode-switch" role="group" aria-label="Choose an age mode">
+        <button class="mode-pill is-active" data-mode="kid" aria-pressed="true">Kids</button>
+        <button class="mode-pill" data-mode="teen" aria-pressed="false">Teens</button>
+        <button class="mode-pill" data-mode="adult" aria-pressed="false">Adults</button>
+      </div>
+      <button class="profile-chip" id="profileBtn" type="button" aria-label="My crew and coins">
+        <span class="profile-mini" id="headerAvatar"></span>
+        <span class="coin-count"><svg class="ico coin-ico"><use href="#i-coin"/></svg><b id="coinValue">0</b></span>
+      </button>
+      <button class="icon-btn" id="soundBtn" type="button" aria-pressed="false" aria-label="Turn sound on" title="Turn sound on">
+        <svg class="ico ico-sound-on" aria-hidden="true"><use href="#i-volume"/></svg>
+        <svg class="ico ico-sound-off" aria-hidden="true"><use href="#i-mute"/></svg>
+      </button>
+@@ -72,17 +86,17 @@
+    <div class="hero-glow" aria-hidden="true"></div>
+    <div class="wrap hero-grid">
+      <div class="hero-copy">
+        <p class="eyebrow"><span class="pulse-dot" aria-hidden="true"></span>Cyber safety for ages 8 to 88</p>
+        <h1>The internet is fun.<br>Scams are <span class="hl">clever</span></h1>
+        <p class="lede">Seven short lessons on a tiny island where cybersecurity becomes a game: spot attacks, resist pressure, read URLs, build passwords, turn on 2FA, protect privacy and survive public Wi-Fi. Kids get it. Adults need it.</p>
+        <div class="hero-cta">
+          <button class="btn btn-primary" id="heroStart" type="button">Start Lesson 1 <svg class="ico"><use href="#i-arrow"/></svg></button>
+          <a class="btn btn-ghost" href="#lessons">See the path</a>
+        </div>
+        <ul class="hero-notes">
+          <li><svg class="ico"><use href="#i-shield"/></svg>No sign-up</li>
+          <li><svg class="ico"><use href="#i-lock"/></svg>Nothing uploaded</li>
+          <li><svg class="ico"><use href="#i-refresh"/></svg>Switch modes anytime</li>
+        </ul>
+      </div>
+@@ -91,7 +105,7 @@
+        <div class="orbit orbit-b"></div>
+        <div class="art-glow"></div>
+        <svg class="mascot" viewBox="0 0 460 460" role="img" aria-label="Suso, the SusorSafe shield mascot">
+          <defs>
+            <linearGradient id="bodyGrad" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0" stop-color="#D9FF7A"/>
+@@ -102,10 +116,6 @@
+              <stop offset="0" stop-color="#F4FFE4"/>
+              <stop offset="1" stop-color="#C8F7E4"/>
+            </linearGradient>
+          </defs>
+          <ellipse cx="230" cy="404" rx="118" ry="20" fill="#050914" opacity=".55"/>
+@@ -161,287 +171,316 @@
+        <div class="chip chip-warn">
+          <span class="chip-dot"></span>
+          <div><b>Weird link</b><small>Blocked for you</small></div>
+        </div>
+        <div class="chip chip-ok">
+          <svg class="ico"><use href="#i-shield"/></svg>
+          <div><b>Two-step verification</b><small>On</small></div>
+        </div>
+        <div class="chip chip-strength">
+          <div><b>Password strength</b><small>Strong · 300 years</small></div>
+          <span class="mini-bars" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+        </div>
+        <div class="chip chip-scam">
+          <span class="chip-quote">“Account locked?”</span>
+          <small>Verify first. Don't click.</small>
+        </div>
+      </div>
+    </div>
+    <div class="wrap hero-stats">
+      <div><b>7</b><span>Short lessons</span></div>
+      <div><b>30</b><span>Minutes to play</span></div>
+      <div><b>3</b><span>Age modes</span></div>
+      <div><b>0</b><span>Data collected</span></div>
+    </div>
+  </section>
+  <!-- ============ TICKER ============ -->
+  <div class="ticker" aria-hidden="true">
+    <div class="ticker-track">
+      <span>This week's bait: “guaranteed” stock tips</span><span class="tick-star">✦</span>
+      <span>“Just send me the code”</span><span class="tick-star">✦</span>
+      <span>Fake support: “you were double-charged”</span><span class="tick-star">✦</span>
+      <span>Free game currency</span><span class="tick-star">✦</span>
+      <span>AI voice clones</span><span class="tick-star">✦</span>
+      <span>A prize you never entered</span><span class="tick-star">✦</span>
+      <span>“I'm your boss — buy gift cards”</span><span class="tick-star">✦</span>
+      <span>This week's bait: “guaranteed” stock tips</span><span class="tick-star">✦</span>
+      <span>“Just send me the code”</span><span class="tick-star">✦</span>
+      <span>Fake support: “you were double-charged”</span><span class="tick-star">✦</span>
+      <span>Free game currency</span><span class="tick-star">✦</span>
+      <span>AI voice clones</span><span class="tick-star">✦</span>
+      <span>A prize you never entered</span><span class="tick-star">✦</span>
+      <span>“I'm your boss — buy gift cards”</span><span class="tick-star">✦</span>
+    </div>
+  </div>
+  <!-- ============ EXPLORER / AGES ============ -->
+  <section class="section routes" id="explorer">
+    <div class="wrap">
+      <div class="section-head">
+        <div>
+          <p class="kicker">01 / Your explorer</p>
+          <h2>A path that fits <span class="hl-soft">your age.</span></h2>
+        </div>
+        <p class="section-lede">Pick an age mode. Examples, hints and difficulty adapt. Your progress and coins never reset when you switch.</p>
+      </div>
+      <div class="route-grid">
+        <article class="route-card is-active" data-route="kid" style="--r:#C8F65A">
+          <div class="route-emoji" aria-hidden="true">🧒</div>
+          <p class="route-age">ages 8–12 · Little Islander</p>
+          <h3>Pause first.<br>Then click.</h3>
+          <p class="route-desc">Stories and games that help kids recognise strange messages — and know who to tell.</p>
+          <ul>
+            <li>Passwords are like toothbrushes</li>
+            <li>The two endings of “free” coins</li>
+            <li>What's okay to post</li>
+          </ul>
+          <button class="btn route-btn" data-mode="kid" type="button">Current mode</button>
+        </article>
+        <article class="route-card" data-route="teen" style="--r:#5CE1C4">
+          <div class="route-emoji" aria-hidden="true">🎒</div>
+          <p class="route-age">ages 13–17 · Explorer</p>
+          <h3>Start owning<br>your accounts</h3>
+          <p class="route-desc">Scams slide into the apps you use every day: social, gaming, side hustles. Build a nose for the tells.</p>
+          <ul>
+            <li>Phishing and fake accounts</li>
+            <li>Turning on two-step verification</li>
+            <li>Boundaries around money</li>
+          </ul>
+          <button class="btn route-btn" data-mode="teen" type="button">Switch mode</button>
+        </article>
+        <article class="route-card" data-route="adult" style="--r:#FF7FB6">
+          <div class="route-emoji" aria-hidden="true">🧑‍💼</div>
+          <p class="route-age">ages 18+ · Island Keeper</p>
+          <h3>You think you won't fall.<br>Scams keep evolving.</h3>
+          <p class="route-desc">Fake support, fake investments, AI deepfakes — all pull the same levers: urgency, fear, greed. Practise once.</p>
+          <ul>
+            <li>Refund and fake-support calls</li>
+            <li>Password managers and backups</li>
+            <li>Deepfakes and the “safe account” lie</li>
+          </ul>
+          <button class="btn route-btn" data-mode="adult" type="button">Switch mode</button>
+        </article>
+      </div>
+      <div class="explorer-setup">
+        <div class="setup-avatar" id="setupAvatar"></div>
+        <div class="setup-copy">
+          <p class="kicker">Your explorer</p>
+          <h3 id="setupName">Curious Explorer</h3>
+          <p id="setupMeta">Kids · Primary school</p>
+        </div>
+        <a class="btn btn-ghost" href="#crew">Open my crew <svg class="ico"><use href="#i-arrow"/></svg></a>
+      </div>
+    </div>
+  </section>
+  <!-- ============ LESSON PATH ============ -->
+  <section class="section quests" id="lessons">
+    <div class="wrap">
+      <div class="section-head">
+        <div>
+          <p class="kicker">02 / Learning path</p>
+          <h2>Seven lessons. <span class="hl-soft">One calm click at a time</span></h2>
+        </div>
+        <div class="quest-progress" aria-live="polite">
+          <span class="qp-label">Lessons complete</span>
+          <strong id="lessonProgress">0 / 7</strong>
+        </div>
+      </div>
+      <div class="mode-hint" id="modeHint">
+        <span class="mh-badge" id="modeHintBadge">Little Islander</span>
+        <div class="mh-copy">
+          <p id="modeHintText">Hints use simpler comparisons, and there's no timer. Stuck? Grab a grown-up.</p>
+          <p class="mh-focus" id="modeHintFocus"></p>
+        </div>
+      </div>
+      <div id="lessonPath" class="lesson-path"></div>
+      <div class="path-tools">
+        <p>Finish a lesson to unlock the next. Every lesson ends with a quick test — not a trick.</p>
+        <button class="link-btn" id="unlockAll" type="button">Teacher? Unlock all lessons</button>
+      </div>
+      <div class="passport">
+        <div class="xp-ring" id="xpRing" style="--p:0" aria-hidden="true">
+          <div class="xp-ring-in"><b id="lessonCountBig">0</b><small>/ 7</small></div>
+        </div>
+        <div class="passport-main">
+          <p class="kicker">Explorer passport</p>
+          <h3 id="rankName">New Islander</h3>
+          <p id="passportText">Your first stamp is one lesson away. Everything stays in this browser.</p>
+          <div class="stamp-row" id="stampRow"></div>
+        </div>
+        <div class="passport-side">
+          <div class="coin-balance-large"><svg class="ico coin-ico"><use href="#i-coin"/></svg><b id="coinValue2">0</b><span>coins</span></div>
+          <button class="btn btn-ghost" id="openCrew2" type="button">My crew</button>
+          <button class="link-btn" id="resetProgress" type="button">Reset progress</button>
+        </div>
+      </div>
+    </div>
+  </section>
+  <!-- ============ CREW & SHOP ============ -->
+  <section class="section crew" id="crew">
+    <div class="wrap">
+      <div class="section-head">
+        <div>
+          <p class="kicker">03 / Your crew</p>
+          <h2>Dress your explorer. <span class="hl-soft">Spend your coins.</span></h2>
+        </div>
+        <p class="section-lede">Coins come from finishing lessons. Buy colours, gear and pets — no real money, no ads, no loot boxes.</p>
+      </div>
+      <div class="crew-grid">
+        <div class="crew-card">
+          <div class="crew-stage">
+            <div class="crew-avatar" id="crewAvatar"></div>
+            <div class="crew-pet">
+              <span class="crew-pet-emoji" id="crewPetEmoji">🐣</span>
+              <span id="crewPetName">Pip</span>
+            </div>
+          </div>
+          <div class="crew-details">
+            <p class="kicker">Explorer profile</p>
+            <h3 id="crewRank">New Islander</h3>
+            <div class="age-picker">
+              <span class="field-label">Age group</span>
+              <div class="mode-switch" role="group" aria-label="Age group">
+                <button class="mode-pill is-active" data-mode="kid" aria-pressed="true">Kids</button>
+                <button class="mode-pill" data-mode="teen" aria-pressed="false">Teens</button>
+                <button class="mode-pill" data-mode="adult" aria-pressed="false">Adults</button>
+              </div>
+            </div>
+            <label class="field-label" for="explorerName">Explorer name
+              <input id="explorerName" type="text" maxlength="24" placeholder="Name your explorer" autocomplete="off">
+            </label>
+            <label class="field-label" for="petName">Pet name
+              <input id="petName" type="text" maxlength="14" placeholder="Name your pet" autocomplete="off">
+            </label>
+            <label class="field-label" for="schoolSelect">School stage <span>(optional)</span>
+              <select id="schoolSelect">
+                <option value="primary">Primary school</option>
+                <option value="middle">Middle school</option>
+                <option value="high">High school</option>
+                <option value="university">University or college</option>
+                <option value="none">Not at school right now</option>
+              </select>
+            </label>
+            <p class="field-note"><svg class="ico"><use href="#i-lock"/></svg>We never ask for your school's name. This only tailors your explorer tips.</p>
+            <p class="school-tip" id="schoolTip"></p>
+          </div>
+        </div>
+        <div class="shop-card">
+          <div class="shop-head">
+            <div>
+              <p class="kicker">The trading post</p>
+              <h3>Coins, not cash</h3>
+            </div>
+            <div class="coin-balance-large"><svg class="ico coin-ico"><use href="#i-coin"/></svg><b id="shopCoins">0</b><span>coins</span></div>
+          </div>
+          <div class="shop-tabs" id="shopTabs" role="tablist" aria-label="Shop categories">
+            <button class="shop-tab is-active" data-shop-tab="looks" role="tab" aria-selected="true" type="button">Looks</button>
+            <button class="shop-tab" data-shop-tab="pets" role="tab" aria-selected="false" type="button">Pets</button>
+          </div>
+          <div class="shop-grid" id="shopGrid"></div>
+          <p class="shop-note">Earn 100–160 coins per lesson. Replays are free practice and don't add coins.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+  <!-- ============ TOOLKIT ============ -->
+  <section class="section toolbox" id="toolkit">
+    <div class="wrap">
+      <div class="section-head">
+        <div>
+          <p class="kicker">04 / Safety toolkit</p>
+          <h2>Don't memorise. <span class="hl-soft">Remember these.</span></h2>
+        </div>
+        <p class="section-lede">Cyber safety isn't “never go online”. It's knowing which moment deserves a three-second pause. Open a card for the how.</p>
+      </div>
+      <div class="tool-grid">
+        <details class="tool-card" style="--t:#C8F65A">
+          <summary>
+            <span class="tool-ico"><svg class="ico"><use href="#i-lock"/></svg></span>
+            <span class="tool-title"><b>Password manager</b><small>One vault. A different password everywhere.</small></span>
+            <span class="tool-plus" aria-hidden="true"></span>
+          </summary>
+          <div class="tool-body">
+            <p>Hand your passwords to a dedicated vault and remember one strong master phrase. Your browser's built-in manager is enough to start; 1Password or Bitwarden are solid next steps.</p>
+            <p class="tool-tip"><b>Tonight:</b> pick your most important account and replace the reused password with a long, generated one.</p>
+          </div>
+        </details>
+        <details class="tool-card" style="--t:#5CE1C4">
+          <summary>
+            <span class="tool-ico"><svg class="ico"><use href="#i-shield"/></svg></span>
+            <span class="tool-title"><b>Two-step verification</b><small>2FA · one more lock if your password leaks</small></span>
+            <span class="tool-plus" aria-hidden="true"></span>
+          </summary>
+          <div class="tool-body">
+            <p>After your password, you need a second key. Authenticator apps or passkeys (fingerprint, face) are safer than SMS.</p>
+            <p class="tool-tip"><b>Order:</b> email → banking → social. Your email can reset almost everything else, so lock it first.</p>
+          </div>
+        </details>
+        <details class="tool-card" style="--t:#FFCB5C">
+          <summary>
+            <span class="tool-ico"><svg class="ico"><use href="#i-refresh"/></svg></span>
+            <span class="tool-title"><b>Updates patch holes</b><small>Not nagging. Patching.</small></span>
+            <span class="tool-plus" aria-hidden="true"></span>
+          </summary>
+          <div class="tool-body">
+            <p>System, browser and app updates fix known flaws. Scammers love a device that hasn't been updated.</p>
+            <p class="tool-tip"><b>Habit:</b> turn on automatic updates and install them while charging. Restart once so they finish.</p>
+          </div>
+        </details>
+        <details class="tool-card" style="--t:#9D8CFF">
+          <summary>
+            <span class="tool-ico"><svg class="ico"><use href="#i-cloud"/></svg></span>
+            <span class="tool-title"><b>The 3-2-1 backup</b><small>Don't keep all your eggs in one basket.</small></span>
+            <span class="tool-plus" aria-hidden="true"></span>
+          </summary>
+          <div class="tool-body">
+            <p><b>3</b> copies, on <b>2</b> different kinds of media, with <b>1</b> off-site. Ransomware fears a good backup.</p>
+            <p class="tool-tip"><b>Careful:</b> syncing isn't backing up. Delete a file and the cloud deletes it too. Use a service with version history.</p>
+          </div>
+        </details>
+        <details class="tool-card" style="--t:#FF7FB6">
+          <summary>
+            <span class="tool-ico"><svg class="ico"><use href="#i-search"/></svg></span>
+            <span class="tool-title"><b>Verify before you act</b><small>Urgency, fear and greed are the accelerators.</small></span>
+            <span class="tool-plus" aria-hidden="true"></span>
+          </summary>
+          <div class="tool-body">
+            <p>Hang up. Close the message. Call back on the official number <b>you</b> find, or open the official app. Never use the link or number they gave you.</p>
+            <p class="tool-tip"><b>Remember:</b> there is no “safe account”, no regulator asks you to transfer money, and no support agent needs your SMS code.</p>
+          </div>
+        </details>
+        <details class="tool-card" style="--t:#7DD3FC">
+          <summary>
+            <span class="tool-ico"><svg class="ico"><use href="#i-eye"/></svg></span>
+            <span class="tool-title"><b>AI deepfakes</b><small>Faces and voices can be faked.</small></span>
+            <span class="tool-plus" aria-hidden="true"></span>
+          </summary>
+          <div class="tool-body">
+            <p>The person on the video may not be who they appear to be. Ask them to turn their head, make a gesture, or say something only you two know. Or hang up and call back on another channel.</p>
+            <p class="tool-tip"><b>Family code:</b> agree on a passphrase. Any request involving money, investments or urgent transfers gets the code first.</p>
+          </div>
+        </details>
+      </div>
+@@ -453,99 +492,157 @@
+    <div class="wrap">
+      <div class="section-head">
+        <div>
+          <p class="kicker">05 / For parents &amp; teachers</p>
+          <h2>Questions aren't the problem. <span class="hl-soft">Going it alone is.</span></h2>
+        </div>
+        <p class="section-lede">This island doesn't test memory — it trains judgement. Adults don't need to be technical. They just need to play one round.</p>
+      </div>
+      <div class="parent-grid">
+        <div class="parent-card">
+          <h3><span class="num">10</span> minute family challenge</h3>
+          <ol class="steps">
+            <li><b>Let them beat you first.</b> Play Phishing Detective together. Don't correct immediately — let them point out the tells.</li>
+            <li><b>Ask a perspective flip.</b> “If you were the scammer, how would you do it? Who's the easiest target?”</li>
+            <li><b>Turn on 2FA together.</b> Pick email or social, scan the QR code, save the backup codes.</li>
+            <li><b>Agree on a family code.</b> For example, “I feel like mango shaved ice” means “I'm in trouble, help me” — and only family knows it.</li>
+          </ol>
+          <p class="parent-note">Don't do it all at once. One small action beats a one-hour lecture.</p>
+        </div>
+        <div class="parent-card say-card">
+          <h3>Say it differently</h3>
+          <div class="say-row dont">
+            <span class="say-tag">Don't</span>
+            <div>
+              <p>“How could you believe that? I already told you.”</p>
+              <p>“No phone for you.”</p>
+            </div>
+          </div>
+          <div class="say-row do">
+            <span class="say-tag">Try</span>
+            <div>
+              <p>“Scams are engineered. It isn't about being stupid. Let's look at what's weird together.”</p>
+              <p>“Hang up. Let's call 165 together and check.”</p>
+            </div>
+          </div>
+          <blockquote>People who get scammed aren't less smart. In that moment, their emotions were hijacked. What we practise is the pause.</blockquote>
+        </div>
+      </div>
+      <div class="teacher-strip">
+        <div>
+          <p class="kicker">For teachers</p>
+          <h3>Project this and you have a 30-minute lesson</h3>
+        </div>
+        <ul>
+          <li><b>No sign-up, no install required.</b> Students can use their own devices or share one per group.</li>
+          <li><b>Progress stays in the browser.</b> No names, accounts or answer data are collected.</li>
+          <li><b>Pick a level, not a lecture.</b> Spot it, Protect it, Live it — one discussion each.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+  <!-- ============ INSTALL ============ -->
+  <section class="section install" id="install">
+    <div class="wrap">
+      <div class="install-card">
+        <div class="install-copy">
+          <p class="kicker">06 / Take it with you</p>
+          <h2>Put the island <span class="hl-soft">in your pocket.</span></h2>
+          <p>Install SusorSafe on your phone or laptop. It opens like an app, keeps your progress offline, and never asks for an account.</p>
+          <div class="install-actions">
+            <button class="btn btn-primary" id="installBtn" type="button">Install app</button>
+            <span class="install-status" id="installStatus">Free · No account · Works offline after the first visit.</span>
+          </div>
+          <details class="install-help" id="installHelp">
+            <summary>How to install on your device</summary>
+            <div class="install-help-body">
+              <p><b>iPhone / iPad:</b> open this page in Safari, tap Share, then “Add to Home Screen”.</p>
+              <p><b>Android:</b> open in Chrome, tap the three-dot menu, then “Install app” or “Add to Home screen”.</p>
+              <p><b>Laptop:</b> look for the install icon in Chrome or Edge's address bar, or use the browser menu.</p>
+              <p class="install-fine">If you opened this file directly from your computer, installation is unavailable. Host it on a web server or open the hosted link on your phone.</p>
+            </div>
+          </details>
+        </div>
+        <div class="phone-mock" aria-hidden="true">
+          <div class="phone-frame">
+            <span class="phone-notch"></span>
+            <div class="phone-screen">
+              <div class="phone-bar"><span class="phone-brand"><svg class="ico"><use href="#i-shield"/></svg> SusorSafe</span><span>7</span></div>
+              <div class="phone-hero">
+                <span class="phone-kicker">LESSON 02</span>
+                <strong>The pressure playbook</strong>
+                <span class="phone-line"></span>
+                <span class="phone-line short"></span>
+              </div>
+              <div class="phone-card">
+                <span class="phone-dot"></span>
+                <div><b>02</b><small>Spot the pressure</small></div>
+                <span class="phone-play"><svg class="ico"><use href="#i-play"/></svg></span>
+              </div>
+              <div class="phone-card dim">
+                <span class="phone-dot mint"></span>
+                <div><b>03</b><small>Fake websites</small></div>
+                <span class="phone-lock"><svg class="ico"><use href="#i-lock"/></svg></span>
+              </div>
+              <div class="phone-coins"><svg class="ico coin-ico"><use href="#i-coin"/></svg> 140 coins</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <!-- ============ CERTIFICATE ============ -->
+  <section class="section cert-section" id="certificate">
+    <div class="wrap">
+      <div class="section-head">
+        <div>
+          <p class="kicker">07 / Completion</p>
+          <h2>Seven lessons later, <span class="hl-soft">it's yours.</span></h2>
+        </div>
+        <p class="section-lede">The certificate isn't the finish line. It's a reminder that you've practised “pause, verify, then act” seven times.</p>
+      </div>
+      <div class="cert-stage" id="certStage">
+        <div class="cert-card" id="certCard">
+          <div class="cert-top">
+            <span class="cert-brand"><svg class="ico"><use href="#i-shield"/></svg> SUSORSAFE</span>
+            <span class="cert-no">NO. <span id="certNo">0000</span></span>
+          </div>
+          <p class="cert-kicker">CERTIFICATE OF CYBER SAVVY</p>
+          <h3>SAFE EXPLORER</h3>
+          <div class="cert-identity">
+            <div class="cert-avatar" id="certAvatar"></div>
+            <div>
+              <p class="cert-lead">This certifies that</p>
+              <p class="cert-name" id="certNameOut">A Curious Human</p>
+              <p class="cert-pet" id="certPet"></p>
+            </div>
+          </div>
+          <p class="cert-text">has completed all seven SusorSafe lessons — Cyber attacks, Social engineering, Fake websites, Passwords, Two-factor authentication, Privacy and Public Wi-Fi — and can recognise online traps, protect personal data and verify suspicious messages.</p>
+          <div class="cert-bottom">
+            <div class="cert-seal"><svg class="ico"><use href="#i-shield"/></svg><span>VERIFIED</span></div>
+            <div class="cert-sign"><span>Suso</span><small>ISLAND KEEPER</small><small id="certDate">17 OCT 2026</small></div>
+          </div>
+        </div>
+        <div class="cert-lock" id="certLock">
+          <span class="lock-icon"><svg class="ico"><use href="#i-lock"/></svg></span>
+          <h3>Finish all 7 lessons to unlock</h3>
+          <p>Progress <strong id="certProgress">0 / 7</strong>. The certificate is printed. It just needs your name.</p>
+          <a class="btn btn-ghost" href="#lessons">Back to the lessons</a>
+        </div>
+      </div>
+      <div class="cert-controls">
+        <label class="name-field">Name on the certificate
+          <input id="certName" type="text" maxlength="24" placeholder="Your name or nickname" autocomplete="off">
+        </label>
+        <button class="btn btn-primary" id="printCert" type="button" disabled>Print certificate</button>
+      </div>
+    </div>
+  </section>
+@@ -554,59 +651,68 @@
+<footer class="site-footer">
+  <div class="wrap footer-grid">
+    <div class="footer-brand">
+      <a class="brand" href="#top" aria-label="SusorSafe, back to top">
+        <span class="brand-mark"><svg class="ico"><use href="#i-shield"/></svg></span>
+        <span class="brand-text"><strong>SusorSafe</strong><small>SAFETY PLAYGROUND</small></span>
+      </a>
+      <p>Practise judgement through play. It sticks better than rules.<br>For curious humans, 8 to 88.</p>
+      <p class="footer-fine">An educational demo. Every interaction and all progress stay in your browser. Nothing is uploaded and no personal data is collected.</p>
+    </div>
+    <div class="footer-col">
+      <h4>Need help</h4>
+      <a href="https://165.npa.gov.tw/" target="_blank" rel="noopener">165 Anti-Fraud Hotline</a>
+      <a href="tel:165">Call 165 · Taiwan</a>
+      <a href="tel:110">Emergency 110</a>
+      <a href="https://tfc-taiwan.org.tw/" target="_blank" rel="noopener">Taiwan FactCheck Center</a>
+      <a href="https://www.mygopen.com/" target="_blank" rel="noopener">MyGoPen fact checks</a>
+      <a href="https://haveibeenpwned.com/" target="_blank" rel="noopener">Have I Been Pwned</a>
+    </div>
+    <div class="footer-col">
+      <h4>The island</h4>
+      <a href="#lessons">Seven lessons</a>
+      <a href="#crew">My crew</a>
+      <a href="#toolkit">Safety toolkit</a>
+      <a href="#install">Install the app</a>
+      <a href="#certificate">Certificate</a>
+      <p class="footer-fine">Brands and people in the scenarios are fictional. No real account or website is ever contacted.</p>
+    </div>
+  </div>
+  <div class="wrap footer-bottom">
+    <span>© 2026 SusorSafe · Made for curious humans.</span>
+    <span>Pause. Verify. Then act.</span>
+  </div>
+</footer>
+<!-- ============ LESSON DIALOG ============ -->
+<dialog class="game-dialog lesson-dialog" id="lessonDialog" aria-labelledby="lessonTitle">
+  <div class="dialog-shell">
+    <header class="dialog-head">
+      <div>
+        <p class="dialog-kicker" id="lessonKicker">Lesson</p>
+        <h2 id="lessonTitle">Lesson</h2>
+      </div>
+      <div class="dialog-head-right">
+        <span class="dialog-progress" id="lessonStepLabel">Step 1 of 4</span>
+        <button class="icon-btn" id="closeLesson" type="button" aria-label="Close lesson">
+          <svg class="ico"><use href="#i-x"/></svg>
+        </button>
+      </div>
+    </header>
+    <ol class="lesson-stepper" id="lessonStepper">
+      <li data-step="0" data-label="Overview"><span>1</span>Overview</li>
+      <li data-step="1" data-label="Words"><span>2</span>Words</li>
+      <li data-step="2" data-label="Try it"><span>3</span>Try it</li>
+      <li data-step="3" data-label="Quick test"><span>4</span>Quick test</li>
+    </ol>
+    <div class="activity-status" id="activityStatus"></div>
+    <div class="dialog-body" id="lessonBody"></div>
+  </div>
+</dialog>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<canvas id="confetti" aria-hidden="true"></canvas>
+<script src="data.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
