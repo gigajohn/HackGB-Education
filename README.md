@@ -2,7 +2,9 @@
 
 www.susorsaf.courses www.susorsafe.study
 
-Welcome to the HackGB-Education project. Follow the steps below to set up your environment and get the server running. 
+* [www.susorsaf.courses](http://www.susorsaf.courses)
+* [www.susorsafe.study](http://www.susorsafe.study)
+
 
 ### 🚀 How to Run
 
