@@ -1,7 +1,5 @@
 ### SusOrSafe
 
-www.susorsaf.courses www.susorsafe.study
-
 * [www.susorsaf.courses](http://www.susorsaf.courses)
 * [www.susorsafe.study](http://www.susorsafe.study)
 
