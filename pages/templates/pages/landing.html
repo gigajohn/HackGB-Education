@@ -1,89 +1,120 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Welcome to Our Platform</title>
-    <style>
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            color: #333;
-            background-color: #fcfcfc;
-            line-height: 1.6;
-        }
-        header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 1.5rem 5%;
-            background-color: #fff;
-            border-bottom: 1px solid #eaeaea;
-        }
-        .logo {
-            font-weight: 700;
-            font-size: 1.25rem;
-            color: #111;
-        }
-        nav a {
-            margin-left: 1.5rem;
-            text-decoration: none;
-            color: #666;
-            font-size: 0.95rem;
-        }
-        nav a:hover {
-            color: #000;
-        }
-        .hero {
-            max-width: 800px;
-            margin: 6rem auto;
-            text-align: center;
-            padding: 0 1.5rem;
-        }
-        h1 {
-            font-size: 3.5rem;
-            font-weight: 800;
-            color: #111;
-            letter-spacing: -0.05rem;
-            margin-bottom: 1.5rem;
-        }
-        .subtitle {
-            font-size: 1.25rem;
-            color: #666;
-            margin-bottom: 2.5rem;
-        }
-        .cta-btn {
-            background-color: #111;
-            color: #fff;
-            padding: 0.8rem 2rem;
-            border-radius: 6px;
-            text-decoration: none;
-            font-weight: 500;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-            transition: background 0.2s ease;
-        }
-        .cta-btn:hover {
-            background-color: #333;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#f5f7ff">
+  <title>Sus or Safe? — Spot the sus. Stay safe.</title>
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+  <script src="{% static 'js/script.js' %}" defer></script>
 </head>
 <body>
+  <div class="circuit-bg" aria-hidden="true"></div>
 
-    <header>
-        <div class="logo">CoreApp</div>
-        <nav>
-            <a href="#">Features</a>
-            <a href="#">Pricing</a>
-            <a href="#">Log In</a>
-        </nav>
-    </header>
+  <header class="site-header">
+    <div class="wrap nav">
+      <a class="brand" href="{% url 'landing' %}" aria-label="Sus or Safe home">
+        <img class="brand-logo" src="{% static 'logo-sus-or-safe.png' %}" alt="Sus or Safe logo">
+      </a>
 
-    <main class="hero">
-        <h1>Building the Next Big Thing</h1>
-        <p class="subtitle">A fast, flexible, and completely custom web application platform built on top of modern Python engineering frameworks.</p>
-        <a href="#" class="cta-btn">Get Started</a>
-    </main>
+      <button class="menu-toggle" id="menuToggle" aria-expanded="false" aria-controls="navLinks" aria-label="Toggle navigation">
+        <span class="menu-toggle-lines" aria-hidden="true"></span>
+        <span>Menu</span>
+      </button>
 
+      <nav class="nav-links" id="navLinks" aria-label="Main navigation">
+        <a href="ai-or-aye.html">AI or Aye</a>
+        <a href="scam-or-fam.html">Scam or Fam</a>
+        <a href="phish-or-legit.html">Phish or Legit</a>
+        <a href="whos-calling.html">Who’s Calling</a>
+        <a href="clickbait-or-cash.html">Clickbait or Cash</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section class="wrap hero" id="home">
+      <div class="hero-copy">
+        <span class="eyebrow"><span class="dot"></span> Internet smarts for every generation</span>
+        <h1><span class="sus">Sus</span> or<br><span class="safe">Safe?</span></h1>
+        <p class="hero-description">Not sure if that message, video, or job offer is real? Learn the warning signs, trust your instincts, and get safer online — one click at a time.</p>
+        <div class="hero-actions">
+          <a class="primary" href="#quizy">Explore Quizy Time <span aria-hidden="true">→</span></a>
+          <a class="secondary" href="#teach">Explore Teach Me</a>
+        </div>
+        <div class="trust-line">
+          <span aria-hidden="true">⬡</span>
+          Clear tips. No judgment. Learn at your own pace.
+        </div>
+      </div>
+
+      <div class="hero-art" aria-label="Digital safety illustration">
+        <div class="orbit" aria-hidden="true"></div>
+        <div class="orbit two" aria-hidden="true"></div>
+        <div class="floating-tag sus-tag"><span class="tag-icon">?</span> Looks a little sus...</div>
+        <div class="main-card">
+          <div class="card-top">
+            <span>YOUR DIGITAL SIDEKICK</span>
+            <span class="mini-shield" aria-hidden="true">✓</span>
+          </div>
+          <h2>Pause. Check.<br>Then click.</h2>
+          <p>Little clues can help you spot a suspicious message before it becomes a big problem.</p>
+          <div class="sample-message">
+            <small>Example message</small>
+            <strong>“URGENT! You won a prize. Click now to claim it!”</strong>
+          </div>
+          <div class="scan-line" aria-hidden="true"><span></span></div>
+        </div>
+        <div class="floating-tag safe-tag"><span class="tag-icon">✓</span> Check before you trust</div>
+      </div>
+    </section>
+
+    
+  </main>
+
+  <footer class="site-footer" id="site-footer">
+    <div class="footer-glow" aria-hidden="true"></div>
+    <div class="footer-spark spark-one" aria-hidden="true"></div>
+    <div class="footer-spark spark-two" aria-hidden="true"></div>
+    <div class="wrap footer-content">
+      <div class="footer-main">
+        <div class="footer-about">
+          <a class="brand footer-brand" href="{% url 'landing' %}" aria-label="Sus or Safe home">
+            <img class="brand-logo footer-logo" src="{% static 'logo-sus-or-safe.png' %}" alt="Sus or Safe logo">
+          </a>
+          <p>Helping every generation pause, spot the warning signs, and stay safer online.</p>
+          <span class="footer-status"><span class="status-dot" aria-hidden="true"></span> Think before you click.</span>
+        </div>
+        <div class="footer-column">
+          <h2>Explore</h2>
+          <a href="ai-or-aye.html">AI or Aye</a>
+          <a href="scam-or-fam.html">Scam or Fam</a>
+          <a href="phish-or-legit.html">Phish or Legit</a>
+          <a href="whos-calling.html">Who’s Calling</a>
+          <a href="clickbait-or-cash.html">Clickbait or Cash</a>
+        </div>
+        <div class="footer-column">
+          <h2>Stay informed</h2>
+          <button type="button" class="footer-legal-link" data-legal="privacy">Privacy notice</button>
+          <button type="button" class="footer-legal-link" data-legal="terms">Terms of use</button>
+          <button type="button" class="footer-legal-link" data-legal="cookies">Cookie notice</button>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>© <span id="copyrightYear"></span> Sus or Safe? All rights reserved.</p>
+        <a class="back-to-top" href="#">Back to top <span aria-hidden="true">↑</span></a>
+      </div>
+    </div>
+  </footer>
+
+  <dialog class="legal-dialog" id="legalDialog" aria-labelledby="legalTitle">
+    <div class="legal-dialog-head">
+      <h2 id="legalTitle">Website notice</h2>
+      <button type="button" class="legal-close" id="legalClose" aria-label="Close notice">×</button>
+    </div>
+    <div class="legal-dialog-body" id="legalBody"></div>
+    <p class="legal-disclaimer">Starter wording for a student/demo website, not legal advice. Review and adapt it before publishing.</p>
+  </dialog>
 </body>
 </html>
