@@ -1,0 +1,29 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#080b1c">
+<title>{% block title %}SusorSafe{% endblock %}</title>
+<link rel="icon" href="{% static 'susorsafe/icons/favicon.png' %}" type="image/png" sizes="64x64">
+<link rel="stylesheet" href="{% static 'susorsafe/fonts.css' %}">
+<link rel="stylesheet" href="{% static 'susorsafe/styles.css' %}">
+<link rel="stylesheet" href="{% static 'susorsafe/v2.css' %}">
+</head>
+<body class="auth-body">
+<main class="auth-shell">
+  <a class="auth-brand" href="{% url 'home' %}">
+    <img src="{% static 'susorsafe/icons/logo-mark.png' %}" alt="">
+    <span><strong>SusorSafe</strong><small>SAFETY PLAYGROUND</small></span>
+  </a>
+
+  <section class="auth-card">
+    {% block content %}{% endblock %}
+  </section>
+
+  <a class="auth-back" href="{% url 'home' %}">← Back to the island</a>
+</main>
+</body>
+</html>

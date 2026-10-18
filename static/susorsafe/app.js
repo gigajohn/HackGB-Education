@@ -2131,17 +2131,6 @@
 
     renderAll();
 
-    const soundBtn = $('#soundBtn');
-    updateSoundButton();
-
-    soundBtn.addEventListener('click', () => {
-      state.sound = !state.sound;
-      save();
-      updateSoundButton();
-      if (state.sound) playSound('click');
-      toast(state.sound ? 'Sound on' : 'Sound off');
-    });
-
     const lesson = Number(params.get('lesson'));
     if (lesson && LESSONS.some(item => item.id === lesson)) {
       setTimeout(() => openLesson(lesson), 500);

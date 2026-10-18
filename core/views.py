@@ -1,13 +1,31 @@
 from pathlib import Path
 
 from django.conf import settings
+from django.contrib.auth import login
+from django.contrib.auth.forms import UserCreationForm
 from django.http import HttpResponse, JsonResponse
-from django.shortcuts import render
+from django.shortcuts import redirect, render
 from django.templatetags.static import static
 
 
 def home(request):
     return render(request, "home.html")
+
+
+def signup(request):
+    if request.user.is_authenticated:
+        return redirect("home")
+
+    if request.method == "POST":
+        form = UserCreationForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            login(request, user, backend="django.contrib.auth.backends.ModelBackend")
+            return redirect("home")
+    else:
+        form = UserCreationForm()
+
+    return render(request, "registration/signup.html", {"form": form})
 
 
 def manifest(request):

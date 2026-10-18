@@ -7,6 +7,7 @@ urlpatterns = [
     path("", views.home, name="home"),
     path("manifest.webmanifest", views.manifest, name="manifest"),
     path("sw.js", views.service_worker, name="service-worker"),
+    path("signup/", views.signup, name="page_signup"),
     path("accounts/", include("allauth.urls")),
     path("", include("pages.urls")),
     path("admin/", admin.site.urls),

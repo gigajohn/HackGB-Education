@@ -9,7 +9,7 @@
   <meta name="theme-color" content="#080b1c">
   <title>Sign In — SusorSafe</title>
   <meta name="description" content="Sign in to SusorSafe with Google, Microsoft, or your account to save lessons, badges, and progress.">
-  <link rel="icon" href="{% static 'susorsafe/icons/favicon.svg' %}" type="image/svg+xml">
+  <link rel="icon" href="{% static 'susorsafe/icons/favicon.png' %}" type="image/png" sizes="64x64">
   <link rel="stylesheet" href="{% static 'susorsafe/fonts.css' %}">
   <link rel="stylesheet" href="{% static 'susorsafe/styles.css' %}">
   <link rel="stylesheet" href="{% static 'susorsafe/v2.css' %}">
@@ -442,8 +442,8 @@
 
       <div class="auth-header">
         <a class="brand" href="{% url 'landing' %}">
-          <span class="brand-mark">
-            <svg viewBox="0 0 24 24"><path d="M12 3 20 6v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6l8-3Z"/><path d="m8.8 12 2.2 2.2 4.4-4.6"/></svg>
+          <span class="brand-mark" style="background:none;border:0;box-shadow:none;padding:0;">
+            <img src="{% static 'susorsafe/icons/logo-mark.png' %}" alt="" style="width:100%;height:100%;object-fit:contain;">
           </span>
           <span class="brand-text">SusorSafe</span>
         </a>
@@ -467,7 +467,7 @@
         <!-- OAuth Providers Section -->
         <div class="oauth-group">
           <!-- Google OAuth Button -->
-          <form method="post" action="{% provider_login_url 'google' %}">
+          <form method="post" action="{% url 'oauth_start' 'google' %}">
             {% csrf_token %}
             <button type="submit" class="btn-oauth btn-oauth-google" id="googleOAuthBtn" aria-label="Sign in with Google">
               <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -481,7 +481,7 @@
           </form>
 
           <!-- Microsoft OAuth Button -->
-          <form method="post" action="{% provider_login_url 'microsoft' %}">
+          <form method="post" action="{% url 'oauth_start' 'microsoft' %}">
             {% csrf_token %}
             <button type="submit" class="btn-oauth btn-oauth-microsoft" id="microsoftOAuthBtn" aria-label="Sign in with Microsoft">
               <svg viewBox="0 0 21 21" aria-hidden="true">
@@ -571,7 +571,7 @@
 
         <div class="auth-card-footer">
           Don’t have an account?
-          <a href="{% url 'landing' %}">Play as Guest &rarr;</a>
+          <a href="{% url 'page_signup' %}">Sign up</a>
         </div>
       </div>
 
