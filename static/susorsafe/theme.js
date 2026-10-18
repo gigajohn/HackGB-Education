@@ -2,7 +2,7 @@
   'use strict';
 
   const modes = ['kid', 'teen', 'adult'];
-  const themeColors = { kid: '#fff8df', teen: '#080b1c', adult: '#172321' };
+  const themeColors = { kid: '#fff8df', teen: '#080b1c', adult: '#f8f5f0' };
   let mode = document.body.dataset.mode || 'kid';
 
   try {
@@ -16,7 +16,9 @@
     if (!modes.includes(nextMode)) return;
     mode = nextMode;
     document.body.dataset.mode = mode;
-    document.documentElement.style.colorScheme = mode === 'kid' ? 'light' : 'dark';
+    document.body.classList.remove('theme-kid', 'theme-teen', 'theme-adult', 'theme-kids', 'theme-teens', 'theme-adults');
+    document.body.classList.add(`theme-${mode}`);
+    document.documentElement.style.colorScheme = mode === 'teen' ? 'dark' : 'light';
     document.querySelector('meta[name="theme-color"]')?.setAttribute('content', themeColors[mode]);
     document.querySelectorAll('[data-age-copy-kid], [data-age-copy-teen], [data-age-copy-adult]').forEach((element) => {
       const copy = element.getAttribute(`data-age-copy-${mode}`);

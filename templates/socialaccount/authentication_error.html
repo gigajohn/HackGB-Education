@@ -1,0 +1,25 @@
+{% extends "registration/auth_base.html" %}
+
+{% block title %}Authentication Error · SusOrSafe{% endblock %}
+
+{% block content %}
+<p class="kicker">Sign-in issue</p>
+<h1>Authentication Error</h1>
+<p class="auth-lede">We couldn't complete third-party sign-in with {{ auth_error.provider.name|default:"the provider" }}.</p>
+
+{% if auth_error.exception %}
+  <div class="auth-error">
+    <strong>Error details:</strong> {{ auth_error.exception }}
+  </div>
+{% elif auth_error.code %}
+  <div class="auth-error">
+    <strong>Error code:</strong> {{ auth_error.code }}
+  </div>
+{% endif %}
+
+<div style="margin-top: 18px; display: flex; flex-direction: column; gap: 10px;">
+  <a class="btn btn-primary auth-submit" style="text-align: center; text-decoration: none;" href="{% url 'login' %}">Return to Log in</a>
+  <a class="auth-back" href="{% url 'home' %}">← Return to home</a>
+</div>
+{% endblock %}
+

@@ -45,7 +45,7 @@
     },
     adult: {
       badge: 'Online Guardian',
-      themeColor: '#172321',
+      themeColor: '#f8f5f0',
       homeAudience: 'For midlife through older adulthood',
       homeCopy: 'A caller posing as your bank, a fake parcel fee, a too-good investment, or an urgent message from family can be a scam. Practise pausing and checking before sharing a code or sending money.',
       toolkitCopy: 'Fake bank calls, parcel-fee texts, investment pitches, and urgent family messages can pressure you to share codes or move money. Verify using a number you already trust.',
@@ -629,7 +629,9 @@
   function renderModeUI() {
     window.applySusOrSafeMode?.(state.mode);
     document.body.dataset.mode = state.mode;
-    document.documentElement.style.colorScheme = state.mode === 'kid' ? 'light' : 'dark';
+    document.body.classList.remove('theme-kid', 'theme-teen', 'theme-adult', 'theme-kids', 'theme-teens', 'theme-adults');
+    document.body.classList.add(`theme-${state.mode}`);
+    document.documentElement.style.colorScheme = state.mode === 'teen' ? 'dark' : 'light';
     $('#themeColor')?.setAttribute('content', MODE_INFO[state.mode].themeColor);
     $$('.mode-pill[data-mode]').forEach(btn => {
       const on = btn.dataset.mode === state.mode;

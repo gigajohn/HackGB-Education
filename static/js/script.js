@@ -68,33 +68,53 @@ const legalContent = {
 
 // Function to apply the selected age mode
 function setAgeMode(mode) {
-  // 1. Remove all mode classes from body and add the active one
-  document.body.classList.remove('theme-kid', 'theme-teen', 'theme-adult');
+  if (!['kid', 'teen', 'adult'].includes(mode)) return;
+
+  // 1. Update dataset and class list on body
+  document.body.dataset.mode = mode;
+  document.body.classList.remove('theme-kid', 'theme-teen', 'theme-adult', 'theme-kids', 'theme-teens', 'theme-adults');
   document.body.classList.add(`theme-${mode}`);
 
-  // 2. Update active state and aria-pressed attributes on the pills
+  // 2. Set colorScheme and theme-color meta tag
+  const themeColors = { kid: '#fff8df', teen: '#080b1c', adult: '#f8f5f0' };
+  document.documentElement.style.colorScheme = mode === 'teen' ? 'dark' : 'light';
+  document.querySelector('meta[name="theme-color"]')?.setAttribute('content', themeColors[mode]);
+
+  // 3. Update active state and aria-pressed attributes on the pills
   document.querySelectorAll('.mode-pill').forEach(btn => {
     const isCurrent = btn.getAttribute('data-mode') === mode;
-    if (isCurrent) {
-      btn.classList.add('is-active');
-      btn.setAttribute('aria-pressed', 'true');
-    } else {
-      btn.classList.remove('is-active');
-      btn.setAttribute('aria-pressed', 'false');
-    }
+    btn.classList.toggle('is-active', isCurrent);
+    btn.setAttribute('aria-pressed', String(isCurrent));
   });
 
-  // 3. Save preference so it persists on reload
+  // 4. Update data-age-copy elements if present
+  document.querySelectorAll('[data-age-copy-kid], [data-age-copy-teen], [data-age-copy-adult]').forEach((element) => {
+    const copy = element.getAttribute(`data-age-copy-${mode}`);
+    if (copy) element.textContent = copy;
+  });
+
+  // 5. Save preference across keys so it persists
+  try {
+    const savedState = JSON.parse(localStorage.getItem('susorsafe.v2') || '{}');
+    savedState.mode = mode;
+    localStorage.setItem('susorsafe.v2', JSON.stringify(savedState));
+  } catch (e) {}
   localStorage.setItem('susorsafe_mode', mode);
 }
 
 // Initialize on page load
 document.addEventListener('DOMContentLoaded', () => {
-  // Default to 'teen' if no preference is saved yet
-  const savedMode = localStorage.getItem('susorsafe_mode') || 'teen';
+  let savedMode = 'teen';
+  try {
+    const savedState = JSON.parse(localStorage.getItem('susorsafe.v2') || '{}');
+    if (savedState.mode) savedMode = savedState.mode;
+    else savedMode = localStorage.getItem('susorsafe_mode') || 'teen';
+  } catch (e) {
+    savedMode = localStorage.getItem('susorsafe_mode') || 'teen';
+  }
   setAgeMode(savedMode);
 
-  // Attach click listeners to your existing mode pills
+  // Attach click listeners to existing mode pills
   document.querySelectorAll('.mode-pill').forEach(btn => {
     btn.addEventListener('click', () => {
       const mode = btn.getAttribute('data-mode');
@@ -102,3 +122,4 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 });
+

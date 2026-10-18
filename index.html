@@ -21,6 +21,11 @@
     </button>
     <nav class="nav-links" id="navLinks" aria-label="Main navigation">
       <a href="phish-or-legit.html">Lessons</a><a href="phish-games.html">Games</a><a href="about-us.html">About Us</a>
+      <div class="mode-switch" role="group" aria-label="Choose an age mode">
+        <button class="mode-pill" data-mode="kid" aria-pressed="false" type="button">Kids</button>
+        <button class="mode-pill is-active" data-mode="teen" aria-pressed="true" type="button">Teens</button>
+        <button class="mode-pill" data-mode="adult" aria-pressed="false" type="button">Adults</button>
+      </div>
       <div class="account-actions">
         <a class="profile-link" href="account.html" aria-label="Profile and avatar" title="Profile and avatar"><span class="profile-avatar" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="3.5"/><path d="M5 20c.7-3.5 3.1-5.3 7-5.3s6.3 1.8 7 5.3"/></svg></span><span class="profile-label">Profile</span></a>
         <span class="points-balance" aria-label="Avatar Points"><span class="points-star" aria-hidden="true">✦</span><span id="headerPoints">0</span><span class="points-word">Points</span></span>
