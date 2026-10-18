@@ -6735,8 +6735,6 @@ window.SUSOR_DATA = (() => {
 
     updateStepper(true);
     activityStatus.textContent = '';
-    const next = LESSONS.find(item => item.id === lesson.id + 1);
-    const nextUnlocked = next && lessonUnlocked(next.id);
     const allDone = completedLessons().length === LESSONS.length;
 
     lessonBody.innerHTML = `
