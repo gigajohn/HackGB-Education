@@ -6,6 +6,7 @@ from django.contrib.auth.forms import UserCreationForm
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import redirect, render
 from django.templatetags.static import static
+from pages.progress import make_progress_sync_token
 
 
 def home(request):
@@ -22,10 +23,33 @@ def app_page(request, page):
         "install": "Install SusOrSafe",
         "about": "About SusOrSafe",
     }
-    return render(request, "home.html", {
+    import json
+    from pages.models import Profile
+
+    just_logged_out = request.GET.get('logged_out') == '1' or request.session.pop('just_logged_out', False)
+    context = {
         "page": page,
-        "page_title": page_titles[page],
-    })
+        "page_title": page_titles.get(page, "SusOrSafe"),
+        "just_logged_out": just_logged_out,
+    }
+
+    if request.user.is_authenticated:
+        profile, _ = Profile.objects.get_or_create(user=request.user)
+        context["user_profile"] = profile
+        context["user_state_json"] = json.dumps(profile.get_state_dict())
+        context["age_mode"] = profile.age_mode or "kid"
+        context["progress_sync_token"] = make_progress_sync_token(request.user)
+    else:
+        context["user_profile"] = None
+        context["user_state_json"] = "null"
+        context["age_mode"] = "kid"
+        context["progress_sync_token"] = ""
+    context["progress_sync_origin"] = settings.PROGRESS_SYNC_ORIGIN
+
+    response = render(request, "home.html", context)
+    if just_logged_out:
+        response.set_cookie('susorsafe_clear_client', '1', max_age=15, samesite='Lax')
+    return response
 
 
 def signup(request):

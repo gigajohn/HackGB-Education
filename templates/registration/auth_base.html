@@ -13,7 +13,7 @@
 <link rel="stylesheet" href="{% static 'susorsafe/v2.css' %}?v=19">
 <script src="{% static 'susorsafe/theme.js' %}?v=19" defer></script>
 </head>
-<body class="auth-body" data-mode="kid">
+<body class="auth-body" data-mode="{{ user_profile.age_mode|default:'kid' }}">
 <main class="auth-shell">
   <a class="auth-brand" href="{% url 'home' %}">
     <img src="{% static 'susorsafe/icons/logo-mark.png' %}" alt="">

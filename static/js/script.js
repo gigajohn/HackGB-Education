@@ -1,19 +1,21 @@
 const menuToggle = document.querySelector("#menuToggle");
 const navLinks = document.querySelector("#navLinks");
 
-// Open and close the mobile navigation menu.
-menuToggle.addEventListener("click", () => {
-  const isOpen = navLinks.classList.toggle("open");
-  menuToggle.setAttribute("aria-expanded", String(isOpen));
-});
-
-// Close the mobile menu after choosing a section.
-navLinks.querySelectorAll("a").forEach((link) => {
-  link.addEventListener("click", () => {
-    navLinks.classList.remove("open");
-    menuToggle.setAttribute("aria-expanded", "false");
+if (menuToggle && navLinks) {
+  // Open and close the mobile navigation menu.
+  menuToggle.addEventListener("click", () => {
+    const isOpen = navLinks.classList.toggle("open");
+    menuToggle.setAttribute("aria-expanded", String(isOpen));
   });
-});
+
+  // Close the mobile menu after choosing a section.
+  navLinks.querySelectorAll("a").forEach((link) => {
+    link.addEventListener("click", () => {
+      navLinks.classList.remove("open");
+      menuToggle.setAttribute("aria-expanded", "false");
+    });
+  });
+}
 
 // Reveal cards and headings when they scroll into view.
 const revealItems = document.querySelectorAll(".reveal");
@@ -69,31 +71,27 @@ const legalContent = {
 // Function to apply the selected age mode
 function setAgeMode(mode) {
   if (!['kid', 'teen', 'adult'].includes(mode)) return;
+  if (typeof window.setSusOrSafeMode === 'function') {
+    window.setSusOrSafeMode(mode);
+    return;
+  }
+  if (typeof window.applySusOrSafeMode === 'function') {
+    window.applySusOrSafeMode(mode);
+    return;
+  }
 
-  // 1. Update dataset and class list on body
+  // Fallback if engines are not loaded
   document.body.dataset.mode = mode;
   document.body.classList.remove('theme-kid', 'theme-teen', 'theme-adult', 'theme-kids', 'theme-teens', 'theme-adults');
   document.body.classList.add(`theme-${mode}`);
-
-  // 2. Set colorScheme and theme-color meta tag
   const themeColors = { kid: '#fff8df', teen: '#080b1c', adult: '#f8f5f0' };
   document.documentElement.style.colorScheme = mode === 'teen' ? 'dark' : 'light';
   document.querySelector('meta[name="theme-color"]')?.setAttribute('content', themeColors[mode]);
-
-  // 3. Update active state and aria-pressed attributes on the pills
   document.querySelectorAll('.mode-pill').forEach(btn => {
     const isCurrent = btn.getAttribute('data-mode') === mode;
     btn.classList.toggle('is-active', isCurrent);
     btn.setAttribute('aria-pressed', String(isCurrent));
   });
-
-  // 4. Update data-age-copy elements if present
-  document.querySelectorAll('[data-age-copy-kid], [data-age-copy-teen], [data-age-copy-adult]').forEach((element) => {
-    const copy = element.getAttribute(`data-age-copy-${mode}`);
-    if (copy) element.textContent = copy;
-  });
-
-  // 5. Save preference across keys so it persists
   try {
     const savedState = JSON.parse(localStorage.getItem('susorsafe.v2') || '{}');
     savedState.mode = mode;
@@ -101,25 +99,4 @@ function setAgeMode(mode) {
   } catch (e) {}
   localStorage.setItem('susorsafe_mode', mode);
 }
-
-// Initialize on page load
-document.addEventListener('DOMContentLoaded', () => {
-  let savedMode = 'teen';
-  try {
-    const savedState = JSON.parse(localStorage.getItem('susorsafe.v2') || '{}');
-    if (savedState.mode) savedMode = savedState.mode;
-    else savedMode = localStorage.getItem('susorsafe_mode') || 'teen';
-  } catch (e) {
-    savedMode = localStorage.getItem('susorsafe_mode') || 'teen';
-  }
-  setAgeMode(savedMode);
-
-  // Attach click listeners to existing mode pills
-  document.querySelectorAll('.mode-pill').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const mode = btn.getAttribute('data-mode');
-      setAgeMode(mode);
-    });
-  });
-});
 

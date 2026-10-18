@@ -15,7 +15,7 @@
   <link rel="stylesheet" href="{% static 'susorsafe/support.css' %}?v=19">
   <script src="{% static 'susorsafe/theme.js' %}?v=19" defer></script>
 </head>
-<body class="support-body" data-mode="kid">
+<body class="support-body" data-mode="{{ user_profile.age_mode|default:'kid' }}">
   <header class="support-header">
     <div class="wrap support-header-inner">
       <a class="support-brand" href="{% url 'home' %}" aria-label="SusOrSafe home">

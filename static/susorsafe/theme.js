@@ -17,7 +17,7 @@
     mode = nextMode;
     document.body.dataset.mode = mode;
     document.body.classList.remove('theme-kid', 'theme-teen', 'theme-adult', 'theme-kids', 'theme-teens', 'theme-adults');
-    document.body.classList.add(`theme-${mode}`);
+    document.body.classList.add(`theme-${mode}`, `theme-${mode}s`);
     document.documentElement.style.colorScheme = mode === 'teen' ? 'dark' : 'light';
     document.querySelector('meta[name="theme-color"]')?.setAttribute('content', themeColors[mode]);
     document.querySelectorAll('[data-age-copy-kid], [data-age-copy-teen], [data-age-copy-adult]').forEach((element) => {
@@ -29,25 +29,44 @@
       button.classList.toggle('is-active', active);
       button.setAttribute('aria-pressed', String(active));
     });
+    document.querySelectorAll('.route-card[data-route]').forEach((card) => {
+      const active = card.dataset.route === mode;
+      card.classList.toggle('is-active', active);
+      const btn = card.querySelector('.route-btn');
+      if (btn) btn.textContent = active ? 'Current mode' : 'Switch mode';
+    });
+  };
+
+  window.setSusOrSafeMode = (nextMode, opts = {}) => {
+    if (!modes.includes(nextMode)) return;
+    window.applySusOrSafeMode(nextMode);
+    try {
+      const savedState = JSON.parse(localStorage.getItem('susorsafe.v2') || '{}');
+      savedState.mode = nextMode;
+      localStorage.setItem('susorsafe.v2', JSON.stringify(savedState));
+    } catch (error) {}
+    localStorage.setItem('susorsafe_mode', nextMode);
+    if (typeof window._susorsafeAppSetMode === 'function') {
+      window._susorsafeAppSetMode(nextMode, opts);
+    }
   };
 
   window.applySusOrSafeMode(mode);
 
-  if (document.body.classList.contains('support-body') || document.body.classList.contains('auth-body')) {
-    document.addEventListener('click', (event) => {
-      const button = event.target.closest('.mode-pill[data-mode]');
-      if (!button || !modes.includes(button.dataset.mode)) return;
-      try {
-        const savedState = JSON.parse(localStorage.getItem('susorsafe.v2') || '{}');
-        savedState.mode = button.dataset.mode;
-        localStorage.setItem('susorsafe.v2', JSON.stringify(savedState));
-        window.applySusOrSafeMode(savedState.mode);
-      } catch (error) {
-        console.error('Could not save the selected SusOrSafe age mode.', error);
-        throw error;
-      }
-    });
-  }
+  document.addEventListener('click', (event) => {
+    const button = event.target.closest('.mode-pill[data-mode], .route-btn[data-mode]');
+    const card = event.target.closest('.route-card[data-route]');
+    if (button) {
+      const targetMode = button.dataset.mode;
+      window.setSusOrSafeMode(targetMode);
+      return;
+    }
+    if (card && !event.target.closest('a, button')) {
+      const targetMode = card.dataset.route;
+      window.setSusOrSafeMode(targetMode);
+      return;
+    }
+  });
 
   const legalContent = {
     privacy: {

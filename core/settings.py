@@ -71,6 +71,20 @@ CSRF_TRUSTED_ORIGINS = [
 if env_csrf := os.environ.get('CSRF_TRUSTED_ORIGINS'):
     CSRF_TRUSTED_ORIGINS.extend([o.strip() for o in env_csrf.split(',') if o.strip()])
 
+PROGRESS_SYNC_ORIGIN = os.environ.get(
+    'PROGRESS_SYNC_ORIGIN',
+    'https://susorsafe.courses',
+).rstrip('/')
+PROGRESS_SYNC_ORIGINS = {
+    origin.strip().rstrip('/')
+    for origin in os.environ.get(
+        'PROGRESS_SYNC_ORIGINS',
+        'https://susorsafe.courses,https://www.susorsafe.courses,https://susorsafe.study,https://www.susorsafe.study',
+    ).split(',')
+    if origin.strip()
+}
+PROGRESS_SYNC_TOKEN_MAX_AGE = int(os.environ.get('PROGRESS_SYNC_TOKEN_MAX_AGE', '86400'))
+
 # Honor the X-Forwarded-Proto header set by Caddy reverse proxy for SSL/HTTPS
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 

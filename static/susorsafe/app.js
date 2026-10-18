@@ -284,42 +284,137 @@
     petName: 'Pip',
     sound: false,
     unlockAll: false,
-    arcade: {}
+    arcade: {},
+    last_place: ''
   });
 
+  function getCookie(name) {
+    const match = document.cookie.match(new RegExp('(^|;\\s*)' + name + '=([^;]*)'));
+    return match ? decodeURIComponent(match[2]) : null;
+  }
+
+  function getCsrfToken() {
+    const formInput = document.querySelector('input[name="csrfmiddlewaretoken"]');
+    if (formInput && formInput.value) return formInput.value;
+    return getCookie('csrftoken') || '';
+  }
+
   function loadState() {
+    // 1. Check if client data should be cleared on signout
+    const hasClearCookie = document.cookie.split(';').some(c => c.trim().startsWith('susorsafe_clear_client='));
+    const urlParams = new URLSearchParams(window.location.search);
+    const isLoggedOutParam = urlParams.get('logged_out') === '1';
+    if (hasClearCookie || isLoggedOutParam || window.SUSORSAFE_CLEAR_CLIENT) {
+      try {
+        localStorage.removeItem(STORE_KEY);
+        localStorage.removeItem('susorsafe_mode');
+        sessionStorage.clear();
+      } catch (err) {}
+      document.cookie = 'susorsafe_clear_client=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+      if (isLoggedOutParam) {
+        urlParams.delete('logged_out');
+        const newSearch = urlParams.toString();
+        const newUrl = window.location.pathname + (newSearch ? '?' + newSearch : '') + window.location.hash;
+        window.history.replaceState({}, document.title, newUrl);
+      }
+    }
+
+    const base = defaultState();
+    let parsed = null;
     try {
       const raw = localStorage.getItem(STORE_KEY);
-      if (!raw) return defaultState();
-      const parsed = JSON.parse(raw);
-      const base = defaultState();
-      const savedStages = parsed.stagesByMode && typeof parsed.stagesByMode === 'object' && !Array.isArray(parsed.stagesByMode)
-        ? parsed.stagesByMode
-        : {};
-      const stagesByMode = { ...base.stagesByMode, ...savedStages };
-      const legacyMode = Object.prototype.hasOwnProperty.call(STAGES, parsed.mode) ? parsed.mode : 'kid';
-      if (!savedStages[legacyMode] && STAGES[legacyMode].some(stage => stage.id === parsed.school)) {
-        stagesByMode[legacyMode] = parsed.school;
+      if (raw) parsed = JSON.parse(raw);
+    } catch (err) {}
+
+    let serverState = null;
+    try {
+      const serverScript = document.getElementById('user-server-state');
+      if (serverScript && serverScript.textContent.trim()) {
+        const text = serverScript.textContent.trim();
+        if (text !== 'null' && text !== '{}' && text !== '""') {
+          serverState = JSON.parse(text);
+        }
       }
-      if (!savedStages.kid && STAGES.kid.some(stage => stage.id === parsed.school)) {
-        stagesByMode.kid = parsed.school;
-      }
-      return {
-        ...base,
-        ...parsed,
-        stagesByMode,
-        avatar: { ...base.avatar, ...(parsed.avatar || {}) },
-        owned: {
-          colors: Array.isArray(parsed.owned?.colors) ? parsed.owned.colors : base.owned.colors,
-          accessories: Array.isArray(parsed.owned?.accessories) ? parsed.owned.accessories : base.owned.accessories,
-          pets: Array.isArray(parsed.owned?.pets) ? parsed.owned.pets : base.owned.pets
-        },
-        lessons: parsed.lessons && typeof parsed.lessons === 'object' ? parsed.lessons : {},
-        arcade: parsed.arcade && typeof parsed.arcade === 'object' ? parsed.arcade : {}
-      };
     } catch (err) {
-      return defaultState();
+      console.warn('Could not parse server state:', err);
     }
+
+    if (!parsed && !serverState) {
+      return base;
+    }
+
+    // If switching user accounts on the same browser, discard other user's local state
+    if (serverState && parsed && parsed.username && serverState.username && parsed.username !== serverState.username) {
+      parsed = null;
+    }
+
+    const source = parsed || {};
+    const savedStages = (serverState?.stagesByMode || source.stagesByMode) && typeof (serverState?.stagesByMode || source.stagesByMode) === 'object' && !Array.isArray(serverState?.stagesByMode || source.stagesByMode)
+      ? (serverState?.stagesByMode || source.stagesByMode)
+      : {};
+    const stagesByMode = { ...base.stagesByMode, ...savedStages };
+
+    // Merge lessons
+    const mergedLessons = { ...(source.lessons || {}) };
+    if (serverState?.lessons && typeof serverState.lessons === 'object') {
+      Object.entries(serverState.lessons).forEach(([lid, sRec]) => {
+        const lRec = mergedLessons[lid];
+        if (!lRec) {
+          mergedLessons[lid] = sRec;
+        } else {
+          mergedLessons[lid] = {
+            stars: Math.max(Number(lRec.stars) || 0, Number(sRec.stars) || 0),
+            quiz: Math.max(Number(lRec.quiz) || 0, Number(sRec.quiz) || 0),
+            at: sRec.at || lRec.at || new Date().toISOString()
+          };
+        }
+      });
+    }
+
+    // Merge arcade games
+    const mergedArcade = { ...(source.arcade || {}) };
+    if (serverState?.arcade && typeof serverState.arcade === 'object') {
+      Object.entries(serverState.arcade).forEach(([gid, sRec]) => {
+        const aRec = mergedArcade[gid];
+        if (!aRec) {
+          mergedArcade[gid] = sRec;
+        } else {
+          mergedArcade[gid] = {
+            best: Math.max(Number(aRec.best) || 0, Number(sRec.best) || 0),
+            attempts: Math.max(Number(aRec.attempts) || 0, Number(sRec.attempts) || 0)
+          };
+        }
+      });
+    }
+
+    const merged = {
+      ...base,
+      ...source,
+      ...(serverState || {}),
+      stagesByMode,
+      coins: Math.max(Number(serverState?.coins) || 0, Number(source?.coins) || 0),
+      mode: (source?.mode && MODE_INFO[source.mode]) ? source.mode : (serverState?.mode && MODE_INFO[serverState.mode]) ? serverState.mode : base.mode,
+      last_place: serverState?.last_place || source?.last_place || '',
+      lessons: mergedLessons,
+      arcade: mergedArcade,
+      avatar: { ...base.avatar, ...(source.avatar || {}), ...(serverState?.avatar || {}) },
+      owned: {
+        colors: Array.from(new Set([...(base.owned.colors), ...(source.owned?.colors || []), ...(serverState?.owned?.colors || [])])),
+        accessories: Array.from(new Set([...(base.owned.accessories), ...(source.owned?.accessories || []), ...(serverState?.owned?.accessories || [])])),
+        pets: Array.from(new Set([...(base.owned.pets), ...(source.owned?.pets || []), ...(serverState?.owned?.pets || [])]))
+      },
+      name: serverState?.name || source?.name || '',
+      petName: serverState?.petName || source?.petName || 'Pip',
+      username: serverState?.username || source?.username || ''
+    };
+
+    if (serverState) {
+      try {
+        localStorage.setItem(STORE_KEY, JSON.stringify(merged));
+      } catch (e) {}
+    }
+
+    return merged;
   }
 
   let state = loadState();
@@ -348,12 +443,132 @@
   let pendingCelebration = false;
   let toastTimer = null;
 
+  let syncTimer = null;
+  let isSyncing = false;
+  let syncPending = false;
+
+  function progressSyncRequest(path = '', options = {}) {
+    const config = window.SUSORSAFE_PROGRESS || {};
+    const origin = String(config.apiOrigin || window.location.origin).replace(/\/$/, '');
+    const headers = { ...(options.headers || {}) };
+    if (config.token) headers.Authorization = `Bearer ${config.token}`;
+    return fetch(`${origin}${path}`, {
+      ...options,
+      headers,
+      credentials: config.token ? 'omit' : 'same-origin'
+    });
+  }
+
+  function syncToDatabase(immediate = false) {
+    if (!window.SUSORSAFE_USER || !window.SUSORSAFE_USER.isAuthenticated) {
+      return;
+    }
+    if (syncTimer) {
+      clearTimeout(syncTimer);
+      syncTimer = null;
+    }
+    if (immediate) {
+      doSync();
+      return;
+    }
+    syncTimer = setTimeout(doSync, 600);
+  }
+
+  function doSync() {
+    if (!window.SUSORSAFE_USER || !window.SUSORSAFE_USER.isAuthenticated) return;
+    if (isSyncing) {
+      syncPending = true;
+      return;
+    }
+    isSyncing = true;
+    syncPending = false;
+
+    const payload = JSON.stringify(state);
+    progressSyncRequest('/api/user-progress-sync/', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': getCsrfToken()
+      },
+      credentials: 'same-origin',
+      keepalive: true,
+      body: payload
+    })
+      .then(res => res.json())
+      .then(() => {
+        isSyncing = false;
+        if (syncPending) {
+          syncPending = false;
+          doSync();
+        }
+      })
+      .catch(() => {
+        isSyncing = false;
+      });
+  }
+
+  function fetchServerState() {
+    if (!window.SUSORSAFE_USER || !window.SUSORSAFE_USER.isAuthenticated) return;
+    progressSyncRequest('/api/user-progress-sync/')
+      .then(res => res.json())
+      .then(data => {
+        if (data && data.authenticated && data.state) {
+          applyServerState(data.state);
+        }
+      })
+      .catch(() => {});
+  }
+
+  function applyServerState(sState) {
+    if (!sState || typeof sState !== 'object') return;
+    let changed = false;
+    const sCoins = Number(sState.coins) || 0;
+    if (sCoins > state.coins) {
+      state.coins = sCoins;
+      changed = true;
+    }
+    if (sState.lessons && typeof sState.lessons === 'object') {
+      Object.entries(sState.lessons).forEach(([id, rec]) => {
+        const cur = state.lessons[id];
+        if (!cur || (rec.stars > (cur.stars || 0)) || (rec.quiz > (cur.quiz || 0))) {
+          state.lessons[id] = {
+            stars: Math.max(cur?.stars || 0, rec.stars || 0),
+            quiz: Math.max(cur?.quiz || 0, rec.quiz || 0),
+            at: rec.at || cur?.at || new Date().toISOString()
+          };
+          changed = true;
+        }
+      });
+    }
+    if (sState.arcade && typeof sState.arcade === 'object') {
+      Object.entries(sState.arcade).forEach(([id, rec]) => {
+        const cur = state.arcade[id];
+        if (!cur || (rec.best > (cur.best || 0)) || (rec.attempts > (cur.attempts || 0))) {
+          state.arcade[id] = {
+            best: Math.max(cur?.best || 0, rec.best || 0),
+            attempts: Math.max(cur?.attempts || 0, rec.attempts || 0)
+          };
+          changed = true;
+        }
+      });
+    }
+    if (sState.last_place && sState.last_place !== state.last_place) {
+      state.last_place = sState.last_place;
+      changed = true;
+    }
+    if (changed) {
+      save();
+      renderAll();
+    }
+  }
+
   function save() {
     try {
       localStorage.setItem(STORE_KEY, JSON.stringify(state));
     } catch (err) {
       /* private mode / storage disabled — page still works */
     }
+    syncToDatabase();
   }
 
   /* ==========================================================
@@ -597,8 +812,8 @@
   }
 
   function schoolLabel() {
-    const stages = STAGES[state.mode];
-    const stage = stages.find(item => item.id === state.stagesByMode[state.mode]);
+    const stages = STAGES[state.mode] || STAGES.kid;
+    const stage = stages.find(item => item.id === (state.stagesByMode && state.stagesByMode[state.mode]));
     return stage ? stage.label : stages[0].label;
   }
 
@@ -612,10 +827,15 @@
      ========================================================== */
 
   function renderHeader() {
-    $('#coinValue').textContent = String(state.coins);
-    $('#coinValue2').textContent = String(state.coins);
-    $('#shopCoins').textContent = String(state.coins);
-    $('#headerAvatar').innerHTML = avatarSVG(state.avatar.color, state.avatar.accessory);
+    const setElemText = (id, text) => {
+      const el = $(id);
+      if (el) el.textContent = text;
+    };
+    setElemText('#coinValue', String(state.coins));
+    setElemText('#coinValue2', String(state.coins));
+    setElemText('#shopCoins', String(state.coins));
+    const hAvatar = $('#headerAvatar');
+    if (hAvatar) hAvatar.innerHTML = avatarSVG(state.avatar.color, state.avatar.accessory);
   }
 
   function updateSoundButton() {
@@ -630,7 +850,7 @@
     window.applySusOrSafeMode?.(state.mode);
     document.body.dataset.mode = state.mode;
     document.body.classList.remove('theme-kid', 'theme-teen', 'theme-adult', 'theme-kids', 'theme-teens', 'theme-adults');
-    document.body.classList.add(`theme-${state.mode}`);
+    document.body.classList.add(`theme-${state.mode}`, `theme-${state.mode}s`);
     document.documentElement.style.colorScheme = state.mode === 'teen' ? 'dark' : 'light';
     $('#themeColor')?.setAttribute('content', MODE_INFO[state.mode].themeColor);
     $$('.mode-pill[data-mode]').forEach(btn => {
@@ -645,34 +865,45 @@
       if (btn) btn.textContent = on ? 'Current mode' : 'Switch mode';
     });
     const info = MODE_INFO[state.mode];
-    $('#homeAudience').textContent = info.homeAudience;
-    $('#homeModeCopy').textContent = info.homeCopy;
-    $('#toolkitModeIntro').textContent = info.toolkitCopy;
-    $('#gamesModeIntro').textContent = info.gamesCopy;
-    $('#gamesModeBadge').textContent = `${state.mode === 'kid' ? 'Kids' : state.mode === 'teen' ? 'Teens' : 'Adults'} · ${info.badge}`;
-    $('#modeHintBadge').textContent = info.badge;
-    $('#modeHintText').textContent = info.hint;
-    $('#modeHintFocus').textContent = `Scams to watch for: ${AGE_FOCUS[state.mode].text}.`;
+    if (!info) return;
+    const setElemText = (id, text) => {
+      const el = $(id);
+      if (el) el.textContent = text;
+    };
+    setElemText('#homeAudience', info.homeAudience);
+    setElemText('#homeModeCopy', info.homeCopy);
+    setElemText('#toolkitModeIntro', info.toolkitCopy);
+    setElemText('#gamesModeIntro', info.gamesCopy);
+    setElemText('#gamesModeBadge', `${state.mode === 'kid' ? 'Kids' : state.mode === 'teen' ? 'Teens' : 'Adults'} · ${info.badge}`);
+    setElemText('#modeHintBadge', info.badge);
+    setElemText('#modeHintText', info.hint);
+    setElemText('#modeHintFocus', `Scams to watch for: ${AGE_FOCUS[state.mode].text}.`);
     const kid = state.mode === 'kid';
-    $('#profileSectionKicker').textContent = kid ? '01 / Your explorer' : state.mode === 'teen' ? '01 / Your digital profile' : '01 / Your profile';
-    $('#setupProfileKicker').textContent = kid ? 'Your explorer' : state.mode === 'teen' ? 'Digital profile' : 'Personal profile';
-    $('#profileNameLabel').textContent = kid ? 'Explorer name' : state.mode === 'teen' ? 'Display name' : 'Name or nickname';
-    $('#explorerName').placeholder = kid ? 'Name your explorer' : state.mode === 'teen' ? 'Choose a display name' : 'Enter a name or nickname';
-    $('#profilePassportLabel').textContent = kid ? 'Explorer passport' : state.mode === 'teen' ? 'Progress passport' : 'Learning record';
-    $('#profileShopTitle').textContent = kid ? 'Dress your explorer.' : state.mode === 'teen' ? 'Style your avatar.' : 'Personalize your avatar.';
-    $('#certHeading').textContent = kid ? 'SAFE EXPLORER' : state.mode === 'teen' ? 'DIGITAL NAVIGATOR' : 'ONLINE GUARDIAN';
+    setElemText('#profileSectionKicker', kid ? '01 / Your explorer' : state.mode === 'teen' ? '01 / Your digital profile' : '01 / Your profile');
+    setElemText('#setupProfileKicker', kid ? 'Your explorer' : state.mode === 'teen' ? 'Digital profile' : 'Personal profile');
+    setElemText('#profileNameLabel', kid ? 'Explorer name' : state.mode === 'teen' ? 'Display name' : 'Name or nickname');
+    const explorerInput = $('#explorerName');
+    if (explorerInput) explorerInput.placeholder = kid ? 'Name your explorer' : state.mode === 'teen' ? 'Choose a display name' : 'Enter a name or nickname';
+    setElemText('#profilePassportLabel', kid ? 'Explorer passport' : state.mode === 'teen' ? 'Progress passport' : 'Learning record');
+    setElemText('#profileShopTitle', kid ? 'Dress your explorer.' : state.mode === 'teen' ? 'Style your avatar.' : 'Personalize your avatar.');
+    setElemText('#certHeading', kid ? 'SAFE EXPLORER' : state.mode === 'teen' ? 'DIGITAL NAVIGATOR' : 'ONLINE GUARDIAN');
   }
 
   function renderSetup() {
-    $('#setupAvatar').innerHTML = avatarSVG(state.avatar.color, state.avatar.accessory) + petMarkup();
-    $('#setupName').textContent = equippedName();
-    $('#setupMeta').textContent = `${MODE_INFO[state.mode].badge} · ${schoolLabel()}${state.avatar.pet !== 'none' ? ` · ${petDisplayName()}` : ''}`;
+    const setupAvatar = $('#setupAvatar');
+    if (setupAvatar) setupAvatar.innerHTML = avatarSVG(state.avatar.color, state.avatar.accessory) + petMarkup();
+    const setupName = $('#setupName');
+    if (setupName) setupName.textContent = equippedName();
+    const setupMeta = $('#setupMeta');
+    if (setupMeta) setupMeta.textContent = `${MODE_INFO[state.mode].badge} · ${schoolLabel()}${state.avatar.pet !== 'none' ? ` · ${petDisplayName()}` : ''}`;
   }
 
   function renderPath() {
+    const pathEl = $('#lessonPath');
+    if (!pathEl) return;
     const levels = [1, 2, 3];
     const stepLabels = LESSON_MODE_COPY[state.mode].stepLabels;
-    $('#lessonPath').innerHTML = levels.map(level => {
+    pathEl.innerHTML = levels.map(level => {
       const lessons = LESSONS.filter(lesson => lesson.level === level);
       const cards = lessons.map(lesson => {
         const unlocked = lessonUnlocked(lesson.id);
@@ -700,7 +931,7 @@
           <div class="lesson-steps" aria-hidden="true">${stepLabels.map(label => `<span>${label}</span>`).join('')}</div>
           <div class="quest-footer">
             <span class="lesson-reward"><svg class="ico coin-ico"><use href="#i-coin"/></svg> +100–160</span>
-            <button class="btn quest-btn lesson-btn" type="button" data-lesson="${lesson.id}" ${unlocked ? '' : 'disabled'}>${unlocked ? (rec ? 'Replay' : 'Start lesson') : 'Locked'}</button>
+            <button class="btn quest-btn lesson-btn" type="button" data-lesson="${lesson.id}" ${unlocked ? '' : 'disabled'}>${unlocked ? (rec ? 'Replay' : (state.last_place === `lesson:${lesson.id}` || (!state.last_place && current) ? 'Resume' : 'Start lesson')) : 'Locked'}</button>
           </div>
           ${rec ? `<span class="lesson-stars" aria-label="${rec.stars} stars">${STAR(rec.stars)}</span>` : ''}
           ${lock}
@@ -716,11 +947,14 @@
       </div>`;
     }).join('');
 
-    $('#unlockAll').textContent = state.unlockAll ? 'Lock lessons back into sequence' : 'Teacher? Unlock all lessons';
+    const unlockAllBtn = $('#unlockAll');
+    if (unlockAllBtn) unlockAllBtn.textContent = state.unlockAll ? 'Lock lessons back into sequence' : 'Teacher? Unlock all lessons';
   }
 
   function renderGames() {
-    $('#gamesGrid').innerHTML = ARCADE_GAMES.map((game, index) => {
+    const gamesGrid = $('#gamesGrid');
+    if (!gamesGrid) return;
+    gamesGrid.innerHTML = ARCADE_GAMES.map((game, index) => {
       const lesson = LESSONS.find(item => item.id === game.id);
       const modeGame = game.modes[state.mode];
       const record = state.arcade[game.id];
@@ -752,6 +986,8 @@
   function openArcadeGame(id) {
     const game = ARCADE_GAMES.find(item => item.id === id);
     if (!game) return;
+    state.last_place = `game:${id}`;
+    save();
     arcadeSession = { game, mode: state.mode, round: 0, score: 0, answered: false };
     $('#arcadeTitle').textContent = game.modes[state.mode].title;
     $('#arcadeKicker').textContent = `Arcade challenge ${String(id).padStart(2, '0')}`;
@@ -817,6 +1053,7 @@
       best: Math.max(previousBest, session.score),
       attempts: attempts + 1
     };
+    state.last_place = `game:${session.game.id}`;
     save();
     renderGames();
     const game = session.game.modes[session.mode];
@@ -838,7 +1075,7 @@
       </div>`;
   }
 
-  arcadeBody.addEventListener('click', event => {
+  arcadeBody?.addEventListener('click', event => {
     const answer = event.target.closest('[data-arcade-answer]');
     if (answer) {
       answerArcadeRound(Number(answer.dataset.arcadeAnswer));
@@ -863,55 +1100,87 @@
     if (event.target.closest('[data-arcade-close]')) arcadeDialog.close();
   });
 
-  $('#closeArcade').addEventListener('click', () => arcadeDialog.close());
-  arcadeDialog.addEventListener('click', event => {
+  $('#closeArcade')?.addEventListener('click', () => arcadeDialog?.close());
+  arcadeDialog?.addEventListener('click', event => {
     if (event.target === arcadeDialog) arcadeDialog.close();
   });
-  arcadeDialog.addEventListener('close', () => {
+  arcadeDialog?.addEventListener('close', () => {
     arcadeSession = null;
   });
 
   function renderPassport() {
     const count = completedLessons().length;
     const pct = (count / LESSONS.length) * 100;
-    $('#xpRing').style.setProperty('--p', String(pct));
-    $('#lessonCountBig').textContent = String(count);
-    $('#lessonProgress').textContent = `${count} / ${LESSONS.length}`;
-    $('#rankName').textContent = rankFor(count);
-    $('#crewRank').textContent = rankFor(count);
+    const xpRing = $('#xpRing');
+    if (xpRing) xpRing.style.setProperty('--p', String(pct));
+    const countBig = $('#lessonCountBig');
+    if (countBig) countBig.textContent = String(count);
+    const progress = $('#lessonProgress');
+    if (progress) progress.textContent = `${count} / ${LESSONS.length}`;
+    const rankName = $('#rankName');
+    if (rankName) rankName.textContent = rankFor(count);
+    const crewRank = $('#crewRank');
+    if (crewRank) crewRank.textContent = rankFor(count);
 
     const next = LESSONS.find(lesson => !lessonDone(lesson.id) && lessonUnlocked(lesson.id));
-    $('#passportText').textContent = count === LESSONS.length
-      ? `All 7 lessons complete · ${state.coins} coins · certificate unlocked.`
-      : `${count} of 7 lessons · ${state.coins} coins · ${next ? `next up: ${next.title}` : 'unlock the next lesson to continue'}.`;
+    const passportText = $('#passportText');
+    if (passportText) {
+      passportText.textContent = count === LESSONS.length
+        ? `All 7 lessons complete · ${state.coins} coins · certificate unlocked.`
+        : `${count} of 7 lessons · ${state.coins} coins · ${next ? `next up: ${next.title}` : 'unlock the next lesson to continue'}.`;
+    }
 
-    $('#stampRow').innerHTML = LESSONS.map(lesson => {
-      const done = lessonDone(lesson.id);
-      const open = lessonUnlocked(lesson.id);
-      return `<span class="stamp ${done ? 'is-done' : ''} ${open ? 'is-open' : ''}" title="Lesson ${lesson.id}: ${lesson.title}" style="--s:${lesson.color}">${done ? '✓' : lesson.id}</span>`;
-    }).join('');
+    const stampRow = $('#stampRow');
+    if (stampRow) {
+      stampRow.innerHTML = LESSONS.map(lesson => {
+        const done = lessonDone(lesson.id);
+        const open = lessonUnlocked(lesson.id);
+        return `<span class="stamp ${done ? 'is-done' : ''} ${open ? 'is-open' : ''}" title="Lesson ${lesson.id}: ${lesson.title}" style="--s:${lesson.color}">${done ? '✓' : lesson.id}</span>`;
+      }).join('');
+    }
   }
 
   function renderCrew() {
-    $('#crewAvatar').innerHTML = avatarSVG(state.avatar.color, state.avatar.accessory) + petMarkup();
+    const crewAvatar = $('#crewAvatar');
+    if (crewAvatar) crewAvatar.innerHTML = avatarSVG(state.avatar.color, state.avatar.accessory) + petMarkup();
     const pet = currentPet();
-    $('#crewPetEmoji').textContent = pet.id === 'none' ? '·' : pet.emoji;
-    $('#crewPetName').textContent = pet.id === 'none' ? 'No pet yet' : petDisplayName();
+    const petEmoji = $('#crewPetEmoji');
+    if (petEmoji) petEmoji.textContent = pet.id === 'none' ? '·' : pet.emoji;
+    const petNameEl = $('#crewPetName');
+    if (petNameEl) petNameEl.textContent = pet.id === 'none' ? 'No pet yet' : petDisplayName();
 
     const active = document.activeElement;
-    if (active !== $('#explorerName')) $('#explorerName').value = state.name;
-    if (active !== $('#petName')) $('#petName').value = state.avatar.pet === 'none' ? '' : (state.petName || '');
+    const explorerInput = $('#explorerName');
+    if (explorerInput && active !== explorerInput) explorerInput.value = state.name;
+    const petInput = $('#petName');
+    if (petInput && active !== petInput) petInput.value = state.avatar.pet === 'none' ? '' : (state.petName || '');
+
     const stageSelect = $('#schoolSelect');
-    const activeStage = STAGES[state.mode].find(stage => stage.id === state.stagesByMode[state.mode]);
-    stageSelect.innerHTML = STAGES[state.mode].map(stage =>
-      `<option value="${stage.id}">${stage.label}</option>`
-    ).join('');
-    stageSelect.value = activeStage.id;
-    $('#schoolStageLabel').textContent = state.mode === 'kid' ? 'Age or school stage' : 'Life stage';
-    $('#schoolStageNote').textContent = state.mode === 'adult'
-      ? 'This stays on your device and only tailors your safety tips.'
-      : 'We never ask for your school’s name. This only tailors your safety tips.';
-    $('#schoolTip').textContent = STAGE_TIPS[activeStage.id];
+    if (stageSelect) {
+      if (!state.stagesByMode || typeof state.stagesByMode !== 'object') {
+        state.stagesByMode = { kid: 'primary', teen: 'high', adult: 'working' };
+      }
+      const modeStages = STAGES[state.mode] || STAGES.kid;
+      let activeStage = modeStages.find(stage => stage.id === state.stagesByMode[state.mode]);
+      if (!activeStage) {
+        activeStage = modeStages[0];
+        state.stagesByMode[state.mode] = activeStage.id;
+      }
+      stageSelect.innerHTML = modeStages.map(stage =>
+        `<option value="${stage.id}">${stage.label}</option>`
+      ).join('');
+      stageSelect.value = activeStage.id;
+      const stageLabel = $('#schoolStageLabel');
+      if (stageLabel) stageLabel.textContent = state.mode === 'kid' ? 'Age or school stage' : 'Life stage';
+      const stageNote = $('#schoolStageNote');
+      if (stageNote) {
+        stageNote.textContent = state.mode === 'adult'
+          ? 'This stays on your device and only tailors your safety tips.'
+          : 'We never ask for your school’s name. This only tailors your safety tips.';
+      }
+      const schoolTip = $('#schoolTip');
+      if (schoolTip) schoolTip.textContent = STAGE_TIPS[activeStage.id] || '';
+    }
 
     $$('.mode-pill[data-mode]').forEach(btn => {
       const on = btn.dataset.mode === state.mode;
@@ -924,6 +1193,7 @@
 
   function renderShop() {
     const grid = $('#shopGrid');
+    if (!grid) return;
     $$('.shop-tab').forEach(tab => {
       const on = tab.dataset.shopTab === shopTab;
       tab.classList.toggle('is-active', on);
@@ -973,24 +1243,86 @@
   function renderCertificate() {
     const done = completedLessons().length;
     const unlocked = done === LESSONS.length;
-    $('#certStage').classList.toggle('is-unlocked', unlocked);
-    $('#certProgress').textContent = `${done} / ${LESSONS.length}`;
-    $('#printCert').disabled = !unlocked;
-    $('#certNo').textContent = String(done).padStart(4, '0');
-    $('#certNameOut').textContent = state.name.trim() || 'A Curious Human';
-    $('#certDate').textContent = formatDate(new Date());
-    $('#certAvatar').innerHTML = avatarSVG(state.avatar.color, state.avatar.accessory) + petMarkup();
-    $('#certPet').textContent = state.avatar.pet === 'none'
-      ? 'flying solo'
-      : `with ${petDisplayName()}`;
+    const certStage = $('#certStage');
+    if (certStage) certStage.classList.toggle('is-unlocked', unlocked);
+    const certProgress = $('#certProgress');
+    if (certProgress) certProgress.textContent = `${done} / ${LESSONS.length}`;
+    const printCert = $('#printCert');
+    if (printCert) printCert.disabled = !unlocked;
+    const certNo = $('#certNo');
+    if (certNo) certNo.textContent = String(done).padStart(4, '0');
+    const certNameOut = $('#certNameOut');
+    if (certNameOut) certNameOut.textContent = state.name.trim() || 'A Curious Human';
+    const certDate = $('#certDate');
+    if (certDate) certDate.textContent = formatDate(new Date());
+    const certAvatar = $('#certAvatar');
+    if (certAvatar) certAvatar.innerHTML = avatarSVG(state.avatar.color, state.avatar.accessory) + petMarkup();
+    const certPet = $('#certPet');
+    if (certPet) {
+      certPet.textContent = state.avatar.pet === 'none'
+        ? 'flying solo'
+        : `with ${petDisplayName()}`;
+    }
 
     const active = document.activeElement;
-    if (active !== $('#certName')) $('#certName').value = state.name;
+    const certInput = $('#certName');
+    if (certInput && active !== certInput) certInput.value = state.name;
+  }
+
+  function getResumeTarget() {
+    if (state.last_place) {
+      if (state.last_place.startsWith('lesson:')) {
+        const id = Number(state.last_place.split(':')[1]);
+        if (id && LESSONS.some(l => l.id === id) && lessonUnlocked(id)) {
+          const isDone = Boolean(state.lessons[id]);
+          return { type: 'lesson', id, title: `Lesson ${id}`, isResume: true, isDone };
+        }
+      } else if (state.last_place.startsWith('game:')) {
+        const id = Number(state.last_place.split(':')[1]);
+        if (id && ARCADE_GAMES.some(g => g.id === id)) {
+          return { type: 'game', id, title: `Challenge ${id}`, isResume: true };
+        }
+      }
+    }
+    const hasAnyLessons = Object.keys(state.lessons).length > 0;
+    const nextUncompleted = LESSONS.find(l => !state.lessons[l.id] && lessonUnlocked(l.id));
+    if (nextUncompleted) {
+      return {
+        type: 'lesson',
+        id: nextUncompleted.id,
+        title: `Lesson ${nextUncompleted.id}`,
+        isResume: hasAnyLessons
+      };
+    }
+    if (completedLessons().length === LESSONS.length) {
+      return { type: 'completed', id: 1, title: 'Review Lessons', isResume: true };
+    }
+    return { type: 'lesson', id: 1, title: 'Lesson 1', isResume: false };
+  }
+
+  function renderHeroCTA() {
+    const heroBtn = $('#heroStart');
+    if (!heroBtn) return;
+    const target = getResumeTarget();
+    if (target.type === 'completed') {
+      heroBtn.innerHTML = `Review Lessons <svg class="ico"><use href="#i-arrow"/></svg>`;
+      heroBtn.dataset.targetType = 'lesson';
+      heroBtn.dataset.targetId = '1';
+    } else if (target.isResume) {
+      heroBtn.innerHTML = `Resume ${target.title} <svg class="ico"><use href="#i-arrow"/></svg>`;
+      heroBtn.dataset.targetType = target.type;
+      heroBtn.dataset.targetId = String(target.id);
+    } else {
+      heroBtn.innerHTML = `Start Lesson 1 <svg class="ico"><use href="#i-arrow"/></svg>`;
+      heroBtn.dataset.targetType = 'lesson';
+      heroBtn.dataset.targetId = '1';
+    }
   }
 
   function renderAll() {
     renderHeader();
     renderModeUI();
+    renderHeroCTA();
     renderPath();
     renderGames();
     renderPassport();
@@ -1003,24 +1335,41 @@
   }
 
   function setMode(mode, opts = {}) {
-    if (!MODE_INFO[mode] || state.mode === mode) {
+    if (!MODE_INFO[mode]) return;
+    if (state.mode === mode) {
+      renderModeUI();
       if (!opts.silent) toast('You are already in this mode.');
       return;
     }
     state.mode = mode;
+    if (!state.stagesByMode || typeof state.stagesByMode !== 'object') {
+      state.stagesByMode = { kid: 'primary', teen: 'high', adult: 'working' };
+    }
+    const modeStages = STAGES[mode] || STAGES.kid;
+    if (!modeStages.some(s => s.id === state.stagesByMode[mode])) {
+      state.stagesByMode[mode] = modeStages[0].id;
+    }
     save();
+    try {
+      localStorage.setItem('susorsafe_mode', mode);
+    } catch (e) {}
+    syncToDatabase(true);
     renderModeUI();
+    renderHeroCTA();
     renderPath();
     renderGames();
     renderPassport();
     renderSetup();
     renderCrew();
     if (!opts.silent) toast(`Mode: ${MODE_INFO[mode].badge}. Progress kept.`);
-    if (lessonDialog.open && currentLesson) {
+    if (lessonDialog && lessonDialog.open && currentLesson) {
       lessonTitleEl.textContent = LESSON_MODE_COPY[state.mode][currentLesson.id].title;
       renderLesson();
     }
   }
+
+  window._susorsafeAppSetMode = (mode, opts) => setMode(mode, opts);
+  window.setSusOrSafeMode = (mode, opts) => setMode(mode, opts);
 
   /* ==========================================================
      Lesson engine
@@ -1050,6 +1399,9 @@
       toast(`Finish Lesson ${id - 1} to unlock this one.`);
       return;
     }
+
+    state.last_place = `lesson:${id}`;
+    save();
 
     currentLesson = lesson;
     currentStep = 0;
@@ -1119,7 +1471,7 @@
         <p>${tip}</p>
       </div>
       <div class="game-actions">
-        <button class="btn btn-primary" type="button" id="overviewNext">${modeCopy.nextWords} <svg class="ico"><use href="#i-arrow"/></svg></button>
+        <button class="btn btn-primary" type="button" id="overviewNext">${modeCopy.nextWords || 'Next'} <svg class="ico"><use href="#i-arrow"/></svg></button>
       </div>`;
 
     $('#overviewNext').addEventListener('click', () => {
@@ -1284,6 +1636,11 @@
     };
     if (first) state.coins += coinsEarned;
     if (first || stars > (previous?.stars || 0)) pendingCelebration = true;
+
+    const next = LESSONS.find(item => item.id === lesson.id + 1);
+    const nextUnlocked = next && lessonUnlocked(next.id);
+    state.last_place = nextUnlocked ? `lesson:${next.id}` : `lesson:${lesson.id}`;
+
     save();
     renderAll();
     playSound('win');
@@ -1316,7 +1673,7 @@
   }
 
   function closeLesson() {
-    if (lessonDialog.open) lessonDialog.close();
+    if (lessonDialog && lessonDialog.open) lessonDialog.close();
   }
 
   function goTo(selector) {
@@ -1327,7 +1684,7 @@
     }, 80);
   }
 
-  lessonDialog.addEventListener('close', () => {
+  lessonDialog?.addEventListener('close', () => {
     document.body.classList.remove('modal-open');
     activityDoneCallback = null;
     if (pendingCelebration) {
@@ -1336,13 +1693,13 @@
     }
   });
 
-  $('#closeLesson').addEventListener('click', closeLesson);
+  $('#closeLesson')?.addEventListener('click', closeLesson);
 
-  lessonDialog.addEventListener('click', event => {
+  lessonDialog?.addEventListener('click', event => {
     if (event.target === lessonDialog) closeLesson();
   });
 
-  lessonBody.addEventListener('click', event => {
+  lessonBody?.addEventListener('click', event => {
     const next = event.target.closest('[data-next-lesson]');
     if (next) {
       openLesson(Number(next.dataset.nextLesson));
@@ -2412,41 +2769,43 @@
     goTo('#crew');
   }
 
-  $('#profileBtn').addEventListener('click', scrollToCrew);
-  $('#openCrew2').addEventListener('click', scrollToCrew);
+  $('#profileBtn')?.addEventListener('click', scrollToCrew);
+  $('#openCrew2')?.addEventListener('click', scrollToCrew);
 
-  $('#shopTabs').addEventListener('click', event => {
+  $('#shopTabs')?.addEventListener('click', event => {
     const tab = event.target.closest('[data-shop-tab]');
     if (!tab) return;
     shopTab = tab.dataset.shopTab;
     renderShop();
   });
 
-  $('#shopGrid').addEventListener('click', event => {
+  $('#shopGrid')?.addEventListener('click', event => {
     const item = event.target.closest('[data-buy-type]');
     if (!item) return;
     buyOrEquip(item.dataset.buyType, item.dataset.buyId);
   });
 
-  $('#explorerName').addEventListener('input', event => {
+  $('#explorerName')?.addEventListener('input', event => {
     state.name = event.target.value;
     save();
     renderSetup();
     renderPassport();
     renderCertificate();
-    $('#certName').value = state.name;
+    const certInput = $('#certName');
+    if (certInput) certInput.value = state.name;
   });
 
-  $('#certName').addEventListener('input', event => {
+  $('#certName')?.addEventListener('input', event => {
     state.name = event.target.value;
     save();
     renderSetup();
     renderPassport();
-    $('#explorerName').value = state.name;
+    const explorerInput = $('#explorerName');
+    if (explorerInput) explorerInput.value = state.name;
     renderCertificate();
   });
 
-  $('#petName').addEventListener('input', event => {
+  $('#petName')?.addEventListener('input', event => {
     state.petName = event.target.value;
     save();
     renderSetup();
@@ -2454,21 +2813,30 @@
     renderCertificate();
   });
 
-  $('#schoolSelect').addEventListener('change', event => {
+  $('#schoolSelect')?.addEventListener('change', event => {
+    if (!state.stagesByMode || typeof state.stagesByMode !== 'object') {
+      state.stagesByMode = { kid: 'primary', teen: 'high', adult: 'working' };
+    }
     state.stagesByMode[state.mode] = event.target.value;
     state.school = state.stagesByMode.kid;
     save();
     renderSetup();
-    $('#schoolTip').textContent = STAGE_TIPS[state.stagesByMode[state.mode]];
+    const schoolTip = $('#schoolTip');
+    if (schoolTip) schoolTip.textContent = STAGE_TIPS[state.stagesByMode[state.mode]] || '';
     toast(`Life stage: ${schoolLabel()}. This stays on your device.`);
   });
 
   document.addEventListener('click', event => {
     const modeBtn = event.target.closest('.mode-pill[data-mode], .route-btn[data-mode]');
+    const routeCard = event.target.closest('.route-card[data-route]');
     if (modeBtn) {
       setMode(modeBtn.dataset.mode);
-      if (modeBtn.classList.contains('route-btn')) {
-        window.location.href = '/lessons/';
+      return;
+    }
+    if (routeCard && !event.target.closest('a, button')) {
+      const targetMode = routeCard.dataset.route;
+      if (MODE_INFO[targetMode]) {
+        setMode(targetMode);
       }
       return;
     }
@@ -2483,15 +2851,29 @@
     }
   });
 
-  $('#heroStart').addEventListener('click', () => {
-    if (document.body.dataset.page === 'home') {
-      window.location.href = '/lessons/?lesson=1';
+  $('#heroStart')?.addEventListener('click', () => {
+    const heroBtn = $('#heroStart');
+    if (!heroBtn) return;
+    const targetType = heroBtn.dataset.targetType || 'lesson';
+    const targetId = Number(heroBtn.dataset.targetId) || 1;
+
+    if (targetType === 'game') {
+      if (document.body.dataset.page === 'games') {
+        openArcadeGame(targetId);
+      } else {
+        window.location.href = `/games/?game=${targetId}`;
+      }
       return;
     }
-    openLesson(1);
+
+    if (document.body.dataset.page === 'home') {
+      window.location.href = `/lessons/?lesson=${targetId}`;
+      return;
+    }
+    openLesson(targetId);
   });
 
-  $('#unlockAll').addEventListener('click', () => {
+  $('#unlockAll')?.addEventListener('click', () => {
     state.unlockAll = !state.unlockAll;
     save();
     renderPath();
@@ -2499,7 +2881,7 @@
     toast(state.unlockAll ? 'All lessons unlocked. Good for classrooms.' : 'Back to the guided sequence.');
   });
 
-  $('#resetProgress').addEventListener('click', () => {
+  $('#resetProgress')?.addEventListener('click', () => {
     const ok = window.confirm("Clear all lesson progress, coins, gear and the certificate? This can't be undone.");
     if (!ok) return;
     state = defaultState();
@@ -2514,8 +2896,9 @@
      Certificate
      ========================================================== */
 
-  $('#printCert').addEventListener('click', () => {
-    if ($('#printCert').disabled) return;
+  $('#printCert')?.addEventListener('click', () => {
+    const printCertBtn = $('#printCert');
+    if (printCertBtn && printCertBtn.disabled) return;
     window.print();
   });
 
@@ -2558,7 +2941,7 @@
     toast('SusOrSafe installed. See you on the home screen.');
   });
 
-  $('#installBtn').addEventListener('click', async () => {
+  $('#installBtn')?.addEventListener('click', async () => {
     if (deferredInstall) {
       deferredInstall.prompt();
       try {
@@ -2577,8 +2960,38 @@
   });
 
   /* ==========================================================
-     Init
+     Init & Global Listeners
      ========================================================== */
+
+  // Sign out wipe listener for client-side forms
+  document.addEventListener('submit', (e) => {
+    const form = e.target.closest('form');
+    if (form && (form.classList.contains('logout-form') || (form.action && form.action.includes('logout')))) {
+      try {
+        localStorage.removeItem(STORE_KEY);
+        localStorage.removeItem('susorsafe_mode');
+        sessionStorage.clear();
+      } catch (err) {}
+    }
+  });
+
+  // Page unload / backgrounding sync
+  window.addEventListener('pagehide', () => {
+    if (window.SUSORSAFE_USER && window.SUSORSAFE_USER.isAuthenticated) {
+      try {
+        progressSyncRequest('/api/user-progress-sync/', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCsrfToken()
+          },
+          credentials: 'same-origin',
+          body: JSON.stringify(state),
+          keepalive: true
+        });
+      } catch (e) {}
+    }
+  });
 
   function init() {
     const params = new URLSearchParams(window.location.search);
@@ -2595,6 +3008,13 @@
     if (lesson && LESSONS.some(item => item.id === lesson)) {
       setTimeout(() => openLesson(lesson), 500);
     }
+
+    const game = Number(params.get('game'));
+    if (game && ARCADE_GAMES.some(item => item.id === game)) {
+      setTimeout(() => openArcadeGame(game), 500);
+    }
+
+    fetchServerState();
 
     if ('serviceWorker' in navigator && /^https?:$/.test(window.location.protocol)) {
       window.addEventListener('load', () => {

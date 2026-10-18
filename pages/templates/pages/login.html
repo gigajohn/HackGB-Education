@@ -427,7 +427,7 @@
     }
   </style>
 </head>
-<body class="auth-body" data-mode="kid">
+<body class="auth-body" data-mode="{{ user_profile.age_mode|default:'kid' }}">
   <div class="auth-page">
     <div class="auth-glow" aria-hidden="true"></div>
 

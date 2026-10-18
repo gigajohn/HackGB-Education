@@ -22,6 +22,7 @@
 <link rel="apple-touch-icon" sizes="180x180" href="{% static 'susorsafe/icons/apple-touch-icon.png' %}">
 <link rel="manifest" href="/manifest.webmanifest">
 <link rel="alternate" type="application/manifest+json" href="/manifest.json">
+<link rel="alternate" type="application/manifest+json" href="/manifest.json">
 <style>
 /* --- Inlined Fonts --- */
 /* Self-hosted variable fonts — no external font requests */
@@ -3051,7 +3052,8 @@ body[data-mode="adult"] .lesson-dialog .mode-tip{border-left-color:var(--amber)}
 
 /* 1. KIDS (Sunny, vibrant, warm cream with cheerful playful accents) */
 body[data-mode="kid"],
-body.theme-kid {
+body.theme-kid,
+body.theme-kids {
   --bg: #fff8df;
   --bg-main: #fff8df;
   --bg-2: #fff1c7;
@@ -3129,9 +3131,9 @@ body.theme-kid .hl-soft {
 }
 
 /* 2. TEENS (Sleek dark cyberpunk midnight navy with neon lime & cyan) */
-:root,
 body[data-mode="teen"],
 body.theme-teen,
+body.theme-teens,
 body:not([data-mode]) {
   --bg: #080b1c;
   --bg-main: #080b1c;
@@ -3170,14 +3172,16 @@ body:not([data-mode]) {
 }
 
 body[data-mode="teen"] .site-header,
-body.theme-teen .site-header {
+body.theme-teen .site-header,
+body.theme-teens .site-header {
   background: rgba(8, 11, 28, 0.88) !important;
   border-bottom: 1px solid rgba(255, 255, 255, 0.09) !important;
 }
 
 /* 3. ADULTS / SENIORS (Warm ivory / paper light mode, high contrast slate text, forest green & navy accents) */
 body[data-mode="adult"],
-body.theme-adult {
+body.theme-adult,
+body.theme-adults {
   --bg: #f8f5f0;
   --bg-main: #f8f5f0;
   --bg-2: #ede8df;
@@ -3254,13 +3258,31 @@ body[data-mode="adult"] .tool-card {
   box-shadow: 0 12px 30px -15px rgba(0, 0, 0, 0.08) !important;
 }
 
+body[data-mode="kid"] .mode-pill.is-active,
+body.theme-kid .mode-pill.is-active {
+  background: #ffd34f !important;
+  color: #253451 !important;
+}
+
+body[data-mode="teen"] .mode-pill.is-active,
+body.theme-teen .mode-pill.is-active {
+  background: #c8f65a !important;
+  color: #080b1c !important;
+}
+
+body[data-mode="adult"] .mode-pill.is-active,
+body.theme-adult .mode-pill.is-active {
+  background: #3a7852 !important;
+  color: #ffffff !important;
+}
+
 body {
   transition: background-color 0.35s ease, color 0.35s ease;
 }
 
 </style>
 </head>
-<body data-mode="kid" data-page="{{ page }}">
+<body data-mode="{{ age_mode|default:'kid' }}" data-page="{{ page }}">
 
 {% if page == 'games' %}
 <a class="skip-link" href="#games">Skip to the games</a>
@@ -3312,9 +3334,9 @@ body {
     </nav>
 
       <div class="mode-switch" role="group" aria-label="Choose an age mode">
-        <button class="mode-pill is-active" data-mode="kid" aria-pressed="true">Kids</button>
-        <button class="mode-pill" data-mode="teen" aria-pressed="false">Teens</button>
-        <button class="mode-pill" data-mode="adult" aria-pressed="false">Adults</button>
+        <button class="mode-pill is-active" type="button" data-mode="kid" aria-pressed="true">Kids</button>
+        <button class="mode-pill" type="button" data-mode="teen" aria-pressed="false">Teens</button>
+        <button class="mode-pill" type="button" data-mode="adult" aria-pressed="false">Adults</button>
       </div>
       <button class="profile-chip" id="profileBtn" type="button" aria-label="My crew and coins">
         <span class="profile-mini" id="headerAvatar"></span>
@@ -3661,9 +3683,9 @@ body {
             <div class="age-picker">
               <span class="field-label">Age group</span>
               <div class="mode-switch" role="group" aria-label="Age group">
-                <button class="mode-pill is-active" data-mode="kid" aria-pressed="true">Kids</button>
-                <button class="mode-pill" data-mode="teen" aria-pressed="false">Teens</button>
-                <button class="mode-pill" data-mode="adult" aria-pressed="false">Adults</button>
+                <button class="mode-pill is-active" type="button" data-mode="kid" aria-pressed="true">Kids</button>
+                <button class="mode-pill" type="button" data-mode="teen" aria-pressed="false">Teens</button>
+                <button class="mode-pill" type="button" data-mode="adult" aria-pressed="false">Adults</button>
               </div>
             </div>
 
@@ -4101,6 +4123,18 @@ body {
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 <canvas id="confetti" aria-hidden="true"></canvas>
 
+<script id="user-server-state" type="application/json">{{ user_state_json|default:"null"|safe }}</script>
+<script>
+window.SUSORSAFE_USER = {
+  isAuthenticated: {% if user.is_authenticated %}true{% else %}false{% endif %},
+  username: "{% if user.is_authenticated %}{{ user.username|escapejs }}{% endif %}",
+  displayName: "{% if user.is_authenticated %}{{ user.get_full_name|default:user.username|escapejs }}{% endif %}"
+};
+window.SUSORSAFE_PROGRESS = {
+  apiOrigin: "{{ progress_sync_origin|default:'https://susorsafe.courses'|escapejs }}",
+  token: "{{ progress_sync_token|default:''|escapejs }}"
+};
+</script>
 <script>
 /* --- Inlined Data --- */
 /* ==========================================================
@@ -4914,7 +4948,7 @@ window.SUSOR_DATA = (() => {
     mode = nextMode;
     document.body.dataset.mode = mode;
     document.body.classList.remove('theme-kid', 'theme-teen', 'theme-adult', 'theme-kids', 'theme-teens', 'theme-adults');
-    document.body.classList.add(`theme-${mode}`);
+    document.body.classList.add(`theme-${mode}`, `theme-${mode}s`);
     document.documentElement.style.colorScheme = mode === 'teen' ? 'dark' : 'light';
     document.querySelector('meta[name="theme-color"]')?.setAttribute('content', themeColors[mode]);
     document.querySelectorAll('[data-age-copy-kid], [data-age-copy-teen], [data-age-copy-adult]').forEach((element) => {
@@ -4926,25 +4960,44 @@ window.SUSOR_DATA = (() => {
       button.classList.toggle('is-active', active);
       button.setAttribute('aria-pressed', String(active));
     });
+    document.querySelectorAll('.route-card[data-route]').forEach((card) => {
+      const active = card.dataset.route === mode;
+      card.classList.toggle('is-active', active);
+      const btn = card.querySelector('.route-btn');
+      if (btn) btn.textContent = active ? 'Current mode' : 'Switch mode';
+    });
+  };
+
+  window.setSusOrSafeMode = (nextMode, opts = {}) => {
+    if (!modes.includes(nextMode)) return;
+    window.applySusOrSafeMode(nextMode);
+    try {
+      const savedState = JSON.parse(localStorage.getItem('susorsafe.v2') || '{}');
+      savedState.mode = nextMode;
+      localStorage.setItem('susorsafe.v2', JSON.stringify(savedState));
+    } catch (error) {}
+    localStorage.setItem('susorsafe_mode', nextMode);
+    if (typeof window._susorsafeAppSetMode === 'function') {
+      window._susorsafeAppSetMode(nextMode, opts);
+    }
   };
 
   window.applySusOrSafeMode(mode);
 
-  if (document.body.classList.contains('support-body') || document.body.classList.contains('auth-body')) {
-    document.addEventListener('click', (event) => {
-      const button = event.target.closest('.mode-pill[data-mode]');
-      if (!button || !modes.includes(button.dataset.mode)) return;
-      try {
-        const savedState = JSON.parse(localStorage.getItem('susorsafe.v2') || '{}');
-        savedState.mode = button.dataset.mode;
-        localStorage.setItem('susorsafe.v2', JSON.stringify(savedState));
-        window.applySusOrSafeMode(savedState.mode);
-      } catch (error) {
-        console.error('Could not save the selected SusOrSafe age mode.', error);
-        throw error;
-      }
-    });
-  }
+  document.addEventListener('click', (event) => {
+    const button = event.target.closest('.mode-pill[data-mode], .route-btn[data-mode]');
+    const card = event.target.closest('.route-card[data-route]');
+    if (button) {
+      const targetMode = button.dataset.mode;
+      window.setSusOrSafeMode(targetMode);
+      return;
+    }
+    if (card && !event.target.closest('a, button')) {
+      const targetMode = card.dataset.route;
+      window.setSusOrSafeMode(targetMode);
+      return;
+    }
+  });
 
   const legalContent = {
     privacy: {
@@ -5298,42 +5351,139 @@ window.SUSOR_DATA = (() => {
     petName: 'Pip',
     sound: false,
     unlockAll: false,
-    arcade: {}
+    arcade: {},
+    last_place: ''
   });
 
+  function getCookie(name) {
+    const match = document.cookie.match(new RegExp('(^|;\\s*)' + name + '=([^;]*)'));
+    return match ? decodeURIComponent(match[2]) : null;
+  }
+
+  function getCsrfToken() {
+    const formInput = document.querySelector('input[name="csrfmiddlewaretoken"]');
+    if (formInput && formInput.value) return formInput.value;
+    return getCookie('csrftoken') || '';
+  }
+
   function loadState() {
-    try {
-      const raw = localStorage.getItem(STORE_KEY);
-      if (!raw) return defaultState();
-      const parsed = JSON.parse(raw);
-      const base = defaultState();
-      const savedStages = parsed.stagesByMode && typeof parsed.stagesByMode === 'object' && !Array.isArray(parsed.stagesByMode)
-        ? parsed.stagesByMode
-        : {};
-      const stagesByMode = { ...base.stagesByMode, ...savedStages };
-      const legacyMode = Object.prototype.hasOwnProperty.call(STAGES, parsed.mode) ? parsed.mode : 'kid';
-      if (!savedStages[legacyMode] && STAGES[legacyMode].some(stage => stage.id === parsed.school)) {
-        stagesByMode[legacyMode] = parsed.school;
+    // 1. Check if client data should be cleared on signout
+    const hasClearCookie = document.cookie.split(';').some(c => c.trim().startsWith('susorsafe_clear_client='));
+    const urlParams = new URLSearchParams(window.location.search);
+    const isLoggedOutParam = urlParams.get('logged_out') === '1';
+    if (hasClearCookie || isLoggedOutParam || window.SUSORSAFE_CLEAR_CLIENT) {
+      try {
+        localStorage.removeItem(STORE_KEY);
+        localStorage.removeItem('susorsafe_mode');
+        sessionStorage.clear();
+      } catch (err) {}
+      document.cookie = 'susorsafe_clear_client=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+      if (isLoggedOutParam) {
+        urlParams.delete('logged_out');
+        const newSearch = urlParams.toString();
+        const newUrl = window.location.pathname + (newSearch ? '?' + newSearch : '') + window.location.hash;
+        window.history.replaceState({}, document.title, newUrl);
       }
-      if (!savedStages.kid && STAGES.kid.some(stage => stage.id === parsed.school)) {
-        stagesByMode.kid = parsed.school;
-      }
-      return {
-        ...base,
-        ...parsed,
-        stagesByMode,
-        avatar: { ...base.avatar, ...(parsed.avatar || {}) },
-        owned: {
-          colors: Array.isArray(parsed.owned?.colors) ? parsed.owned.colors : base.owned.colors,
-          accessories: Array.isArray(parsed.owned?.accessories) ? parsed.owned.accessories : base.owned.accessories,
-          pets: Array.isArray(parsed.owned?.pets) ? parsed.owned.pets : base.owned.pets
-        },
-        lessons: parsed.lessons && typeof parsed.lessons === 'object' ? parsed.lessons : {},
-        arcade: parsed.arcade && typeof parsed.arcade === 'object' ? parsed.arcade : {}
-      };
-    } catch (err) {
-      return defaultState();
     }
+
+    const base = defaultState();
+    let parsed = null;
+    if (!window.SUSORSAFE_USER?.isAuthenticated) {
+      try {
+        const raw = localStorage.getItem(STORE_KEY);
+        if (raw) parsed = JSON.parse(raw);
+      } catch (err) {}
+    }
+
+    let serverState = null;
+    try {
+      const serverScript = document.getElementById('user-server-state');
+      if (serverScript && serverScript.textContent.trim()) {
+        const text = serverScript.textContent.trim();
+        if (text !== 'null' && text !== '{}' && text !== '""') {
+          serverState = JSON.parse(text);
+        }
+      }
+    } catch (err) {
+      console.warn('Could not parse server state:', err);
+    }
+
+    if (!parsed && !serverState) {
+      return base;
+    }
+
+    // If switching user accounts on the same browser, discard other user's local state
+    if (serverState && parsed && parsed.username && serverState.username && parsed.username !== serverState.username) {
+      parsed = null;
+    }
+
+    const source = parsed || {};
+    const savedStages = (serverState?.stagesByMode || source.stagesByMode) && typeof (serverState?.stagesByMode || source.stagesByMode) === 'object' && !Array.isArray(serverState?.stagesByMode || source.stagesByMode)
+      ? (serverState?.stagesByMode || source.stagesByMode)
+      : {};
+    const stagesByMode = { ...base.stagesByMode, ...savedStages };
+
+    // Merge lessons
+    const mergedLessons = { ...(source.lessons || {}) };
+    if (serverState?.lessons && typeof serverState.lessons === 'object') {
+      Object.entries(serverState.lessons).forEach(([lid, sRec]) => {
+        const lRec = mergedLessons[lid];
+        if (!lRec) {
+          mergedLessons[lid] = sRec;
+        } else {
+          mergedLessons[lid] = {
+            stars: Math.max(Number(lRec.stars) || 0, Number(sRec.stars) || 0),
+            quiz: Math.max(Number(lRec.quiz) || 0, Number(sRec.quiz) || 0),
+            at: sRec.at || lRec.at || new Date().toISOString()
+          };
+        }
+      });
+    }
+
+    // Merge arcade games
+    const mergedArcade = { ...(source.arcade || {}) };
+    if (serverState?.arcade && typeof serverState.arcade === 'object') {
+      Object.entries(serverState.arcade).forEach(([gid, sRec]) => {
+        const aRec = mergedArcade[gid];
+        if (!aRec) {
+          mergedArcade[gid] = sRec;
+        } else {
+          mergedArcade[gid] = {
+            best: Math.max(Number(aRec.best) || 0, Number(sRec.best) || 0),
+            attempts: Math.max(Number(aRec.attempts) || 0, Number(sRec.attempts) || 0)
+          };
+        }
+      });
+    }
+
+    const merged = {
+      ...base,
+      ...source,
+      ...(serverState || {}),
+      stagesByMode,
+      coins: Math.max(Number(serverState?.coins) || 0, Number(source?.coins) || 0),
+      mode: (serverState?.mode && MODE_INFO[serverState.mode]) ? serverState.mode : (source?.mode && MODE_INFO[source.mode]) ? source.mode : base.mode,
+      last_place: serverState?.last_place || source?.last_place || '',
+      lessons: mergedLessons,
+      arcade: mergedArcade,
+      avatar: { ...base.avatar, ...(source.avatar || {}), ...(serverState?.avatar || {}) },
+      owned: {
+        colors: Array.from(new Set([...(base.owned.colors), ...(source.owned?.colors || []), ...(serverState?.owned?.colors || [])])),
+        accessories: Array.from(new Set([...(base.owned.accessories), ...(source.owned?.accessories || []), ...(serverState?.owned?.accessories || [])])),
+        pets: Array.from(new Set([...(base.owned.pets), ...(source.owned?.pets || []), ...(serverState?.owned?.pets || [])]))
+      },
+      name: serverState?.name || source?.name || '',
+      petName: serverState?.petName || source?.petName || 'Pip',
+      username: serverState?.username || source?.username || ''
+    };
+
+    if (serverState && !window.SUSORSAFE_USER?.isAuthenticated) {
+      try {
+        localStorage.setItem(STORE_KEY, JSON.stringify(merged));
+      } catch (e) {}
+    }
+
+    return merged;
   }
 
   let state = loadState();
@@ -5362,12 +5512,134 @@ window.SUSOR_DATA = (() => {
   let pendingCelebration = false;
   let toastTimer = null;
 
-  function save() {
-    try {
-      localStorage.setItem(STORE_KEY, JSON.stringify(state));
-    } catch (err) {
-      /* private mode / storage disabled — page still works */
+  let syncTimer = null;
+  let isSyncing = false;
+  let syncPending = false;
+
+  function progressSyncRequest(path = '', options = {}) {
+    const config = window.SUSORSAFE_PROGRESS || {};
+    const origin = String(config.apiOrigin || window.location.origin).replace(/\/$/, '');
+    const headers = { ...(options.headers || {}) };
+    if (config.token) headers.Authorization = `Bearer ${config.token}`;
+    return fetch(`${origin}${path}`, {
+      ...options,
+      headers,
+      credentials: config.token ? 'omit' : 'same-origin'
+    });
+  }
+
+  function syncToDatabase(immediate = false) {
+    if (!window.SUSORSAFE_USER || !window.SUSORSAFE_USER.isAuthenticated) {
+      return;
     }
+    if (syncTimer) {
+      clearTimeout(syncTimer);
+      syncTimer = null;
+    }
+    if (immediate) {
+      doSync();
+      return;
+    }
+    syncTimer = setTimeout(doSync, 600);
+  }
+
+  function doSync() {
+    if (!window.SUSORSAFE_USER || !window.SUSORSAFE_USER.isAuthenticated) return;
+    if (isSyncing) {
+      syncPending = true;
+      return;
+    }
+    isSyncing = true;
+    syncPending = false;
+
+    const payload = JSON.stringify(state);
+    progressSyncRequest('/api/user-progress-sync/', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': getCsrfToken()
+      },
+      credentials: 'same-origin',
+      keepalive: true,
+      body: payload
+    })
+      .then(res => res.json())
+      .then(() => {
+        isSyncing = false;
+        if (syncPending) {
+          syncPending = false;
+          doSync();
+        }
+      })
+      .catch(() => {
+        isSyncing = false;
+      });
+  }
+
+  function fetchServerState() {
+    if (!window.SUSORSAFE_USER || !window.SUSORSAFE_USER.isAuthenticated) return;
+    progressSyncRequest('/api/user-progress-sync/')
+      .then(res => res.json())
+      .then(data => {
+        if (data && data.authenticated && data.state) {
+          applyServerState(data.state);
+        }
+      })
+      .catch(() => {});
+  }
+
+  function applyServerState(sState) {
+    if (!sState || typeof sState !== 'object') return;
+    let changed = false;
+    const sCoins = Number(sState.coins) || 0;
+    if (sCoins > state.coins) {
+      state.coins = sCoins;
+      changed = true;
+    }
+    if (sState.lessons && typeof sState.lessons === 'object') {
+      Object.entries(sState.lessons).forEach(([id, rec]) => {
+        const cur = state.lessons[id];
+        if (!cur || (rec.stars > (cur.stars || 0)) || (rec.quiz > (cur.quiz || 0))) {
+          state.lessons[id] = {
+            stars: Math.max(cur?.stars || 0, rec.stars || 0),
+            quiz: Math.max(cur?.quiz || 0, rec.quiz || 0),
+            at: rec.at || cur?.at || new Date().toISOString()
+          };
+          changed = true;
+        }
+      });
+    }
+    if (sState.arcade && typeof sState.arcade === 'object') {
+      Object.entries(sState.arcade).forEach(([id, rec]) => {
+        const cur = state.arcade[id];
+        if (!cur || (rec.best > (cur.best || 0)) || (rec.attempts > (cur.attempts || 0))) {
+          state.arcade[id] = {
+            best: Math.max(cur?.best || 0, rec.best || 0),
+            attempts: Math.max(cur?.attempts || 0, rec.attempts || 0)
+          };
+          changed = true;
+        }
+      });
+    }
+    if (sState.last_place && sState.last_place !== state.last_place) {
+      state.last_place = sState.last_place;
+      changed = true;
+    }
+    if (changed) {
+      save();
+      renderAll();
+    }
+  }
+
+  function save() {
+    if (!window.SUSORSAFE_USER?.isAuthenticated) {
+      try {
+        localStorage.setItem(STORE_KEY, JSON.stringify(state));
+      } catch (err) {
+        /* private mode / storage disabled — page still works */
+      }
+    }
+    syncToDatabase();
   }
 
   /* ==========================================================
@@ -5611,8 +5883,8 @@ window.SUSOR_DATA = (() => {
   }
 
   function schoolLabel() {
-    const stages = STAGES[state.mode];
-    const stage = stages.find(item => item.id === state.stagesByMode[state.mode]);
+    const stages = STAGES[state.mode] || STAGES.kid;
+    const stage = stages.find(item => item.id === (state.stagesByMode && state.stagesByMode[state.mode]));
     return stage ? stage.label : stages[0].label;
   }
 
@@ -5626,10 +5898,15 @@ window.SUSOR_DATA = (() => {
      ========================================================== */
 
   function renderHeader() {
-    $('#coinValue').textContent = String(state.coins);
-    $('#coinValue2').textContent = String(state.coins);
-    $('#shopCoins').textContent = String(state.coins);
-    $('#headerAvatar').innerHTML = avatarSVG(state.avatar.color, state.avatar.accessory);
+    const setElemText = (id, text) => {
+      const el = $(id);
+      if (el) el.textContent = text;
+    };
+    setElemText('#coinValue', String(state.coins));
+    setElemText('#coinValue2', String(state.coins));
+    setElemText('#shopCoins', String(state.coins));
+    const hAvatar = $('#headerAvatar');
+    if (hAvatar) hAvatar.innerHTML = avatarSVG(state.avatar.color, state.avatar.accessory);
   }
 
   function updateSoundButton() {
@@ -5644,7 +5921,7 @@ window.SUSOR_DATA = (() => {
     window.applySusOrSafeMode?.(state.mode);
     document.body.dataset.mode = state.mode;
     document.body.classList.remove('theme-kid', 'theme-teen', 'theme-adult', 'theme-kids', 'theme-teens', 'theme-adults');
-    document.body.classList.add(`theme-${state.mode}`);
+    document.body.classList.add(`theme-${state.mode}`, `theme-${state.mode}s`);
     document.documentElement.style.colorScheme = state.mode === 'teen' ? 'dark' : 'light';
     $('#themeColor')?.setAttribute('content', MODE_INFO[state.mode].themeColor);
     $$('.mode-pill[data-mode]').forEach(btn => {
@@ -5659,34 +5936,45 @@ window.SUSOR_DATA = (() => {
       if (btn) btn.textContent = on ? 'Current mode' : 'Switch mode';
     });
     const info = MODE_INFO[state.mode];
-    $('#homeAudience').textContent = info.homeAudience;
-    $('#homeModeCopy').textContent = info.homeCopy;
-    $('#toolkitModeIntro').textContent = info.toolkitCopy;
-    $('#gamesModeIntro').textContent = info.gamesCopy;
-    $('#gamesModeBadge').textContent = `${state.mode === 'kid' ? 'Kids' : state.mode === 'teen' ? 'Teens' : 'Adults'} · ${info.badge}`;
-    $('#modeHintBadge').textContent = info.badge;
-    $('#modeHintText').textContent = info.hint;
-    $('#modeHintFocus').textContent = `Scams to watch for: ${AGE_FOCUS[state.mode].text}.`;
+    if (!info) return;
+    const setElemText = (id, text) => {
+      const el = $(id);
+      if (el) el.textContent = text;
+    };
+    setElemText('#homeAudience', info.homeAudience);
+    setElemText('#homeModeCopy', info.homeCopy);
+    setElemText('#toolkitModeIntro', info.toolkitCopy);
+    setElemText('#gamesModeIntro', info.gamesCopy);
+    setElemText('#gamesModeBadge', `${state.mode === 'kid' ? 'Kids' : state.mode === 'teen' ? 'Teens' : 'Adults'} · ${info.badge}`);
+    setElemText('#modeHintBadge', info.badge);
+    setElemText('#modeHintText', info.hint);
+    setElemText('#modeHintFocus', `Scams to watch for: ${AGE_FOCUS[state.mode].text}.`);
     const kid = state.mode === 'kid';
-    $('#profileSectionKicker').textContent = kid ? '01 / Your explorer' : state.mode === 'teen' ? '01 / Your digital profile' : '01 / Your profile';
-    $('#setupProfileKicker').textContent = kid ? 'Your explorer' : state.mode === 'teen' ? 'Digital profile' : 'Personal profile';
-    $('#profileNameLabel').textContent = kid ? 'Explorer name' : state.mode === 'teen' ? 'Display name' : 'Name or nickname';
-    $('#explorerName').placeholder = kid ? 'Name your explorer' : state.mode === 'teen' ? 'Choose a display name' : 'Enter a name or nickname';
-    $('#profilePassportLabel').textContent = kid ? 'Explorer passport' : state.mode === 'teen' ? 'Progress passport' : 'Learning record';
-    $('#profileShopTitle').textContent = kid ? 'Dress your explorer.' : state.mode === 'teen' ? 'Style your avatar.' : 'Personalize your avatar.';
-    $('#certHeading').textContent = kid ? 'SAFE EXPLORER' : state.mode === 'teen' ? 'DIGITAL NAVIGATOR' : 'ONLINE GUARDIAN';
+    setElemText('#profileSectionKicker', kid ? '01 / Your explorer' : state.mode === 'teen' ? '01 / Your digital profile' : '01 / Your profile');
+    setElemText('#setupProfileKicker', kid ? 'Your explorer' : state.mode === 'teen' ? 'Digital profile' : 'Personal profile');
+    setElemText('#profileNameLabel', kid ? 'Explorer name' : state.mode === 'teen' ? 'Display name' : 'Name or nickname');
+    const explorerInput = $('#explorerName');
+    if (explorerInput) explorerInput.placeholder = kid ? 'Name your explorer' : state.mode === 'teen' ? 'Choose a display name' : 'Enter a name or nickname';
+    setElemText('#profilePassportLabel', kid ? 'Explorer passport' : state.mode === 'teen' ? 'Progress passport' : 'Learning record');
+    setElemText('#profileShopTitle', kid ? 'Dress your explorer.' : state.mode === 'teen' ? 'Style your avatar.' : 'Personalize your avatar.');
+    setElemText('#certHeading', kid ? 'SAFE EXPLORER' : state.mode === 'teen' ? 'DIGITAL NAVIGATOR' : 'ONLINE GUARDIAN');
   }
 
   function renderSetup() {
-    $('#setupAvatar').innerHTML = avatarSVG(state.avatar.color, state.avatar.accessory) + petMarkup();
-    $('#setupName').textContent = equippedName();
-    $('#setupMeta').textContent = `${MODE_INFO[state.mode].badge} · ${schoolLabel()}${state.avatar.pet !== 'none' ? ` · ${petDisplayName()}` : ''}`;
+    const setupAvatar = $('#setupAvatar');
+    if (setupAvatar) setupAvatar.innerHTML = avatarSVG(state.avatar.color, state.avatar.accessory) + petMarkup();
+    const setupName = $('#setupName');
+    if (setupName) setupName.textContent = equippedName();
+    const setupMeta = $('#setupMeta');
+    if (setupMeta) setupMeta.textContent = `${MODE_INFO[state.mode].badge} · ${schoolLabel()}${state.avatar.pet !== 'none' ? ` · ${petDisplayName()}` : ''}`;
   }
 
   function renderPath() {
+    const pathEl = $('#lessonPath');
+    if (!pathEl) return;
     const levels = [1, 2, 3];
     const stepLabels = LESSON_MODE_COPY[state.mode].stepLabels;
-    $('#lessonPath').innerHTML = levels.map(level => {
+    pathEl.innerHTML = levels.map(level => {
       const lessons = LESSONS.filter(lesson => lesson.level === level);
       const cards = lessons.map(lesson => {
         const unlocked = lessonUnlocked(lesson.id);
@@ -5714,7 +6002,7 @@ window.SUSOR_DATA = (() => {
           <div class="lesson-steps" aria-hidden="true">${stepLabels.map(label => `<span>${label}</span>`).join('')}</div>
           <div class="quest-footer">
             <span class="lesson-reward"><svg class="ico coin-ico"><use href="#i-coin"/></svg> +100–160</span>
-            <button class="btn quest-btn lesson-btn" type="button" data-lesson="${lesson.id}" ${unlocked ? '' : 'disabled'}>${unlocked ? (rec ? 'Replay' : 'Start lesson') : 'Locked'}</button>
+            <button class="btn quest-btn lesson-btn" type="button" data-lesson="${lesson.id}" ${unlocked ? '' : 'disabled'}>${unlocked ? (rec ? 'Replay' : (state.last_place === `lesson:${lesson.id}` || (!state.last_place && current) ? 'Resume' : 'Start lesson')) : 'Locked'}</button>
           </div>
           ${rec ? `<span class="lesson-stars" aria-label="${rec.stars} stars">${STAR(rec.stars)}</span>` : ''}
           ${lock}
@@ -5730,11 +6018,14 @@ window.SUSOR_DATA = (() => {
       </div>`;
     }).join('');
 
-    $('#unlockAll').textContent = state.unlockAll ? 'Lock lessons back into sequence' : 'Teacher? Unlock all lessons';
+    const unlockAllBtn = $('#unlockAll');
+    if (unlockAllBtn) unlockAllBtn.textContent = state.unlockAll ? 'Lock lessons back into sequence' : 'Teacher? Unlock all lessons';
   }
 
   function renderGames() {
-    $('#gamesGrid').innerHTML = ARCADE_GAMES.map((game, index) => {
+    const gamesGrid = $('#gamesGrid');
+    if (!gamesGrid) return;
+    gamesGrid.innerHTML = ARCADE_GAMES.map((game, index) => {
       const lesson = LESSONS.find(item => item.id === game.id);
       const modeGame = game.modes[state.mode];
       const record = state.arcade[game.id];
@@ -5766,6 +6057,8 @@ window.SUSOR_DATA = (() => {
   function openArcadeGame(id) {
     const game = ARCADE_GAMES.find(item => item.id === id);
     if (!game) return;
+    state.last_place = `game:${id}`;
+    save();
     arcadeSession = { game, mode: state.mode, round: 0, score: 0, answered: false };
     $('#arcadeTitle').textContent = game.modes[state.mode].title;
     $('#arcadeKicker').textContent = `Arcade challenge ${String(id).padStart(2, '0')}`;
@@ -5831,6 +6124,7 @@ window.SUSOR_DATA = (() => {
       best: Math.max(previousBest, session.score),
       attempts: attempts + 1
     };
+    state.last_place = `game:${session.game.id}`;
     save();
     renderGames();
     const game = session.game.modes[session.mode];
@@ -5852,7 +6146,7 @@ window.SUSOR_DATA = (() => {
       </div>`;
   }
 
-  arcadeBody.addEventListener('click', event => {
+  arcadeBody?.addEventListener('click', event => {
     const answer = event.target.closest('[data-arcade-answer]');
     if (answer) {
       answerArcadeRound(Number(answer.dataset.arcadeAnswer));
@@ -5877,55 +6171,87 @@ window.SUSOR_DATA = (() => {
     if (event.target.closest('[data-arcade-close]')) arcadeDialog.close();
   });
 
-  $('#closeArcade').addEventListener('click', () => arcadeDialog.close());
-  arcadeDialog.addEventListener('click', event => {
+  $('#closeArcade')?.addEventListener('click', () => arcadeDialog?.close());
+  arcadeDialog?.addEventListener('click', event => {
     if (event.target === arcadeDialog) arcadeDialog.close();
   });
-  arcadeDialog.addEventListener('close', () => {
+  arcadeDialog?.addEventListener('close', () => {
     arcadeSession = null;
   });
 
   function renderPassport() {
     const count = completedLessons().length;
     const pct = (count / LESSONS.length) * 100;
-    $('#xpRing').style.setProperty('--p', String(pct));
-    $('#lessonCountBig').textContent = String(count);
-    $('#lessonProgress').textContent = `${count} / ${LESSONS.length}`;
-    $('#rankName').textContent = rankFor(count);
-    $('#crewRank').textContent = rankFor(count);
+    const xpRing = $('#xpRing');
+    if (xpRing) xpRing.style.setProperty('--p', String(pct));
+    const countBig = $('#lessonCountBig');
+    if (countBig) countBig.textContent = String(count);
+    const progress = $('#lessonProgress');
+    if (progress) progress.textContent = `${count} / ${LESSONS.length}`;
+    const rankName = $('#rankName');
+    if (rankName) rankName.textContent = rankFor(count);
+    const crewRank = $('#crewRank');
+    if (crewRank) crewRank.textContent = rankFor(count);
 
     const next = LESSONS.find(lesson => !lessonDone(lesson.id) && lessonUnlocked(lesson.id));
-    $('#passportText').textContent = count === LESSONS.length
-      ? `All 7 lessons complete · ${state.coins} coins · certificate unlocked.`
-      : `${count} of 7 lessons · ${state.coins} coins · ${next ? `next up: ${next.title}` : 'unlock the next lesson to continue'}.`;
+    const passportText = $('#passportText');
+    if (passportText) {
+      passportText.textContent = count === LESSONS.length
+        ? `All 7 lessons complete · ${state.coins} coins · certificate unlocked.`
+        : `${count} of 7 lessons · ${state.coins} coins · ${next ? `next up: ${next.title}` : 'unlock the next lesson to continue'}.`;
+    }
 
-    $('#stampRow').innerHTML = LESSONS.map(lesson => {
-      const done = lessonDone(lesson.id);
-      const open = lessonUnlocked(lesson.id);
-      return `<span class="stamp ${done ? 'is-done' : ''} ${open ? 'is-open' : ''}" title="Lesson ${lesson.id}: ${lesson.title}" style="--s:${lesson.color}">${done ? '✓' : lesson.id}</span>`;
-    }).join('');
+    const stampRow = $('#stampRow');
+    if (stampRow) {
+      stampRow.innerHTML = LESSONS.map(lesson => {
+        const done = lessonDone(lesson.id);
+        const open = lessonUnlocked(lesson.id);
+        return `<span class="stamp ${done ? 'is-done' : ''} ${open ? 'is-open' : ''}" title="Lesson ${lesson.id}: ${lesson.title}" style="--s:${lesson.color}">${done ? '✓' : lesson.id}</span>`;
+      }).join('');
+    }
   }
 
   function renderCrew() {
-    $('#crewAvatar').innerHTML = avatarSVG(state.avatar.color, state.avatar.accessory) + petMarkup();
+    const crewAvatar = $('#crewAvatar');
+    if (crewAvatar) crewAvatar.innerHTML = avatarSVG(state.avatar.color, state.avatar.accessory) + petMarkup();
     const pet = currentPet();
-    $('#crewPetEmoji').textContent = pet.id === 'none' ? '·' : pet.emoji;
-    $('#crewPetName').textContent = pet.id === 'none' ? 'No pet yet' : petDisplayName();
+    const petEmoji = $('#crewPetEmoji');
+    if (petEmoji) petEmoji.textContent = pet.id === 'none' ? '·' : pet.emoji;
+    const petNameEl = $('#crewPetName');
+    if (petNameEl) petNameEl.textContent = pet.id === 'none' ? 'No pet yet' : petDisplayName();
 
     const active = document.activeElement;
-    if (active !== $('#explorerName')) $('#explorerName').value = state.name;
-    if (active !== $('#petName')) $('#petName').value = state.avatar.pet === 'none' ? '' : (state.petName || '');
+    const explorerInput = $('#explorerName');
+    if (explorerInput && active !== explorerInput) explorerInput.value = state.name;
+    const petInput = $('#petName');
+    if (petInput && active !== petInput) petInput.value = state.avatar.pet === 'none' ? '' : (state.petName || '');
+
     const stageSelect = $('#schoolSelect');
-    const activeStage = STAGES[state.mode].find(stage => stage.id === state.stagesByMode[state.mode]);
-    stageSelect.innerHTML = STAGES[state.mode].map(stage =>
-      `<option value="${stage.id}">${stage.label}</option>`
-    ).join('');
-    stageSelect.value = activeStage.id;
-    $('#schoolStageLabel').textContent = state.mode === 'kid' ? 'Age or school stage' : 'Life stage';
-    $('#schoolStageNote').textContent = state.mode === 'adult'
-      ? 'This stays on your device and only tailors your safety tips.'
-      : 'We never ask for your school’s name. This only tailors your safety tips.';
-    $('#schoolTip').textContent = STAGE_TIPS[activeStage.id];
+    if (stageSelect) {
+      if (!state.stagesByMode || typeof state.stagesByMode !== 'object') {
+        state.stagesByMode = { kid: 'primary', teen: 'high', adult: 'working' };
+      }
+      const modeStages = STAGES[state.mode] || STAGES.kid;
+      let activeStage = modeStages.find(stage => stage.id === state.stagesByMode[state.mode]);
+      if (!activeStage) {
+        activeStage = modeStages[0];
+        state.stagesByMode[state.mode] = activeStage.id;
+      }
+      stageSelect.innerHTML = modeStages.map(stage =>
+        `<option value="${stage.id}">${stage.label}</option>`
+      ).join('');
+      stageSelect.value = activeStage.id;
+      const stageLabel = $('#schoolStageLabel');
+      if (stageLabel) stageLabel.textContent = state.mode === 'kid' ? 'Age or school stage' : 'Life stage';
+      const stageNote = $('#schoolStageNote');
+      if (stageNote) {
+        stageNote.textContent = state.mode === 'adult'
+          ? 'This stays on your device and only tailors your safety tips.'
+          : 'We never ask for your school’s name. This only tailors your safety tips.';
+      }
+      const schoolTip = $('#schoolTip');
+      if (schoolTip) schoolTip.textContent = STAGE_TIPS[activeStage.id] || '';
+    }
 
     $$('.mode-pill[data-mode]').forEach(btn => {
       const on = btn.dataset.mode === state.mode;
@@ -5938,6 +6264,7 @@ window.SUSOR_DATA = (() => {
 
   function renderShop() {
     const grid = $('#shopGrid');
+    if (!grid) return;
     $$('.shop-tab').forEach(tab => {
       const on = tab.dataset.shopTab === shopTab;
       tab.classList.toggle('is-active', on);
@@ -5987,24 +6314,86 @@ window.SUSOR_DATA = (() => {
   function renderCertificate() {
     const done = completedLessons().length;
     const unlocked = done === LESSONS.length;
-    $('#certStage').classList.toggle('is-unlocked', unlocked);
-    $('#certProgress').textContent = `${done} / ${LESSONS.length}`;
-    $('#printCert').disabled = !unlocked;
-    $('#certNo').textContent = String(done).padStart(4, '0');
-    $('#certNameOut').textContent = state.name.trim() || 'A Curious Human';
-    $('#certDate').textContent = formatDate(new Date());
-    $('#certAvatar').innerHTML = avatarSVG(state.avatar.color, state.avatar.accessory) + petMarkup();
-    $('#certPet').textContent = state.avatar.pet === 'none'
-      ? 'flying solo'
-      : `with ${petDisplayName()}`;
+    const certStage = $('#certStage');
+    if (certStage) certStage.classList.toggle('is-unlocked', unlocked);
+    const certProgress = $('#certProgress');
+    if (certProgress) certProgress.textContent = `${done} / ${LESSONS.length}`;
+    const printCert = $('#printCert');
+    if (printCert) printCert.disabled = !unlocked;
+    const certNo = $('#certNo');
+    if (certNo) certNo.textContent = String(done).padStart(4, '0');
+    const certNameOut = $('#certNameOut');
+    if (certNameOut) certNameOut.textContent = state.name.trim() || 'A Curious Human';
+    const certDate = $('#certDate');
+    if (certDate) certDate.textContent = formatDate(new Date());
+    const certAvatar = $('#certAvatar');
+    if (certAvatar) certAvatar.innerHTML = avatarSVG(state.avatar.color, state.avatar.accessory) + petMarkup();
+    const certPet = $('#certPet');
+    if (certPet) {
+      certPet.textContent = state.avatar.pet === 'none'
+        ? 'flying solo'
+        : `with ${petDisplayName()}`;
+    }
 
     const active = document.activeElement;
-    if (active !== $('#certName')) $('#certName').value = state.name;
+    const certInput = $('#certName');
+    if (certInput && active !== certInput) certInput.value = state.name;
+  }
+
+  function getResumeTarget() {
+    if (state.last_place) {
+      if (state.last_place.startsWith('lesson:')) {
+        const id = Number(state.last_place.split(':')[1]);
+        if (id && LESSONS.some(l => l.id === id) && lessonUnlocked(id)) {
+          const isDone = Boolean(state.lessons[id]);
+          return { type: 'lesson', id, title: `Lesson ${id}`, isResume: true, isDone };
+        }
+      } else if (state.last_place.startsWith('game:')) {
+        const id = Number(state.last_place.split(':')[1]);
+        if (id && ARCADE_GAMES.some(g => g.id === id)) {
+          return { type: 'game', id, title: `Challenge ${id}`, isResume: true };
+        }
+      }
+    }
+    const hasAnyLessons = Object.keys(state.lessons).length > 0;
+    const nextUncompleted = LESSONS.find(l => !state.lessons[l.id] && lessonUnlocked(l.id));
+    if (nextUncompleted) {
+      return {
+        type: 'lesson',
+        id: nextUncompleted.id,
+        title: `Lesson ${nextUncompleted.id}`,
+        isResume: hasAnyLessons
+      };
+    }
+    if (completedLessons().length === LESSONS.length) {
+      return { type: 'completed', id: 1, title: 'Review Lessons', isResume: true };
+    }
+    return { type: 'lesson', id: 1, title: 'Lesson 1', isResume: false };
+  }
+
+  function renderHeroCTA() {
+    const heroBtn = $('#heroStart');
+    if (!heroBtn) return;
+    const target = getResumeTarget();
+    if (target.type === 'completed') {
+      heroBtn.innerHTML = `Review Lessons <svg class="ico"><use href="#i-arrow"/></svg>`;
+      heroBtn.dataset.targetType = 'lesson';
+      heroBtn.dataset.targetId = '1';
+    } else if (target.isResume) {
+      heroBtn.innerHTML = `Resume ${target.title} <svg class="ico"><use href="#i-arrow"/></svg>`;
+      heroBtn.dataset.targetType = target.type;
+      heroBtn.dataset.targetId = String(target.id);
+    } else {
+      heroBtn.innerHTML = `Start Lesson 1 <svg class="ico"><use href="#i-arrow"/></svg>`;
+      heroBtn.dataset.targetType = 'lesson';
+      heroBtn.dataset.targetId = '1';
+    }
   }
 
   function renderAll() {
     renderHeader();
     renderModeUI();
+    renderHeroCTA();
     renderPath();
     renderGames();
     renderPassport();
@@ -6017,24 +6406,41 @@ window.SUSOR_DATA = (() => {
   }
 
   function setMode(mode, opts = {}) {
-    if (!MODE_INFO[mode] || state.mode === mode) {
+    if (!MODE_INFO[mode]) return;
+    if (state.mode === mode) {
+      renderModeUI();
       if (!opts.silent) toast('You are already in this mode.');
       return;
     }
     state.mode = mode;
+    if (!state.stagesByMode || typeof state.stagesByMode !== 'object') {
+      state.stagesByMode = { kid: 'primary', teen: 'high', adult: 'working' };
+    }
+    const modeStages = STAGES[mode] || STAGES.kid;
+    if (!modeStages.some(s => s.id === state.stagesByMode[mode])) {
+      state.stagesByMode[mode] = modeStages[0].id;
+    }
     save();
+    try {
+      localStorage.setItem('susorsafe_mode', mode);
+    } catch (e) {}
+    syncToDatabase(true);
     renderModeUI();
+    renderHeroCTA();
     renderPath();
     renderGames();
     renderPassport();
     renderSetup();
     renderCrew();
     if (!opts.silent) toast(`Mode: ${MODE_INFO[mode].badge}. Progress kept.`);
-    if (lessonDialog.open && currentLesson) {
+    if (lessonDialog && lessonDialog.open && currentLesson) {
       lessonTitleEl.textContent = LESSON_MODE_COPY[state.mode][currentLesson.id].title;
       renderLesson();
     }
   }
+
+  window._susorsafeAppSetMode = (mode, opts) => setMode(mode, opts);
+  window.setSusOrSafeMode = (mode, opts) => setMode(mode, opts);
 
   /* ==========================================================
      Lesson engine
@@ -6064,6 +6470,9 @@ window.SUSOR_DATA = (() => {
       toast(`Finish Lesson ${id - 1} to unlock this one.`);
       return;
     }
+
+    state.last_place = `lesson:${id}`;
+    save();
 
     currentLesson = lesson;
     currentStep = 0;
@@ -6133,7 +6542,7 @@ window.SUSOR_DATA = (() => {
         <p>${tip}</p>
       </div>
       <div class="game-actions">
-        <button class="btn btn-primary" type="button" id="overviewNext">${modeCopy.nextWords} <svg class="ico"><use href="#i-arrow"/></svg></button>
+        <button class="btn btn-primary" type="button" id="overviewNext">${modeCopy.nextWords || 'Next'} <svg class="ico"><use href="#i-arrow"/></svg></button>
       </div>`;
 
     $('#overviewNext').addEventListener('click', () => {
@@ -6298,6 +6707,11 @@ window.SUSOR_DATA = (() => {
     };
     if (first) state.coins += coinsEarned;
     if (first || stars > (previous?.stars || 0)) pendingCelebration = true;
+
+    const next = LESSONS.find(item => item.id === lesson.id + 1);
+    const nextUnlocked = next && lessonUnlocked(next.id);
+    state.last_place = nextUnlocked ? `lesson:${next.id}` : `lesson:${lesson.id}`;
+
     save();
     renderAll();
     playSound('win');
@@ -6330,7 +6744,7 @@ window.SUSOR_DATA = (() => {
   }
 
   function closeLesson() {
-    if (lessonDialog.open) lessonDialog.close();
+    if (lessonDialog && lessonDialog.open) lessonDialog.close();
   }
 
   function goTo(selector) {
@@ -6341,7 +6755,7 @@ window.SUSOR_DATA = (() => {
     }, 80);
   }
 
-  lessonDialog.addEventListener('close', () => {
+  lessonDialog?.addEventListener('close', () => {
     document.body.classList.remove('modal-open');
     activityDoneCallback = null;
     if (pendingCelebration) {
@@ -6350,13 +6764,13 @@ window.SUSOR_DATA = (() => {
     }
   });
 
-  $('#closeLesson').addEventListener('click', closeLesson);
+  $('#closeLesson')?.addEventListener('click', closeLesson);
 
-  lessonDialog.addEventListener('click', event => {
+  lessonDialog?.addEventListener('click', event => {
     if (event.target === lessonDialog) closeLesson();
   });
 
-  lessonBody.addEventListener('click', event => {
+  lessonBody?.addEventListener('click', event => {
     const next = event.target.closest('[data-next-lesson]');
     if (next) {
       openLesson(Number(next.dataset.nextLesson));
@@ -7426,41 +7840,43 @@ window.SUSOR_DATA = (() => {
     goTo('#crew');
   }
 
-  $('#profileBtn').addEventListener('click', scrollToCrew);
-  $('#openCrew2').addEventListener('click', scrollToCrew);
+  $('#profileBtn')?.addEventListener('click', scrollToCrew);
+  $('#openCrew2')?.addEventListener('click', scrollToCrew);
 
-  $('#shopTabs').addEventListener('click', event => {
+  $('#shopTabs')?.addEventListener('click', event => {
     const tab = event.target.closest('[data-shop-tab]');
     if (!tab) return;
     shopTab = tab.dataset.shopTab;
     renderShop();
   });
 
-  $('#shopGrid').addEventListener('click', event => {
+  $('#shopGrid')?.addEventListener('click', event => {
     const item = event.target.closest('[data-buy-type]');
     if (!item) return;
     buyOrEquip(item.dataset.buyType, item.dataset.buyId);
   });
 
-  $('#explorerName').addEventListener('input', event => {
+  $('#explorerName')?.addEventListener('input', event => {
     state.name = event.target.value;
     save();
     renderSetup();
     renderPassport();
     renderCertificate();
-    $('#certName').value = state.name;
+    const certInput = $('#certName');
+    if (certInput) certInput.value = state.name;
   });
 
-  $('#certName').addEventListener('input', event => {
+  $('#certName')?.addEventListener('input', event => {
     state.name = event.target.value;
     save();
     renderSetup();
     renderPassport();
-    $('#explorerName').value = state.name;
+    const explorerInput = $('#explorerName');
+    if (explorerInput) explorerInput.value = state.name;
     renderCertificate();
   });
 
-  $('#petName').addEventListener('input', event => {
+  $('#petName')?.addEventListener('input', event => {
     state.petName = event.target.value;
     save();
     renderSetup();
@@ -7468,21 +7884,30 @@ window.SUSOR_DATA = (() => {
     renderCertificate();
   });
 
-  $('#schoolSelect').addEventListener('change', event => {
+  $('#schoolSelect')?.addEventListener('change', event => {
+    if (!state.stagesByMode || typeof state.stagesByMode !== 'object') {
+      state.stagesByMode = { kid: 'primary', teen: 'high', adult: 'working' };
+    }
     state.stagesByMode[state.mode] = event.target.value;
     state.school = state.stagesByMode.kid;
     save();
     renderSetup();
-    $('#schoolTip').textContent = STAGE_TIPS[state.stagesByMode[state.mode]];
+    const schoolTip = $('#schoolTip');
+    if (schoolTip) schoolTip.textContent = STAGE_TIPS[state.stagesByMode[state.mode]] || '';
     toast(`Life stage: ${schoolLabel()}. This stays on your device.`);
   });
 
   document.addEventListener('click', event => {
     const modeBtn = event.target.closest('.mode-pill[data-mode], .route-btn[data-mode]');
+    const routeCard = event.target.closest('.route-card[data-route]');
     if (modeBtn) {
       setMode(modeBtn.dataset.mode);
-      if (modeBtn.classList.contains('route-btn')) {
-        window.location.href = '/lessons/';
+      return;
+    }
+    if (routeCard && !event.target.closest('a, button')) {
+      const targetMode = routeCard.dataset.route;
+      if (MODE_INFO[targetMode]) {
+        setMode(targetMode);
       }
       return;
     }
@@ -7497,15 +7922,29 @@ window.SUSOR_DATA = (() => {
     }
   });
 
-  $('#heroStart').addEventListener('click', () => {
-    if (document.body.dataset.page === 'home') {
-      window.location.href = '/lessons/?lesson=1';
+  $('#heroStart')?.addEventListener('click', () => {
+    const heroBtn = $('#heroStart');
+    if (!heroBtn) return;
+    const targetType = heroBtn.dataset.targetType || 'lesson';
+    const targetId = Number(heroBtn.dataset.targetId) || 1;
+
+    if (targetType === 'game') {
+      if (document.body.dataset.page === 'games') {
+        openArcadeGame(targetId);
+      } else {
+        window.location.href = `/games/?game=${targetId}`;
+      }
       return;
     }
-    openLesson(1);
+
+    if (document.body.dataset.page === 'home') {
+      window.location.href = `/lessons/?lesson=${targetId}`;
+      return;
+    }
+    openLesson(targetId);
   });
 
-  $('#unlockAll').addEventListener('click', () => {
+  $('#unlockAll')?.addEventListener('click', () => {
     state.unlockAll = !state.unlockAll;
     save();
     renderPath();
@@ -7513,7 +7952,7 @@ window.SUSOR_DATA = (() => {
     toast(state.unlockAll ? 'All lessons unlocked. Good for classrooms.' : 'Back to the guided sequence.');
   });
 
-  $('#resetProgress').addEventListener('click', () => {
+  $('#resetProgress')?.addEventListener('click', () => {
     const ok = window.confirm("Clear all lesson progress, coins, gear and the certificate? This can't be undone.");
     if (!ok) return;
     state = defaultState();
@@ -7528,8 +7967,9 @@ window.SUSOR_DATA = (() => {
      Certificate
      ========================================================== */
 
-  $('#printCert').addEventListener('click', () => {
-    if ($('#printCert').disabled) return;
+  $('#printCert')?.addEventListener('click', () => {
+    const printCertBtn = $('#printCert');
+    if (printCertBtn && printCertBtn.disabled) return;
     window.print();
   });
 
@@ -7572,7 +8012,7 @@ window.SUSOR_DATA = (() => {
     toast('SusOrSafe installed. See you on the home screen.');
   });
 
-  $('#installBtn').addEventListener('click', async () => {
+  $('#installBtn')?.addEventListener('click', async () => {
     if (deferredInstall) {
       deferredInstall.prompt();
       try {
@@ -7591,8 +8031,38 @@ window.SUSOR_DATA = (() => {
   });
 
   /* ==========================================================
-     Init
+     Init & Global Listeners
      ========================================================== */
+
+  // Sign out wipe listener for client-side forms
+  document.addEventListener('submit', (e) => {
+    const form = e.target.closest('form');
+    if (form && (form.classList.contains('logout-form') || (form.action && form.action.includes('logout')))) {
+      try {
+        localStorage.removeItem(STORE_KEY);
+        localStorage.removeItem('susorsafe_mode');
+        sessionStorage.clear();
+      } catch (err) {}
+    }
+  });
+
+  // Page unload / backgrounding sync
+  window.addEventListener('pagehide', () => {
+    if (window.SUSORSAFE_USER && window.SUSORSAFE_USER.isAuthenticated) {
+      try {
+        progressSyncRequest('/api/user-progress-sync/', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCsrfToken()
+          },
+          credentials: 'same-origin',
+          body: JSON.stringify(state),
+          keepalive: true
+        });
+      } catch (e) {}
+    }
+  });
 
   function init() {
     const params = new URLSearchParams(window.location.search);
@@ -7610,6 +8080,13 @@ window.SUSOR_DATA = (() => {
       setTimeout(() => openLesson(lesson), 500);
     }
 
+    const game = Number(params.get('game'));
+    if (game && ARCADE_GAMES.some(item => item.id === game)) {
+      setTimeout(() => openArcadeGame(game), 500);
+    }
+
+    fetchServerState();
+
     if ('serviceWorker' in navigator && /^https?:$/.test(window.location.protocol)) {
       window.addEventListener('load', () => {
         navigator.serviceWorker.register('/sw.js').catch(() => {});
@@ -7625,19 +8102,21 @@ window.SUSOR_DATA = (() => {
 const menuToggle = document.querySelector("#menuToggle");
 const navLinks = document.querySelector("#navLinks");
 
-// Open and close the mobile navigation menu.
-menuToggle.addEventListener("click", () => {
-  const isOpen = navLinks.classList.toggle("open");
-  menuToggle.setAttribute("aria-expanded", String(isOpen));
-});
-
-// Close the mobile menu after choosing a section.
-navLinks.querySelectorAll("a").forEach((link) => {
-  link.addEventListener("click", () => {
-    navLinks.classList.remove("open");
-    menuToggle.setAttribute("aria-expanded", "false");
+if (menuToggle && navLinks) {
+  // Open and close the mobile navigation menu.
+  menuToggle.addEventListener("click", () => {
+    const isOpen = navLinks.classList.toggle("open");
+    menuToggle.setAttribute("aria-expanded", String(isOpen));
   });
-});
+
+  // Close the mobile menu after choosing a section.
+  navLinks.querySelectorAll("a").forEach((link) => {
+    link.addEventListener("click", () => {
+      navLinks.classList.remove("open");
+      menuToggle.setAttribute("aria-expanded", "false");
+    });
+  });
+}
 
 // Reveal cards and headings when they scroll into view.
 const revealItems = document.querySelectorAll(".reveal");
@@ -7693,31 +8172,27 @@ const legalContent = {
 // Function to apply the selected age mode
 function setAgeMode(mode) {
   if (!['kid', 'teen', 'adult'].includes(mode)) return;
+  if (typeof window.setSusOrSafeMode === 'function') {
+    window.setSusOrSafeMode(mode);
+    return;
+  }
+  if (typeof window.applySusOrSafeMode === 'function') {
+    window.applySusOrSafeMode(mode);
+    return;
+  }
 
-  // 1. Update dataset and class list on body
+  // Fallback if engines are not loaded
   document.body.dataset.mode = mode;
   document.body.classList.remove('theme-kid', 'theme-teen', 'theme-adult', 'theme-kids', 'theme-teens', 'theme-adults');
   document.body.classList.add(`theme-${mode}`);
-
-  // 2. Set colorScheme and theme-color meta tag
   const themeColors = { kid: '#fff8df', teen: '#080b1c', adult: '#f8f5f0' };
   document.documentElement.style.colorScheme = mode === 'teen' ? 'dark' : 'light';
   document.querySelector('meta[name="theme-color"]')?.setAttribute('content', themeColors[mode]);
-
-  // 3. Update active state and aria-pressed attributes on the pills
   document.querySelectorAll('.mode-pill').forEach(btn => {
     const isCurrent = btn.getAttribute('data-mode') === mode;
     btn.classList.toggle('is-active', isCurrent);
     btn.setAttribute('aria-pressed', String(isCurrent));
   });
-
-  // 4. Update data-age-copy elements if present
-  document.querySelectorAll('[data-age-copy-kid], [data-age-copy-teen], [data-age-copy-adult]').forEach((element) => {
-    const copy = element.getAttribute(`data-age-copy-${mode}`);
-    if (copy) element.textContent = copy;
-  });
-
-  // 5. Save preference across keys so it persists
   try {
     const savedState = JSON.parse(localStorage.getItem('susorsafe.v2') || '{}');
     savedState.mode = mode;
@@ -7725,27 +8200,6 @@ function setAgeMode(mode) {
   } catch (e) {}
   localStorage.setItem('susorsafe_mode', mode);
 }
-
-// Initialize on page load
-document.addEventListener('DOMContentLoaded', () => {
-  let savedMode = 'teen';
-  try {
-    const savedState = JSON.parse(localStorage.getItem('susorsafe.v2') || '{}');
-    if (savedState.mode) savedMode = savedState.mode;
-    else savedMode = localStorage.getItem('susorsafe_mode') || 'teen';
-  } catch (e) {
-    savedMode = localStorage.getItem('susorsafe_mode') || 'teen';
-  }
-  setAgeMode(savedMode);
-
-  // Attach click listeners to existing mode pills
-  document.querySelectorAll('.mode-pill').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const mode = btn.getAttribute('data-mode');
-      setAgeMode(mode);
-    });
-  });
-});
 
 
 </script>

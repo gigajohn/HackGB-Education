@@ -17,7 +17,7 @@ class Profile(models.Model):
         max_length=32,
         unique=True,
         default=generate_user_id,
-        editable=False,
+        editable=True,
         help_text="Unique public user/explorer identifier"
     )
 
@@ -39,8 +39,63 @@ class Profile(models.Model):
     )
     avatar = models.CharField(max_length=255, blank=True, default='shield')
     lessons_completed = models.JSONField(default=list, blank=True)
+    game_progress = models.JSONField(default=dict, blank=True)
+    lesson_progress = models.JSONField(default=dict, blank=True)
+    state_data = models.JSONField(default=dict, blank=True)
+    last_place = models.CharField(max_length=64, blank=True, default='')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+    def get_state_dict(self):
+        """Constructs complete frontend state dictionary for SusOrSafe app."""
+        base = {
+            'mode': self.age_mode or 'kid',
+            'coins': self.coins,
+            'lessons': self.lesson_progress or {},
+            'arcade': self.game_progress or {},
+            'avatar': {'color': 'mint', 'accessory': 'none', 'pet': 'pip'},
+            'stagesByMode': {'kid': 'primary', 'teen': 'high', 'adult': 'working'},
+            'last_place': self.last_place or '',
+            'username': self.user.get_username(),
+            'name': self.user.get_full_name() or self.user.username,
+        }
+        if isinstance(self.state_data, dict):
+            base.update(self.state_data)
+        base['coins'] = self.coins
+        base['mode'] = self.age_mode or base.get('mode', 'kid')
+        if not isinstance(base.get('stagesByMode'), dict):
+            base['stagesByMode'] = {'kid': 'primary', 'teen': 'high', 'adult': 'working'}
+        if self.lesson_progress:
+            base['lessons'] = self.lesson_progress
+        if self.game_progress:
+            base['arcade'] = self.game_progress
+        base['last_place'] = self.last_place
+        return base
+
+    def update_from_state(self, data):
+        """Updates profile attributes from frontend state JSON."""
+        if not isinstance(data, dict):
+            return
+        if 'coins' in data:
+            try:
+                self.coins = max(0, int(data['coins']))
+            except (ValueError, TypeError):
+                pass
+        if 'mode' in data and data['mode'] in ('kid', 'teen', 'adult'):
+            self.age_mode = data['mode']
+        if 'lessons' in data and isinstance(data['lessons'], dict):
+            self.lesson_progress = data['lessons']
+            self.lessons_completed = [int(k) for k in data['lessons'].keys() if str(k).isdigit()]
+        if 'arcade' in data and isinstance(data['arcade'], dict):
+            self.game_progress = data['arcade']
+        if 'last_place' in data and isinstance(data['last_place'], str):
+            self.last_place = data['last_place'][:64]
+        if 'avatar' in data and isinstance(data['avatar'], dict):
+            color = data['avatar'].get('color')
+            if color:
+                self.avatar = str(color)[:255]
+        self.state_data = data
+        self.save()
 
     def __str__(self):
         return f"{self.user.username} ({self.explorer_id})"

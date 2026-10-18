@@ -5,6 +5,7 @@ from django.urls import reverse
 from django.contrib.staticfiles import finders
 from django.contrib.auth import get_user_model
 from pages.models import Profile
+from pages.progress import make_progress_sync_token
 
 User = get_user_model()
 
@@ -165,3 +166,157 @@ class ProfileModelTests(TestCase):
         self.assertTrue(user.profile.explorer_id.startswith('usr_'))
         self.assertEqual(user.profile.coins, 0)
         self.assertEqual(user.profile.age_mode, 'kid')
+
+
+class UserProgressAPITests(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(username='progress_user', password='Password123!')
+
+    def test_unauthenticated_api_access(self):
+        # GET as guest
+        res = self.client.get(reverse('user_progress_api'))
+        self.assertEqual(res.status_code, 200)
+        data = res.json()
+        self.assertFalse(data['authenticated'])
+        self.assertIsNone(data['state'])
+
+        # POST as guest
+        res = self.client.post(
+            reverse('user_progress_api'),
+            data={'coins': 100},
+            content_type='application/json'
+        )
+        self.assertEqual(res.status_code, 200)
+        data = res.json()
+        self.assertFalse(data['authenticated'])
+        self.assertEqual(data['status'], 'guest')
+
+    def test_authenticated_get_and_post_progress(self):
+        self.client.force_login(self.user)
+
+        # Initially empty/default
+        res = self.client.get(reverse('user_progress_api'))
+        self.assertEqual(res.status_code, 200)
+        data = res.json()
+        self.assertTrue(data['authenticated'])
+        self.assertEqual(data['state']['coins'], 0)
+        self.assertEqual(data['state']['last_place'], '')
+
+        # Save progress from playing lesson 2 and arcade 1
+        payload = {
+            'coins': 240,
+            'mode': 'teen',
+            'last_place': 'lesson:2',
+            'lessons': {
+                '1': {'stars': 3, 'quiz': 3, 'at': '2026-10-18T12:00:00Z'},
+                '2': {'stars': 2, 'quiz': 2, 'at': '2026-10-18T12:10:00Z'},
+            },
+            'arcade': {
+                '1': {'best': 3, 'attempts': 2}
+            },
+            'avatar': {'color': 'violet', 'accessory': 'glasses', 'pet': 'pip'},
+        }
+        res = self.client.post(
+            reverse('user_progress_api'),
+            data=payload,
+            content_type='application/json'
+        )
+        self.assertEqual(res.status_code, 200)
+        res_data = res.json()
+        self.assertEqual(res_data['status'], 'ok')
+        self.assertEqual(res_data['coins'], 240)
+        self.assertEqual(res_data['last_place'], 'lesson:2')
+
+        # Check model persistence
+        self.user.profile.refresh_from_db()
+        self.assertEqual(self.user.profile.coins, 240)
+        self.assertEqual(self.user.profile.age_mode, 'teen')
+        self.assertEqual(self.user.profile.last_place, 'lesson:2')
+        self.assertEqual(self.user.profile.lessons_completed, [1, 2])
+        self.assertEqual(self.user.profile.lesson_progress['2']['stars'], 2)
+        self.assertEqual(self.user.profile.game_progress['1']['best'], 3)
+        self.assertEqual(self.user.profile.avatar, 'violet')
+
+        # Check GET returns the newly saved state
+        res = self.client.get(reverse('user_progress_api'))
+        self.assertEqual(res.status_code, 200)
+        data = res.json()
+        self.assertEqual(data['state']['coins'], 240)
+        self.assertEqual(data['state']['last_place'], 'lesson:2')
+        self.assertEqual(data['state']['mode'], 'teen')
+
+    def test_invalid_json_returns_400(self):
+        self.client.force_login(self.user)
+        res = self.client.post(
+            reverse('user_progress_api'),
+            data='not valid json',
+            content_type='application/json'
+        )
+        self.assertEqual(res.status_code, 400)
+
+    def test_cross_domain_token_reads_and_writes_profile(self):
+        token = make_progress_sync_token(self.user)
+        headers = {
+            'HTTP_AUTHORIZATION': f'Bearer {token}',
+            'HTTP_ORIGIN': 'https://susorsafe.study',
+        }
+
+        res = self.client.get(reverse('user_progress_sync_api'), **headers)
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(res['Access-Control-Allow-Origin'], 'https://susorsafe.study')
+        self.assertEqual(res.json()['state']['coins'], 0)
+
+        res = self.client.post(
+            reverse('user_progress_sync_api'),
+            data={'coins': 75, 'last_place': 'lesson:4'},
+            content_type='application/json',
+            **headers,
+        )
+        self.assertEqual(res.status_code, 200)
+        self.user.profile.refresh_from_db()
+        self.assertEqual(self.user.profile.coins, 75)
+        self.assertEqual(self.user.profile.last_place, 'lesson:4')
+
+    def test_cross_domain_token_is_required(self):
+        res = self.client.get(
+            reverse('user_progress_sync_api'),
+            HTTP_ORIGIN='https://susorsafe.study',
+        )
+        self.assertEqual(res.status_code, 401)
+
+
+class UserContextAndSessionTests(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(username='session_user', password='Password123!')
+        self.user.profile.coins = 350
+        self.user.profile.last_place = 'lesson:3'
+        self.user.profile.save()
+
+    def test_unauthenticated_home_context(self):
+        res = self.client.get(reverse('home'))
+        self.assertEqual(res.status_code, 200)
+        self.assertContains(res, '<script id="user-server-state" type="application/json">null</script>')
+        self.assertContains(res, 'isAuthenticated: false')
+
+    def test_authenticated_home_context_injects_user_state(self):
+        self.client.force_login(self.user)
+        res = self.client.get(reverse('home'))
+        self.assertEqual(res.status_code, 200)
+        self.assertContains(res, 'isAuthenticated: true')
+        self.assertContains(res, 'session_user')
+        self.assertContains(res, '"coins": 350')
+        self.assertContains(res, '"last_place": "lesson:3"')
+
+    def test_logout_sets_clear_cookie_and_redirects(self):
+        self.client.force_login(self.user)
+        res = self.client.post(reverse('logout'))
+        self.assertEqual(res.status_code, 302)
+        self.assertIn('logged_out=1', res['Location'])
+        self.assertIn('susorsafe_clear_client', res.cookies)
+        self.assertEqual(res.cookies['susorsafe_clear_client'].value, '1')
+    def test_home_page_with_logged_out_param_sets_cookie(self):
+        res = self.client.get(reverse('home') + '?logged_out=1')
+        self.assertEqual(res.status_code, 200)
+        self.assertIn('susorsafe_clear_client', res.cookies)
+        self.assertEqual(res.cookies['susorsafe_clear_client'].value, '1')
+

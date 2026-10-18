@@ -1,7 +1,7 @@
 /* SusOrSafe — Production Progressive Web App Service Worker (served at /sw.js) */
 'use strict';
 
-const CACHE = 'susorsafe-pwa-v20';
+const CACHE = 'susorsafe-pwa-v22';
 
 const PRECACHE_ASSETS = [
   '/',
