@@ -1,3 +1,5 @@
+from pathlib import Path
+
 from django.test import TestCase
 from django.urls import reverse
 from django.contrib.staticfiles import finders
@@ -21,6 +23,90 @@ class LandingPageTests(TestCase):
         self.assertContains(response, 'Preschool–middle school')
         self.assertContains(response, 'High school–college')
         self.assertContains(response, 'Middle age–senior')
+
+    def test_content_sections_have_separate_pages(self):
+        for page in ('lessons', 'games', 'toolkit', 'parents', 'install', 'about'):
+            with self.subTest(page=page):
+                response = self.client.get(reverse(page))
+                self.assertEqual(response.status_code, 200)
+                self.assertContains(response, f'data-page="{page}"')
+
+    def test_support_header_links_to_site_sections(self):
+        response = self.client.get(reverse('support'))
+        for page in ('home', 'lessons', 'games', 'toolkit', 'parents', 'install', 'about'):
+            with self.subTest(page=page):
+                self.assertContains(response, reverse(page))
+        for mode in ('kid', 'teen', 'adult'):
+            with self.subTest(mode=mode):
+                self.assertContains(response, f'data-mode="{mode}"')
+        self.assertContains(response, 'class="main-nav support-nav"')
+        self.assertContains(response, 'data-legal="terms"')
+        self.assertContains(response, 'data-legal="cookies"')
+        self.assertContains(response, 'class="site-footer"')
+
+    def test_home_footer_has_animated_legal_notices_and_age_mascot(self):
+        response = self.client.get(reverse('home'))
+        self.assertContains(response, '<!DOCTYPE html>', html=False)
+        self.assertContains(response, 'class="site-footer"')
+        self.assertContains(response, 'Terms &amp; conditions')
+        self.assertContains(response, 'Cookie notice')
+        self.assertContains(response, 'id="legalDialog"')
+        self.assertContains(response, 'class="mascot-age-teen"')
+        self.assertContains(response, 'class="mascot-age-adult"')
+        self.assertContains(response, reverse('games'))
+
+    def test_games_page_uses_age_specific_standalone_minigames(self):
+        response = self.client.get(reverse('games'))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'data-page="games"')
+        self.assertContains(response, 'id="gamesGrid"')
+        self.assertContains(response, 'id="gamesModeIntro"')
+        self.assertContains(response, 'id="arcadeDialog"')
+        app = Path(finders.find('susorsafe/app.js')).read_text(encoding='utf-8')
+        for title in ("title: 'AI or a person?'", "title: 'Fill in the safety blank'", "title: 'Pick the safe choice'", "title: 'Real or pretend?'"):
+            with self.subTest(title=title):
+                self.assertIn(title, app)
+        self.assertIn("kind: 'ai'", app)
+        self.assertIn("kind: 'blank'", app)
+        self.assertIn("kind: 'choose'", app)
+        self.assertIn("kind: 'realfake'", app)
+        self.assertIn('data-arcade="${game.id}"', app)
+        self.assertIn('function answerArcadeRound', app)
+        self.assertIn('function finishArcadeGame', app)
+        self.assertIn('cannot be proven by style alone', app)
+        self.assertIn('renderGames();', app)
+
+    def test_games_page_keeps_account_actions_and_navigation_on_a_single_line(self):
+        response = self.client.get(reverse('games'))
+        self.assertContains(response, 'class="auth-nav"')
+        self.assertContains(response, 'class="main-nav"')
+        styles = Path(finders.find('susorsafe/v2.css')).read_text(encoding='utf-8')
+        self.assertIn('@media (min-width:1121px)', styles)
+        self.assertIn('.main-nav{flex-wrap:nowrap;gap:1px;margin-left:auto}', styles)
+        self.assertIn('prefers-reduced-motion:reduce', Path(finders.find('susorsafe/styles.css')).read_text(encoding='utf-8'))
+
+    def test_age_specific_profile_and_lesson_options_are_available(self):
+        response = self.client.get(reverse('home'))
+        self.assertContains(response, 'id="schoolStageLabel"')
+        self.assertContains(response, 'id="profileNameLabel"')
+        data = Path(finders.find('susorsafe/data.js')).read_text(encoding='utf-8')
+        app = Path(finders.find('susorsafe/app.js')).read_text(encoding='utf-8')
+        self.assertIn("id: 'preschool'", data)
+        self.assertIn("id: 'working'", data)
+        self.assertIn("id: 'scarf'", data)
+        self.assertIn("id: 'backpack'", data)
+        self.assertIn("badge: 'Digital Navigator'", app)
+        self.assertIn("'Online Guardian'", app)
+        self.assertIn("vocabIntro:", app)
+        self.assertIn("activityLabels:", app)
+
+    def test_auth_pages_load_the_saved_age_theme(self):
+        for url in (reverse('login'), reverse('page_signup')):
+            with self.subTest(url=url):
+                response = self.client.get(url)
+                self.assertContains(response, 'class="auth-body"')
+                self.assertContains(response, 'susorsafe/theme.js')
+                self.assertContains(response, 'data-age-copy-adult=')
 
     def test_landing_page_contains_login_link(self):
         response = self.client.get(reverse('landing'))
@@ -51,6 +137,7 @@ class LoginPageTests(TestCase):
     def test_static_files_exist(self):
         self.assertIsNotNone(finders.find('susorsafe/styles.css'))
         self.assertIsNotNone(finders.find('susorsafe/fonts.css'))
+        self.assertIsNotNone(finders.find('susorsafe/theme.js'))
 
 
 class ProfileModelTests(TestCase):

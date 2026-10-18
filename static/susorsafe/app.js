@@ -1,5 +1,5 @@
 /* ==========================================================
-   SusorSafe — app logic
+   SusOrSafe — app logic
    State lives in localStorage. Nothing leaves the browser.
    ========================================================== */
 
@@ -7,7 +7,8 @@
   'use strict';
 
   const {
-    SCHOOLS,
+    STAGES,
+    STAGE_TIPS,
     LESSONS,
     PHISHING_CASES,
     SITE_CASES,
@@ -27,17 +28,29 @@
     kid: {
       badge: 'Little Islander',
       themeColor: '#fff8df',
+      homeAudience: 'For preschool through middle school',
+      homeCopy: 'A free game prize, a stranger in chat, or a pop-up saying “you won!” might be a trick. Learn to spot it, keep secrets like passwords private, and tell a grown-up.',
+      toolkitCopy: 'If a game promises free coins or a stranger asks for your password, stop. Check with a grown-up before you tap, share, or download.',
+      gamesCopy: 'Play friendly, no-timer challenges about game prizes, chat secrets, passwords, sharing, and safe Wi-Fi. Younger kids can play with a trusted grown-up.',
       hint: "Made for preschool through middle school. Younger kids can play with a grown-up; hints use simple comparisons, and there's no timer."
     },
     teen: {
-      badge: 'Explorer',
+      badge: 'Digital Navigator',
       themeColor: '#080b1c',
-      hint: 'Made for high school and college life, with social, gaming, job, housing and money scenarios. Judge first, then read the breakdown.'
+      homeAudience: 'For high school through college',
+      homeCopy: 'Fake jobs, concert tickets, scholarship offers, gaming giveaways, and copycat sign-in pages can target your money or accounts. Practise checking before you click or pay.',
+      toolkitCopy: 'Fake job offers, ticket deals, housing listings, and gaming giveaways can steal logins or money. Check the real account and website before you pay.',
+      gamesCopy: 'Practise realistic decisions around social DMs, ticket and job offers, account security, privacy, and public networks.',
+      hint: 'Made for high school, college and early independence, with social, gaming, job, housing and money scenarios. Judge first, then read the breakdown.'
     },
     adult: {
-      badge: 'Island Keeper',
+      badge: 'Online Guardian',
       themeColor: '#172321',
-      hint: 'Made for midlife through older adulthood, with calm, practical guidance on fake support, investments and transfer traps.'
+      homeAudience: 'For midlife through older adulthood',
+      homeCopy: 'A caller posing as your bank, a fake parcel fee, a too-good investment, or an urgent message from family can be a scam. Practise pausing and checking before sharing a code or sending money.',
+      toolkitCopy: 'Fake bank calls, parcel-fee texts, investment pitches, and urgent family messages can pressure you to share codes or move money. Verify using a number you already trust.',
+      gamesCopy: 'Work through practical scenarios about impersonation, account protection, privacy choices, and safer networks at a comfortable pace.',
+      hint: 'Made for working life, caregiving and retirement, with calm, practical guidance on fake support, investments and transfer traps.'
     }
   };
 
@@ -53,12 +66,192 @@
     adult: { lessons: [2, 3, 5, 7], text: 'fake support, investment and transfer scams, 2FA, public Wi-Fi' }
   };
 
-  const SCHOOL_TIPS = {
-    primary: 'Primary school: free game currency, group chats and sharing too much are the usual entry points.',
-    middle: 'Middle school: account theft, fake classmates and “free” offers in group chats.',
-    high: 'High school: part-time job scams, account sales, fake shops and first bank accounts.',
-    university: 'University: rental, internship, scholarship and banking scams — plus shared Wi-Fi.',
-    none: 'Outside school: the pattern is the same — urgency, a link, a request.'
+  const ARCADE_GAMES = [
+    {
+      id: 1, kind: 'ai', icon: 'eye',
+      modes: {
+        kid: { title: 'AI or a person?', detail: 'Guess who made a silly story, then learn why a guess cannot prove it.', rounds: [
+          { prompt: '“A banana wore tiny boots and marched to the moon.” Who made this pretend line?', options: ['AI helped write it', 'A person wrote it'], answer: 0, feedback: 'This practice line was made with AI. In real life, writing style alone cannot prove who made something.' },
+          { prompt: '“My dog stole my sock and hid it under the sofa.” Who made this pretend line?', options: ['AI helped write it', 'A person wrote it'], answer: 1, feedback: 'This practice line was written by a person. Real people and AI can sound alike, so check where something came from.' },
+          { prompt: 'A funny picture looks a little strange. Is that proof it was made by AI?', options: ['Yes, looks are proof', 'No, check its source'], answer: 1, feedback: 'Right! Pictures can be edited, unusual, or AI-made. Looks are a clue to pause, not proof.' }
+        ] },
+        teen: { title: 'AI or human? Quick guess', detail: 'Compare online-style posts and learn not to trust a guess as proof.', rounds: [
+          { prompt: '“This one trick guarantees you a scholarship—DM your login to claim it.” Who made this practice post?', options: ['AI helped write it', 'A person wrote it'], answer: 0, feedback: 'This practice example was AI-written. But urgency and requests for logins matter more than guessing the author.' },
+          { prompt: '“I made a playlist for the bus ride. What are you listening to?” Who made this practice post?', options: ['AI helped write it', 'A person wrote it'], answer: 1, feedback: 'This practice example was person-written. You cannot reliably prove authorship from a short post alone.' },
+          { prompt: 'A voice note sounds polished and familiar. Does that prove it is genuine?', options: ['Yes, it sounds familiar', 'No, verify another way'], answer: 1, feedback: 'Correct. AI can imitate voices. Call the person using a number you already have before acting on an urgent request.' }
+        ] },
+        adult: { title: 'AI or real? Check the source', detail: 'Try an authorship guessing game, then practise verifying the important details.', rounds: [
+          { prompt: '“Your bank account is frozen. Read this code to me now.” Who made this practice message?', options: ['AI helped write it', 'A person wrote it'], answer: 0, feedback: 'This practice message was AI-written. A real-looking message can still be deceptive; never share a verification code.' },
+          { prompt: '“Could we move lunch to Friday? I can meet at noon.” Who made this practice message?', options: ['AI helped write it', 'A person wrote it'], answer: 1, feedback: 'This practice message was person-written. A short message is not enough to prove who sent a real message.' },
+          { prompt: 'A familiar voice asks for an urgent transfer. Is the voice alone proof?', options: ['Yes, the voice is proof', 'No, verify another way'], answer: 1, feedback: 'Right. AI can imitate voices. Hang up and call the person using a number you already trust.' }
+        ] }
+      }
+    },
+    {
+      id: 2, kind: 'blank', icon: 'chat',
+      modes: {
+        kid: { title: 'Fill in the safety blank', detail: 'Pick the missing word to finish each friendly safety tip.', rounds: [
+          { prompt: 'A stranger asks for your game password. Keep it ___.', options: ['secret', 'on a public post', 'in the chat'], answer: 0, feedback: 'Passwords are secret. Never send yours in a chat or post.' },
+          { prompt: 'A message says “Hurry! You won a prize!” First, ___ and ask a grown-up.', options: ['pause', 'tap every link', 'send your name'], answer: 0, feedback: 'Pausing gives you time to check with a trusted grown-up.' },
+          { prompt: 'Someone says “Don’t tell anyone.” A safe helper lets you ___ a trusted grown-up.', options: ['tell', 'hide it from', 'send a code to'], answer: 0, feedback: 'A safe helper will not demand secrets. Tell a trusted grown-up.' }
+        ] },
+        teen: { title: 'Fill in the missing move', detail: 'Complete each response to a believable online pressure tactic.', rounds: [
+          { prompt: 'An “employer” asks you to pay a fee to get the job. ___ the offer independently.', options: ['Verify', 'Pay quickly', 'Share your login with'], answer: 0, feedback: 'Verify the company using contact details you find independently, not the message.' },
+          { prompt: 'A friend asks for a sign-in code by DM. Keep the code ___.', options: ['private', 'in the group chat', 'in your profile'], answer: 0, feedback: 'One-time codes are private. Contact your friend through another channel.' },
+          { prompt: 'A ticket deal pressures you to pay now. Open the official ___ yourself.', options: ['site or app', 'link they sent', 'payment form'], answer: 0, feedback: 'Use the official app or site you navigate to yourself, not their link.' }
+        ] },
+        adult: { title: 'Complete the safer response', detail: 'Fill the gap with the best next step for each unexpected request.', rounds: [
+          { prompt: 'A caller says to move funds to a “safe account.” ___ and contact your bank using a known number.', options: ['Hang up', 'Share the transfer code', 'Follow their instructions'], answer: 0, feedback: 'Hang up and call your bank using the number on your card or statement.' },
+          { prompt: 'A text demands a delivery fee through a shortened link. Verify using the carrier’s ___.', options: ['official app or website', 'reply button', 'payment link'], answer: 0, feedback: 'Navigate to the official carrier app or site yourself to check a delivery.' },
+          { prompt: 'A one-time sign-in code arrives unexpectedly. Keep the code ___.', options: ['private', 'available to the caller', 'in a public note'], answer: 0, feedback: 'Never disclose a one-time code to someone who contacted you.' }
+        ] }
+      }
+    },
+    {
+      id: 3, kind: 'choose', icon: 'map',
+      modes: {
+        kid: { title: 'Pick the safe choice', detail: 'Choose what your explorer should do in each little story.', rounds: [
+          { prompt: 'A game pop-up promises free coins if you type your password. What do you do?', options: ['Close it and ask a grown-up', 'Type the password', 'Ask the stranger for more coins'], answer: 0, feedback: 'Free coins are not worth giving away your password. Ask a trusted grown-up.' },
+          { prompt: 'A chat friend asks you to keep a secret about a gift card. What now?', options: ['Stop and tell a trusted grown-up', 'Buy the gift card', 'Send your home address'], answer: 0, feedback: 'Stop and tell a trusted grown-up whenever an online contact asks for secrecy or money.' },
+          { prompt: 'You are not sure a link is safe. What is a good next step?', options: ['Ask a trusted grown-up to check', 'Tap it quickly', 'Send it to more friends'], answer: 0, feedback: 'Asking for help is a smart safety move.' }
+        ] },
+        teen: { title: 'Choose your next move', detail: 'Make a call in realistic situations involving accounts, money, and messages.', rounds: [
+          { prompt: 'A class group chat shares a “free ticket” login link. What next?', options: ['Check the official ticket site yourself', 'Sign in through the link', 'Forward it with your school email'], answer: 0, feedback: 'Go to the official ticket site yourself; a familiar chat can still share a fake link.' },
+          { prompt: 'A recruiter wants an upfront fee and a photo of your ID in chat. Choose a move.', options: ['Verify the employer and request securely', 'Pay to hold the role', 'Send ID in the DM'], answer: 0, feedback: 'Verify the employer independently and do not send identity documents through an unexpected chat.' },
+          { prompt: 'Someone claiming to be your friend urgently needs a login code. What next?', options: ['Contact your friend another way', 'Send the code', 'Post it so they see it'], answer: 0, feedback: 'Verify through a separate channel. Never share a sign-in code.' }
+        ] },
+        adult: { title: 'Choose a safe next step', detail: 'Select a measured response to pressure, impersonation, and account requests.', rounds: [
+          { prompt: 'A caller claiming to be your bank warns of fraud and demands a transfer. What next?', options: ['End the call and use your card’s number', 'Transfer funds as instructed', 'Share the texted code'], answer: 0, feedback: 'End the call and contact the bank through a known, independently sourced number.' },
+          { prompt: 'A family member texts from a new number asking for urgent money. Choose a response.', options: ['Call their saved number to confirm', 'Send money to the new account', 'Reply with banking details'], answer: 0, feedback: 'Contact the family member through a number you already have before sending money.' },
+          { prompt: 'A support agent asks you to install a remote-access app. What do you do?', options: ['End contact and reach support independently', 'Install it while they wait', 'Share your account code'], answer: 0, feedback: 'Unexpected remote access can expose your device. Contact the company using a known route.' }
+        ] }
+      }
+    },
+    {
+      id: 4, kind: 'realfake', icon: 'eye',
+      modes: {
+        kid: { title: 'Real or pretend?', detail: 'Spot a pretend online offer. In real life, ask a grown-up before you tap.', rounds: [
+          { prompt: '“Free game gems! Give us your password and nobody needs to know.”', options: ['Pretend / not safe', 'Okay to trust'], answer: 0, feedback: 'A prize plus a password request and secrecy is a big warning. Do not share the password.' },
+          { prompt: 'A game update appears inside the official app store you opened yourself.', options: ['Pretend / not safe', 'More likely genuine'], answer: 1, feedback: 'An update from the app store you opened yourself is a safer route. Ask a grown-up if unsure.' },
+          { prompt: 'A message says you won a prize you never entered and must tap now.', options: ['Pretend / suspicious', 'Definitely real'], answer: 0, feedback: 'Unexpected prizes and pressure are suspicious. Do not tap; ask a trusted grown-up.' }
+        ] },
+        teen: { title: 'Real or fake? Message check', detail: 'Classify practice offers, then remember to verify messages out of game.', rounds: [
+          { prompt: '“Your concert tickets are held. Sign in at tickets.example-login.test in 5 minutes.”', options: ['Suspicious / likely fake', 'Verified genuine'], answer: 0, feedback: 'The unfamiliar sign-in address and countdown are warning signs. Visit the ticket seller’s official site yourself.' },
+          { prompt: 'You open your school portal from a bookmark and see its usual sign-in page.', options: ['Suspicious / likely fake', 'A safer route'], answer: 1, feedback: 'Using a bookmark you already trust is safer than following an unexpected sign-in link.' },
+          { prompt: 'A “scholarship” DM requests your account password to release funds.', options: ['Suspicious / likely fake', 'Verified genuine'], answer: 0, feedback: 'A legitimate scholarship does not need your password in a DM. Verify with the official institution.' }
+        ] },
+        adult: { title: 'Real or fake? Check the signal', detail: 'Separate warning signs from safer verification habits in practice examples.', rounds: [
+          { prompt: '“Your parcel is held. Pay a fee now at delivery-payment.example.test.”', options: ['Suspicious / likely fake', 'Verified genuine'], answer: 0, feedback: 'The unexpected payment link is suspicious. Check delivery status using the carrier’s official app or site.' },
+          { prompt: 'You call the number printed on your bank card and ask about a transaction.', options: ['Suspicious route', 'A safer verification route'], answer: 1, feedback: 'Calling the number on your card is an independently chosen way to verify a bank issue.' },
+          { prompt: 'A caller claiming to be police asks you to move savings to protect them.', options: ['Suspicious / likely fake', 'Verified genuine'], answer: 0, feedback: 'No legitimate authority should demand a transfer to a “safe account.” Hang up and independently contact your bank.' }
+        ] }
+      }
+    },
+    {
+      id: 5, kind: 'password', icon: 'key',
+      modes: {
+        kid: { title: 'Pick the strongest secret', detail: 'Choose the best pretend password idea. Never type a real password in a game.', rounds: [
+          { prompt: 'Which pretend password idea is hardest to guess?', options: ['blue-cat-reads-3-books', 'cat123', 'your first name'], answer: 0, feedback: 'A longer, unique passphrase is harder to guess. Keep your real password secret.' },
+          { prompt: 'A friend asks to use your game password. What is strongest protection?', options: ['Keep it private', 'Send it just once', 'Post it temporarily'], answer: 0, feedback: 'Keep passwords private, even with friends. Use account-sharing features only with a grown-up’s help.' },
+          { prompt: 'You want a password for a new account. Which is safest?', options: ['A new, long password', 'The same one as every game', 'Your birthday'], answer: 0, feedback: 'Use a different long password for each account, ideally saved in a password manager with adult help.' }
+        ] },
+        teen: { title: 'Password pick-and-compare', detail: 'Choose safer account habits without entering or revealing a real password.', rounds: [
+          { prompt: 'Which sample passphrase is strongest?', options: ['Orbit!River7-Maple-Cloud', 'Concert2026', 'same-password-everywhere'], answer: 0, feedback: 'Long and unique beats short or reused. These are examples only—do not use a displayed sample as your password.' },
+          { prompt: 'One account appears in a data breach. What helps limit fallout?', options: ['Unique passwords stored in a manager', 'Reuse the password with a symbol', 'Share the password with a friend'], answer: 0, feedback: 'Unique passwords stop one breach from unlocking every account.' },
+          { prompt: 'A site asks you to confirm your password in a DM. Choose the safer move.', options: ['Do not send it; use the official app', 'Send it if the logo looks right', 'Add a one-time code too'], answer: 0, feedback: 'Never send passwords or codes in messages. Open the official app or site yourself.' }
+        ] },
+        adult: { title: 'Build better password habits', detail: 'Compare example passphrases and account-protection choices; never enter a real password.', rounds: [
+          { prompt: 'Which sample is a better starting point for a unique password?', options: ['Lighthouse-river-amber-42', 'NameAndBirthYear', 'OnePasswordForAll'], answer: 0, feedback: 'A long, unique password is preferable. Use a password manager to generate and store one safely.' },
+          { prompt: 'A password was reused on a breached website. What is the priority?', options: ['Change it anywhere it was reused', 'Wait to see if anything happens', 'Add the same password to more accounts'], answer: 0, feedback: 'Change reused passwords promptly, starting with email, financial, and other critical accounts.' },
+          { prompt: 'An unexpected caller asks you to read a sign-in code aloud. What is safer?', options: ['End contact; never share the code', 'Read it if they know your name', 'Share it after changing your password'], answer: 0, feedback: 'Verification codes are private. Contact the service through its official site or app.' }
+        ] }
+      }
+    },
+    {
+      id: 6, kind: 'privacy', icon: 'lock',
+      modes: {
+        kid: { title: 'Share it or keep it?', detail: 'Choose the safe way to handle personal information online.', rounds: [
+          { prompt: 'A stranger in a game asks which school you go to.', options: ['Keep it private and tell a grown-up', 'Tell them your school', 'Share your daily route too'], answer: 0, feedback: 'Your school and routines are private. Tell a trusted grown-up about the request.' },
+          { prompt: 'A fun quiz asks for your home address to show your result.', options: ['Ask a grown-up before sharing', 'Type it in quickly', 'Post it in game chat'], answer: 0, feedback: 'A quiz does not need your home address. Ask a grown-up before sharing personal details.' },
+          { prompt: 'Which is safer to share in a public game chat?', options: ['A made-up nickname', 'Your full name and school', 'Your home address'], answer: 0, feedback: 'A nickname protects your identity better. Keep your full name, school, and address private.' }
+        ] },
+        teen: { title: 'Public, private, or too much?', detail: 'Choose how to handle personal details in everyday social situations.', rounds: [
+          { prompt: 'A public post shows your school badge and live location. What is safer?', options: ['Remove the location and limit the audience', 'Post it publicly in real time', 'Add your daily schedule'], answer: 0, feedback: 'Avoid live location and details that reveal where you study or when you are away.' },
+          { prompt: 'A scholarship form asks for identity documents through an unverified DM.', options: ['Verify the organization and secure process', 'Send photos in the DM', 'Post the documents to prove it'], answer: 0, feedback: 'Verify through the official institution before sending sensitive documents.' },
+          { prompt: 'A new app asks for contacts and precise location without a clear need.', options: ['Review permissions and deny what is unnecessary', 'Allow every permission', 'Share a friend’s details too'], answer: 0, feedback: 'Grant only the permissions an app needs; revisit settings if its purpose is unclear.' }
+        ] },
+        adult: { title: 'Privacy pick-and-sort', detail: 'Select a lower-exposure choice for personal data and account access.', rounds: [
+          { prompt: 'A social post reveals an empty home and the dates you will be away.', options: ['Limit the audience and avoid live travel details', 'Post it publicly before leaving', 'Include your address for friends'], answer: 0, feedback: 'Share travel details with trusted people privately, preferably after returning.' },
+          { prompt: 'A benefits message requests identity documents through an unexpected link.', options: ['Contact the agency using a known official route', 'Upload them through the link', 'Reply with extra account details'], answer: 0, feedback: 'Use an independently verified official channel before sharing identity information.' },
+          { prompt: 'An app requests access to contacts and location for a feature that does not need them.', options: ['Deny unnecessary permissions', 'Allow access without checking', 'Share family contacts too'], answer: 0, feedback: 'Limit permissions to what is necessary and review them periodically.' }
+        ] }
+      }
+    },
+    {
+      id: 7, kind: 'wifi', icon: 'wifi',
+      modes: {
+        kid: { title: 'Choose a safer connection', detail: 'Pick what to do before opening a game or sharing something private.', rounds: [
+          { prompt: 'A cafe Wi-Fi says “Free_Guest” and asks for your game password to join.', options: ['Stop and ask a grown-up', 'Enter your password', 'Ask a stranger to join for you'], answer: 0, feedback: 'Wi-Fi should not need your game password. Ask a trusted grown-up before joining.' },
+          { prompt: 'You want to sign in while out with family. What is best?', options: ['Ask a grown-up and use a trusted connection', 'Use any network that pops up', 'Tell someone your sign-in code'], answer: 0, feedback: 'Use a connection your grown-up trusts, and never share a sign-in code.' },
+          { prompt: 'A network name looks almost like the library’s Wi-Fi. What now?', options: ['Check with library staff or a grown-up', 'Guess and connect', 'Use it for a private login'], answer: 0, feedback: 'Ask staff or a trusted grown-up to confirm the exact network name.' }
+        ] },
+        teen: { title: 'Public Wi-Fi pick-and-play', detail: 'Choose a safer connection for real-world study, travel, and account tasks.', rounds: [
+          { prompt: 'At a cafe, two networks have almost the same name. What do you do?', options: ['Confirm the exact name with staff', 'Join the first one', 'Use one for banking'], answer: 0, feedback: 'Verify the exact network name with staff; copycat hotspots can capture traffic or redirect you.' },
+          { prompt: 'You need to change a payment detail on open public Wi-Fi.', options: ['Wait or switch to trusted mobile data', 'Use the network because it has a lock icon', 'Ask someone nearby to log in'], answer: 0, feedback: 'A lock icon does not prove a hotspot is trustworthy. Wait or use a connection you control.' },
+          { prompt: 'A public Wi-Fi login page asks for your social account password.', options: ['Do not enter it; verify the network', 'Enter it to unlock faster Wi-Fi', 'Reuse your email password'], answer: 0, feedback: 'A hotspot should not ask for your unrelated account password. Stop and verify.' }
+        ] },
+        adult: { title: 'Safer network decisions', detail: 'Choose a lower-risk connection before banking or other sensitive tasks.', rounds: [
+          { prompt: 'Two airport Wi-Fi names look similar and one requests your email password.', options: ['Confirm with airport staff; do not enter your email password', 'Choose either one and sign in', 'Use the suspicious one for banking'], answer: 0, feedback: 'Verify the network with staff. A public hotspot should not need an unrelated account password.' },
+          { prompt: 'You need to access a financial account while on untrusted public Wi-Fi.', options: ['Wait or use trusted mobile data', 'Continue because the website has HTTPS', 'Use whichever network is strongest'], answer: 0, feedback: 'HTTPS protects the connection to a site but does not prove a hotspot is legitimate. Use a trusted connection.' },
+          { prompt: 'A hotel message links to a Wi-Fi page asking for card details by text.', options: ['Ask the front desk using a known contact route', 'Reply with the card details', 'Forward it to other guests'], answer: 0, feedback: 'Verify the request directly with the hotel using contact information you already trust.' }
+        ] }
+      }
+    }
+  ];
+
+  const LESSON_MODE_COPY = {
+    kid: {
+      1: { title: 'Tricky tricks', subtitle: 'Learn how online tricks try to fool you.', lede: 'Some messages pretend to be fun or important so you will tap before thinking. A trusted grown-up can help you check.' },
+      2: { title: 'Pause and check', subtitle: 'Spot messages that rush or worry you.', lede: 'A stranger may pretend to be a friend or say something bad will happen unless you act now. Stop and tell a grown-up.' },
+      3: { title: 'Look at the real site', subtitle: 'Find pretend websites before you log in.', lede: 'A fake page can look like your favourite game. Check with a grown-up before typing a password.' },
+      4: { title: 'Keep passwords secret', subtitle: 'Make a strong password and protect it.', lede: 'Your password is like a secret key. Do not share it in a chat, even if someone promises a prize.' },
+      5: { title: 'Add another lock', subtitle: 'Use a grown-up’s help for an extra account check.', lede: 'An extra sign-in check can help protect your account. Ask a trusted grown-up to set it up with you.' },
+      6: { title: 'Keep some things private', subtitle: 'Choose what is safe to share online.', lede: 'Your full name, address, school and private pictures belong to you. Ask a grown-up before sharing them.' },
+      7: { title: 'Use Wi-Fi safely', subtitle: 'Stay careful on shared internet.', lede: 'Public Wi-Fi is for many people. Ask a trusted grown-up before signing in or sharing private information on it.' },
+      stepLabels: ['Look', 'Words', 'Play', 'Check'],
+      vocabIntro: 'Here are three new safety words. You do not have to memorise them; ask a grown-up if one is confusing.',
+      quizIntro: 'Try three quick questions. Think about what you would do, and ask a grown-up if you want help.',
+      nextWords: 'Next: new words',
+      activityLabels: ['Open the message clues', 'Play the chat scene', 'Check the game site', 'Try the password builder', 'Add an extra lock', 'Sort what is okay to share', 'Try the Wi-Fi challenge']
+    },
+    teen: {
+      1: { title: 'How scams work', subtitle: 'Recognize the tactics behind digital fraud.', lede: 'Scams use believable stories, impersonation and urgency to get access to your money or accounts. Learn to spot the pattern before responding.' },
+      2: { title: 'Pressure and impersonation', subtitle: 'Check urgent messages before you respond.', lede: 'A fake recruiter, seller or friend may pressure you to pay, share a code or keep a secret. Verify through a channel you already trust.' },
+      3: { title: 'Check the website', subtitle: 'Catch lookalike pages before signing in.', lede: 'A cloned job, ticket or social page can capture your login. Check the address and open the official app or site yourself.' },
+      4: { title: 'Secure your accounts', subtitle: 'Use unique passwords and protect your logins.', lede: 'Reused passwords put multiple accounts at risk. Use a password manager to create a different password for each important account.' },
+      5: { title: 'Protect sign-ins', subtitle: 'Add a second verification step to key accounts.', lede: 'Multi-factor authentication can stop a stolen password from being enough. Never share a one-time sign-in code with someone who contacts you.' },
+      6: { title: 'Control your digital footprint', subtitle: 'Limit what strangers can learn about you.', lede: 'Public posts, profiles and location clues can make impersonation more convincing. Review privacy settings and think before sharing.' },
+      7: { title: 'Public Wi-Fi decisions', subtitle: 'Reduce risk on networks you do not control.', lede: 'On shared Wi-Fi, avoid sensitive transactions unless the connection and site are verified. Mobile data or waiting for a trusted network may be safer.' },
+      stepLabels: ['Overview', 'Key ideas', 'Try it', 'Quick check'],
+      vocabIntro: 'Three useful terms for recognizing the pattern and deciding what to do next.',
+      quizIntro: 'Check your judgement with three short scenarios. Focus on the safest next step.',
+      nextWords: 'Next: key ideas',
+      activityLabels: ['Review the message clues', 'Practice the conversation', 'Check the website', 'Test password strength', 'Set up a second factor', 'Explore the privacy map', 'Take the Wi-Fi challenge']
+    },
+    adult: {
+      1: { title: 'Common scam patterns', subtitle: 'Recognize the methods behind online fraud.', lede: 'Fraudsters impersonate trusted organizations, create urgency and steer people toward payment or account access. Knowing the pattern makes it easier to pause.' },
+      2: { title: 'Urgency and impersonation', subtitle: 'Verify unexpected requests before taking action.', lede: 'A caller posing as a bank, service provider or relative may demand secrecy, a code or an immediate transfer. Contact the person or organization using a known number.' },
+      3: { title: 'Verify websites and links', subtitle: 'Avoid lookalike sign-in and payment pages.', lede: 'A convincing copy of a bank, delivery or government page can collect credentials and payment details. Navigate using a saved bookmark or official app.' },
+      4: { title: 'Protect important accounts', subtitle: 'Use unique passwords and safer storage.', lede: 'Reused passwords let one breach expose multiple accounts. A reputable password manager can create and store distinct passwords.' },
+      5: { title: 'Strengthen account access', subtitle: 'Set up an additional sign-in safeguard.', lede: 'Multi-factor authentication adds protection if a password is exposed. Treat unexpected approval prompts and verification codes as private.' },
+      6: { title: 'Limit personal information', subtitle: 'Reduce details that enable targeted impersonation.', lede: 'Public records, social posts and family details can help a scammer sound convincing. Share selectively and review account privacy settings.' },
+      7: { title: 'Safer public Wi-Fi', subtitle: 'Protect sensitive activity on shared networks.', lede: 'Avoid financial or sensitive account activity on networks you cannot verify. Use your own trusted connection when possible.' },
+      stepLabels: ['Overview', 'Key terms', 'Practice', 'Review'],
+      vocabIntro: 'Three practical terms to make it easier to assess the risk and choose a response.',
+      quizIntro: 'Review the safest response in each situation. These checks are for practice, not a formal test.',
+      nextWords: 'Next: key terms',
+      activityLabels: ['Inspect the message', 'Review the conversation', 'Verify the website', 'Check password strength', 'Review account protection', 'Review privacy settings', 'Assess the network']
+    }
   };
 
   const ACCESSORY_EMOJI = {
@@ -66,7 +259,11 @@
     cap: '🧢',
     glasses: '👓',
     headphones: '🎧',
-    crown: '👑'
+    crown: '👑',
+    scarf: '🧣',
+    bow: '🎀',
+    backpack: '🎒',
+    headband: '🌟'
   };
 
   const STAR = n => '★'.repeat(n) + '☆'.repeat(3 - n);
@@ -74,6 +271,7 @@
   const defaultState = () => ({
     mode: 'kid',
     school: 'primary',
+    stagesByMode: { kid: 'primary', teen: 'high', adult: 'working' },
     coins: 0,
     lessons: {},
     avatar: { color: 'mint', accessory: 'none', pet: 'pip' },
@@ -85,7 +283,8 @@
     name: '',
     petName: 'Pip',
     sound: false,
-    unlockAll: false
+    unlockAll: false,
+    arcade: {}
   });
 
   function loadState() {
@@ -94,16 +293,29 @@
       if (!raw) return defaultState();
       const parsed = JSON.parse(raw);
       const base = defaultState();
+      const savedStages = parsed.stagesByMode && typeof parsed.stagesByMode === 'object' && !Array.isArray(parsed.stagesByMode)
+        ? parsed.stagesByMode
+        : {};
+      const stagesByMode = { ...base.stagesByMode, ...savedStages };
+      const legacyMode = Object.prototype.hasOwnProperty.call(STAGES, parsed.mode) ? parsed.mode : 'kid';
+      if (!savedStages[legacyMode] && STAGES[legacyMode].some(stage => stage.id === parsed.school)) {
+        stagesByMode[legacyMode] = parsed.school;
+      }
+      if (!savedStages.kid && STAGES.kid.some(stage => stage.id === parsed.school)) {
+        stagesByMode.kid = parsed.school;
+      }
       return {
         ...base,
         ...parsed,
+        stagesByMode,
         avatar: { ...base.avatar, ...(parsed.avatar || {}) },
         owned: {
           colors: Array.isArray(parsed.owned?.colors) ? parsed.owned.colors : base.owned.colors,
           accessories: Array.isArray(parsed.owned?.accessories) ? parsed.owned.accessories : base.owned.accessories,
           pets: Array.isArray(parsed.owned?.pets) ? parsed.owned.pets : base.owned.pets
         },
-        lessons: parsed.lessons && typeof parsed.lessons === 'object' ? parsed.lessons : {}
+        lessons: parsed.lessons && typeof parsed.lessons === 'object' ? parsed.lessons : {},
+        arcade: parsed.arcade && typeof parsed.arcade === 'object' ? parsed.arcade : {}
       };
     } catch (err) {
       return defaultState();
@@ -112,7 +324,12 @@
 
   let state = loadState();
   if (!MODE_INFO[state.mode]) state.mode = 'kid';
-  if (!SCHOOLS.some(s => s.id === state.school)) state.school = 'primary';
+  Object.keys(STAGES).forEach(mode => {
+    if (!STAGES[mode].some(stage => stage.id === state.stagesByMode[mode])) {
+      state.stagesByMode[mode] = defaultState().stagesByMode[mode];
+    }
+  });
+  state.school = state.stagesByMode.kid;
   if (!AVATAR_COLORS.some(c => c.id === state.avatar.color)) state.avatar.color = 'mint';
   if (!ACCESSORIES.some(a => a.id === state.avatar.accessory)) state.avatar.accessory = 'none';
   if (!PETS.some(p => p.id === state.avatar.pet)) state.avatar.pet = 'pip';
@@ -126,6 +343,7 @@
   if (!state.owned.pets.includes('pip')) state.owned.pets.push('pip');
   if (typeof state.name !== 'string') state.name = '';
   if (typeof state.petName !== 'string') state.petName = 'Pip';
+  if (!state.arcade || typeof state.arcade !== 'object' || Array.isArray(state.arcade)) state.arcade = {};
 
   let pendingCelebration = false;
   let toastTimer = null;
@@ -289,6 +507,18 @@
     if (id === 'crown') {
       return '<path class="av-gear" d="M34 34 43 14 53 28 60 10 67 28 77 14 86 34Z" fill="#FFCB5C" stroke="#0B1026" stroke-width="4" stroke-linejoin="round"/>';
     }
+    if (id === 'scarf') {
+      return '<path class="av-gear" d="M31 96q29 13 58 0l-3 13q-25 12-52 0Z" fill="#FF7FB6" stroke="#0B1026" stroke-width="4"/><path d="m66 104 5 23 13-3-5-22Z" fill="#FF7FB6" stroke="#0B1026" stroke-width="4" stroke-linejoin="round"/>';
+    }
+    if (id === 'bow') {
+      return '<g class="av-gear" fill="#FF7FB6" stroke="#0B1026" stroke-width="3"><path d="M32 25 13 17l3 20 17-5ZM35 26l18-10-1 21-18-3Z"/><circle cx="34" cy="27" r="5" fill="#FFCB5C"/></g>';
+    }
+    if (id === 'backpack') {
+      return '<g class="av-gear"><path d="M16 56q-8 3-7 20l3 26q2 9 12 6l10-4-4-47Z" fill="#7DD3FC" stroke="#0B1026" stroke-width="4"/><path d="M12 78q8-7 18-3l2 14q-9 5-18 2Z" fill="#FFCB5C" stroke="#0B1026" stroke-width="3"/></g>';
+    }
+    if (id === 'headband') {
+      return '<g class="av-gear" fill="none" stroke="#0B1026" stroke-width="5"><path d="M31 49q3-31 29-31t29 31" stroke="#FF7FB6"/><path d="m60 12 3 7 8 1-6 5 2 8-7-4-7 4 2-8-6-5 8-1Z" fill="#FFCB5C" stroke-width="2"/></g>';
+    }
     return '';
   }
 
@@ -322,7 +552,7 @@
   }
 
   function equippedName() {
-    return state.name.trim() || 'Curious Explorer';
+    return state.name.trim() || (state.mode === 'kid' ? 'Curious Explorer' : state.mode === 'teen' ? 'Digital Navigator' : 'Online Guardian');
   }
 
   function petDisplayName() {
@@ -331,11 +561,25 @@
   }
 
   function rankFor(count) {
-    if (count >= 7) return 'Island Keeper';
-    if (count >= 5) return 'Safety Keeper';
+    if (state.mode === 'kid') {
+      if (count >= 7) return 'Island Keeper';
+      if (count >= 5) return 'Safety Keeper';
+      if (count >= 3) return 'Sharp Spotter';
+      if (count >= 1) return 'Curious Explorer';
+      return 'New Islander';
+    }
+    if (state.mode === 'teen') {
+      if (count >= 7) return 'Digital Navigator';
+      if (count >= 5) return 'Account Defender';
+      if (count >= 3) return 'Sharp Spotter';
+      if (count >= 1) return 'Scam Aware';
+      return 'Getting Started';
+    }
+    if (count >= 7) return 'Online Guardian';
+    if (count >= 5) return 'Security Keeper';
     if (count >= 3) return 'Sharp Spotter';
-    if (count >= 1) return 'Curious Explorer';
-    return 'New Islander';
+    if (count >= 1) return 'Scam Aware';
+    return 'Getting Started';
   }
 
   function completedLessons() {
@@ -353,8 +597,9 @@
   }
 
   function schoolLabel() {
-    const school = SCHOOLS.find(s => s.id === state.school);
-    return school ? school.label : 'Not at school';
+    const stages = STAGES[state.mode];
+    const stage = stages.find(item => item.id === state.stagesByMode[state.mode]);
+    return stage ? stage.label : stages[0].label;
   }
 
   function formatDate(date) {
@@ -382,7 +627,9 @@
   }
 
   function renderModeUI() {
+    window.applySusOrSafeMode?.(state.mode);
     document.body.dataset.mode = state.mode;
+    document.documentElement.style.colorScheme = state.mode === 'kid' ? 'light' : 'dark';
     $('#themeColor')?.setAttribute('content', MODE_INFO[state.mode].themeColor);
     $$('.mode-pill[data-mode]').forEach(btn => {
       const on = btn.dataset.mode === state.mode;
@@ -396,9 +643,22 @@
       if (btn) btn.textContent = on ? 'Current mode' : 'Switch mode';
     });
     const info = MODE_INFO[state.mode];
+    $('#homeAudience').textContent = info.homeAudience;
+    $('#homeModeCopy').textContent = info.homeCopy;
+    $('#toolkitModeIntro').textContent = info.toolkitCopy;
+    $('#gamesModeIntro').textContent = info.gamesCopy;
+    $('#gamesModeBadge').textContent = `${state.mode === 'kid' ? 'Kids' : state.mode === 'teen' ? 'Teens' : 'Adults'} · ${info.badge}`;
     $('#modeHintBadge').textContent = info.badge;
     $('#modeHintText').textContent = info.hint;
-    $('#modeHintFocus').textContent = `Age focus: ${AGE_FOCUS[state.mode].text}.`;
+    $('#modeHintFocus').textContent = `Scams to watch for: ${AGE_FOCUS[state.mode].text}.`;
+    const kid = state.mode === 'kid';
+    $('#profileSectionKicker').textContent = kid ? '01 / Your explorer' : state.mode === 'teen' ? '01 / Your digital profile' : '01 / Your profile';
+    $('#setupProfileKicker').textContent = kid ? 'Your explorer' : state.mode === 'teen' ? 'Digital profile' : 'Personal profile';
+    $('#profileNameLabel').textContent = kid ? 'Explorer name' : state.mode === 'teen' ? 'Display name' : 'Name or nickname';
+    $('#explorerName').placeholder = kid ? 'Name your explorer' : state.mode === 'teen' ? 'Choose a display name' : 'Enter a name or nickname';
+    $('#profilePassportLabel').textContent = kid ? 'Explorer passport' : state.mode === 'teen' ? 'Progress passport' : 'Learning record';
+    $('#profileShopTitle').textContent = kid ? 'Dress your explorer.' : state.mode === 'teen' ? 'Style your avatar.' : 'Personalize your avatar.';
+    $('#certHeading').textContent = kid ? 'SAFE EXPLORER' : state.mode === 'teen' ? 'DIGITAL NAVIGATOR' : 'ONLINE GUARDIAN';
   }
 
   function renderSetup() {
@@ -409,6 +669,7 @@
 
   function renderPath() {
     const levels = [1, 2, 3];
+    const stepLabels = LESSON_MODE_COPY[state.mode].stepLabels;
     $('#lessonPath').innerHTML = levels.map(level => {
       const lessons = LESSONS.filter(lesson => lesson.level === level);
       const cards = lessons.map(lesson => {
@@ -431,10 +692,10 @@
             <span class="quest-time">${lesson.duration}</span>
           </div>
           <div class="quest-icon"><svg class="ico"><use href="#i-${lesson.icon}"/></svg></div>
-          <h3>${lesson.title}</h3>
-          <p>${lesson.subtitle}</p>
+          <h3>${LESSON_MODE_COPY[state.mode][lesson.id].title}</h3>
+          <p>${LESSON_MODE_COPY[state.mode][lesson.id].subtitle}</p>
           ${AGE_FOCUS[state.mode].lessons.includes(lesson.id) ? '<span class="focus-tag">For your age</span>' : ''}
-          <div class="lesson-steps" aria-hidden="true"><span>Overview</span><span>Words</span><span>Try it</span><span>Test</span></div>
+          <div class="lesson-steps" aria-hidden="true">${stepLabels.map(label => `<span>${label}</span>`).join('')}</div>
           <div class="quest-footer">
             <span class="lesson-reward"><svg class="ico coin-ico"><use href="#i-coin"/></svg> +100–160</span>
             <button class="btn quest-btn lesson-btn" type="button" data-lesson="${lesson.id}" ${unlocked ? '' : 'disabled'}>${unlocked ? (rec ? 'Replay' : 'Start lesson') : 'Locked'}</button>
@@ -455,6 +716,158 @@
 
     $('#unlockAll').textContent = state.unlockAll ? 'Lock lessons back into sequence' : 'Teacher? Unlock all lessons';
   }
+
+  function renderGames() {
+    $('#gamesGrid').innerHTML = ARCADE_GAMES.map((game, index) => {
+      const lesson = LESSONS.find(item => item.id === game.id);
+      const modeGame = game.modes[state.mode];
+      const record = state.arcade[game.id];
+      const bestScore = Number.isInteger(record?.best) ? Math.min(3, Math.max(0, record.best)) : 0;
+      return `<article class="game-card" style="--game-color:${lesson.color};--game-order:${index}" data-game-card="${game.id}">
+        <div class="game-card-top">
+          <span class="game-number">ARCADE 0${game.id}</span>
+          <span class="game-duration">3 quick rounds</span>
+        </div>
+        <div class="game-icon"><svg class="ico"><use href="#i-${game.icon}"/></svg></div>
+        <p class="game-card-lesson">${game.kind === 'ai' ? 'Guess the author' : game.kind === 'blank' ? 'Fill in the blank' : game.kind === 'choose' ? 'Pick and choose' : game.kind === 'realfake' ? 'Real or fake?' : game.kind === 'password' ? 'Password pick' : game.kind === 'privacy' ? 'Share or keep?' : 'Safer connection'}</p>
+        <h2>${modeGame.title}</h2>
+        <p class="game-card-detail">${modeGame.detail}</p>
+        <p class="game-card-skill"><b>Skill:</b> ${LESSON_MODE_COPY[state.mode][game.id].subtitle}</p>
+        <div class="game-card-bottom">
+          ${record && bestScore
+            ? `<span class="game-card-stars" aria-label="Best score ${bestScore} of 3">${'★'.repeat(bestScore)}${'☆'.repeat(3 - bestScore)}<small>Best: ${bestScore} / 3</small></span>`
+            : `<span class="game-card-reward">Learn by playing</span>`}
+          <button class="btn btn-primary game-card-button" type="button" data-arcade="${game.id}">${record ? 'Play again' : 'Play game'}</button>
+        </div>
+      </article>`;
+    }).join('');
+  }
+
+  const arcadeDialog = $('#arcadeDialog');
+  const arcadeBody = $('#arcadeBody');
+  let arcadeSession = null;
+
+  function openArcadeGame(id) {
+    const game = ARCADE_GAMES.find(item => item.id === id);
+    if (!game) return;
+    arcadeSession = { game, mode: state.mode, round: 0, score: 0, answered: false };
+    $('#arcadeTitle').textContent = game.modes[state.mode].title;
+    $('#arcadeKicker').textContent = `Arcade challenge ${String(id).padStart(2, '0')}`;
+    renderArcadeRound();
+    arcadeDialog.showModal();
+  }
+
+  function renderArcadeRound() {
+    const session = arcadeSession;
+    if (!session) return;
+    const game = session.game.modes[session.mode];
+    const round = game.rounds[session.round];
+    session.answered = false;
+    $('#arcadeProgress').textContent = `Round ${session.round + 1} of ${game.rounds.length}`;
+    const prompt = session.game.kind === 'blank'
+      ? round.prompt.replace('___', '<span class="arcade-blank">_____</span>')
+      : round.prompt;
+    const choices = round.options.map((option, index) =>
+      `<button class="arcade-answer" type="button" data-arcade-answer="${index}">${option}</button>`
+    ).join('');
+    arcadeBody.innerHTML = `
+      <p class="arcade-round-label">${session.game.kind === 'ai' ? 'Make your guess' : session.game.kind === 'realfake' ? 'Make your call' : session.game.kind === 'blank' ? 'Choose a word' : 'Choose the safest answer'}</p>
+      <p class="arcade-prompt">${prompt}</p>
+      ${session.game.kind === 'ai' ? '<p class="arcade-reminder">Practice examples have an answer. Real authorship cannot be proven by style alone.</p>' : ''}
+      <div class="arcade-answers">${choices}</div>
+      <div class="arcade-feedback" id="arcadeFeedback" aria-live="polite" hidden></div>
+      <div class="arcade-actions">
+        <span class="arcade-score">Score: <b>${session.score}</b></span>
+        <button class="btn btn-primary" id="arcadeNext" type="button" hidden>${session.round === game.rounds.length - 1 ? 'See score' : 'Next round'} <svg class="ico"><use href="#i-arrow"/></svg></button>
+      </div>`;
+  }
+
+  function answerArcadeRound(selectedIndex) {
+    const session = arcadeSession;
+    if (!session || session.answered) return;
+    const game = session.game.modes[session.mode];
+    const round = game.rounds[session.round];
+    if (!Number.isInteger(selectedIndex) || selectedIndex < 0 || selectedIndex >= round.options.length) return;
+    session.answered = true;
+    const correct = selectedIndex === round.answer;
+    if (correct) session.score += 1;
+    $$('.arcade-answer', arcadeBody).forEach((button, index) => {
+      button.disabled = true;
+      if (index === round.answer) button.classList.add('is-correct');
+      else if (index === selectedIndex) button.classList.add('is-wrong');
+    });
+    const feedback = $('#arcadeFeedback', arcadeBody);
+    feedback.hidden = false;
+    feedback.classList.toggle('is-correct', correct);
+    feedback.classList.toggle('is-wrong', !correct);
+    feedback.textContent = `${correct ? 'Nice choice! ' : `Best answer: ${round.options[round.answer]}. `}${round.feedback}`;
+    $('.arcade-score', arcadeBody).innerHTML = `Score: <b>${session.score}</b>`;
+    $('#arcadeNext', arcadeBody).hidden = false;
+  }
+
+  function finishArcadeGame() {
+    const session = arcadeSession;
+    if (!session) return;
+    const previous = state.arcade[session.game.id];
+    const previousBest = Number.isInteger(previous?.best) ? Math.min(3, Math.max(0, previous.best)) : 0;
+    const attempts = Number.isInteger(previous?.attempts) ? Math.max(0, previous.attempts) : 0;
+    state.arcade[session.game.id] = {
+      best: Math.max(previousBest, session.score),
+      attempts: attempts + 1
+    };
+    save();
+    renderGames();
+    const game = session.game.modes[session.mode];
+    const message = session.game.kind === 'ai'
+      ? 'A score is just for fun. For real messages, voice notes, or pictures, verify the source instead of trusting a guess.'
+      : 'Practice makes it easier to pause and choose a safer next step.';
+    $('#arcadeProgress').textContent = `Final score: ${session.score} / ${game.rounds.length}`;
+    arcadeBody.innerHTML = `
+      <div class="arcade-result">
+        <span class="arcade-result-icon" aria-hidden="true">${session.score === game.rounds.length ? '🌟' : '🛡️'}</span>
+        <p class="arcade-round-label">Challenge complete</p>
+        <h3>${session.score === game.rounds.length ? 'Perfect round!' : 'Good practice!'}</h3>
+        <p class="arcade-final-score">${session.score} <span>/ ${game.rounds.length}</span></p>
+        <p>${message}</p>
+        <div class="arcade-actions arcade-result-actions">
+          <button class="btn btn-ghost" type="button" data-arcade-close>Back to games</button>
+          <button class="btn btn-primary" type="button" data-arcade-replay="${session.game.id}">Play again</button>
+        </div>
+      </div>`;
+  }
+
+  arcadeBody.addEventListener('click', event => {
+    const answer = event.target.closest('[data-arcade-answer]');
+    if (answer) {
+      answerArcadeRound(Number(answer.dataset.arcadeAnswer));
+      return;
+    }
+    if (event.target.closest('#arcadeNext')) {
+      const game = arcadeSession?.game.modes[arcadeSession.mode];
+      if (!game) return;
+      if (arcadeSession.round === game.rounds.length - 1) {
+        finishArcadeGame();
+      } else {
+        arcadeSession.round += 1;
+        renderArcadeRound();
+      }
+      return;
+    }
+    const replay = event.target.closest('[data-arcade-replay]');
+    if (replay) {
+      openArcadeGame(Number(replay.dataset.arcadeReplay));
+      return;
+    }
+    if (event.target.closest('[data-arcade-close]')) arcadeDialog.close();
+  });
+
+  $('#closeArcade').addEventListener('click', () => arcadeDialog.close());
+  arcadeDialog.addEventListener('click', event => {
+    if (event.target === arcadeDialog) arcadeDialog.close();
+  });
+  arcadeDialog.addEventListener('close', () => {
+    arcadeSession = null;
+  });
 
   function renderPassport() {
     const count = completedLessons().length;
@@ -486,8 +899,17 @@
     const active = document.activeElement;
     if (active !== $('#explorerName')) $('#explorerName').value = state.name;
     if (active !== $('#petName')) $('#petName').value = state.avatar.pet === 'none' ? '' : (state.petName || '');
-    $('#schoolSelect').value = state.school;
-    $('#schoolTip').textContent = SCHOOL_TIPS[state.school] || SCHOOL_TIPS.none;
+    const stageSelect = $('#schoolSelect');
+    const activeStage = STAGES[state.mode].find(stage => stage.id === state.stagesByMode[state.mode]);
+    stageSelect.innerHTML = STAGES[state.mode].map(stage =>
+      `<option value="${stage.id}">${stage.label}</option>`
+    ).join('');
+    stageSelect.value = activeStage.id;
+    $('#schoolStageLabel').textContent = state.mode === 'kid' ? 'Age or school stage' : 'Life stage';
+    $('#schoolStageNote').textContent = state.mode === 'adult'
+      ? 'This stays on your device and only tailors your safety tips.'
+      : 'We never ask for your school’s name. This only tailors your safety tips.';
+    $('#schoolTip').textContent = STAGE_TIPS[activeStage.id];
 
     $$('.mode-pill[data-mode]').forEach(btn => {
       const on = btn.dataset.mode === state.mode;
@@ -568,9 +990,11 @@
     renderHeader();
     renderModeUI();
     renderPath();
+    renderGames();
     renderPassport();
     renderSetup();
     renderCrew();
+    if (lessonDialog.open && currentLesson) renderLesson();
     renderShop();
     renderCertificate();
     updateInstallUI();
@@ -585,9 +1009,15 @@
     save();
     renderModeUI();
     renderPath();
+    renderGames();
+    renderPassport();
     renderSetup();
     renderCrew();
     if (!opts.silent) toast(`Mode: ${MODE_INFO[mode].badge}. Progress kept.`);
+    if (lessonDialog.open && currentLesson) {
+      lessonTitleEl.textContent = LESSON_MODE_COPY[state.mode][currentLesson.id].title;
+      renderLesson();
+    }
   }
 
   /* ==========================================================
@@ -629,7 +1059,7 @@
     quizCorrect = 0;
 
     lessonKickerEl.textContent = `Lesson 0${lesson.id} · Level 0${lesson.level}`;
-    lessonTitleEl.textContent = lesson.title;
+    lessonTitleEl.textContent = LESSON_MODE_COPY[state.mode][lesson.id].title;
     activityStatus.textContent = '';
 
     if (!lessonDialog.open) {
@@ -640,13 +1070,16 @@
   }
 
   function updateStepper(doneAll = false) {
+    const stepLabels = LESSON_MODE_COPY[state.mode].stepLabels;
     $$('li', stepper).forEach((item, index) => {
+      item.lastChild.textContent = stepLabels[index];
+      item.dataset.label = stepLabels[index];
       item.classList.toggle('is-active', !doneAll && index === currentStep);
       item.classList.toggle('is-done', doneAll || index < currentStep);
       if (!doneAll && index === currentStep) item.setAttribute('aria-current', 'step');
       else item.removeAttribute('aria-current');
     });
-    lessonStepLabel.textContent = doneAll ? 'Complete' : `Step ${currentStep + 1} of 4`;
+    lessonStepLabel.textContent = doneAll ? 'Complete' : `${stepLabels[currentStep]} · ${currentStep + 1} of 4`;
   }
 
   function renderLesson() {
@@ -663,6 +1096,7 @@
 
   function renderOverview() {
     const lesson = currentLesson;
+    const modeCopy = LESSON_MODE_COPY[state.mode][lesson.id];
     const tip = lesson.overview.modeTips[state.mode];
     lessonBody.innerHTML = `
       <div class="lesson-meta-row">
@@ -670,7 +1104,7 @@
         <span class="pill">${lesson.duration}</span>
         <span class="pill">${lesson.levelLabel}</span>
       </div>
-      <p class="game-lede">${lesson.overview.lede}</p>
+      <p class="game-lede">${modeCopy.lede}</p>
       <div class="lesson-points">
         ${lesson.overview.points.map((point, index) => `
           <div class="lesson-point">
@@ -679,11 +1113,11 @@
           </div>`).join('')}
       </div>
       <div class="mode-tip">
-        <span class="tip-label">For ${MODE_INFO[state.mode].badge} mode</span>
+        <span class="tip-label">Scam to watch for · ${MODE_INFO[state.mode].badge}</span>
         <p>${tip}</p>
       </div>
       <div class="game-actions">
-        <button class="btn btn-primary" type="button" id="overviewNext">Next: words to know <svg class="ico"><use href="#i-arrow"/></svg></button>
+        <button class="btn btn-primary" type="button" id="overviewNext">${modeCopy.nextWords} <svg class="ico"><use href="#i-arrow"/></svg></button>
       </div>`;
 
     $('#overviewNext').addEventListener('click', () => {
@@ -694,8 +1128,9 @@
 
   function renderVocab() {
     const lesson = currentLesson;
+    const modeCopy = LESSON_MODE_COPY[state.mode];
     lessonBody.innerHTML = `
-      <p class="game-lede">Three words that make the rest of the lesson easier. No memorising — just recognise them when they appear.</p>
+      <p class="game-lede">${modeCopy.vocabIntro}</p>
       <div class="vocab-grid">
         ${lesson.vocab.map((item, index) => `
           <article class="vocab-card">
@@ -706,7 +1141,7 @@
           </article>`).join('')}
       </div>
       <div class="game-actions">
-        <button class="btn btn-primary" type="button" id="vocabNext">${lesson.activityLabel} <svg class="ico"><use href="#i-arrow"/></svg></button>
+        <button class="btn btn-primary" type="button" id="vocabNext">${modeCopy.activityLabels[lesson.id - 1]} <svg class="ico"><use href="#i-arrow"/></svg></button>
       </div>`;
 
     $('#vocabNext').addEventListener('click', () => {
@@ -752,6 +1187,7 @@
 
   function renderQuiz() {
     const lesson = currentLesson;
+    const modeCopy = LESSON_MODE_COPY[state.mode];
     const answered = quizAnswers.filter(value => value !== null).length;
 
     const questions = lesson.quiz.map((question, qIndex) => {
@@ -776,7 +1212,7 @@
     }).join('');
 
     lessonBody.innerHTML = `
-      <p class="game-lede">Three questions. This is the end-of-lesson check — not a trick, and you can replay the lesson anytime.</p>
+      <p class="game-lede">${modeCopy.quizIntro}</p>
       <form id="quizForm" class="quiz-form">
         ${questions}
         ${quizChecked
@@ -1967,6 +2403,10 @@
   }
 
   function scrollToCrew() {
+    if (document.body.dataset.page !== 'lessons') {
+      window.location.href = '/lessons/#crew';
+      return;
+    }
     goTo('#crew');
   }
 
@@ -2013,18 +2453,26 @@
   });
 
   $('#schoolSelect').addEventListener('change', event => {
-    state.school = event.target.value;
+    state.stagesByMode[state.mode] = event.target.value;
+    state.school = state.stagesByMode.kid;
     save();
     renderSetup();
-    $('#schoolTip').textContent = SCHOOL_TIPS[state.school] || SCHOOL_TIPS.none;
-    toast(`School stage: ${schoolLabel()}. This stays on your device.`);
+    $('#schoolTip').textContent = STAGE_TIPS[state.stagesByMode[state.mode]];
+    toast(`Life stage: ${schoolLabel()}. This stays on your device.`);
   });
 
   document.addEventListener('click', event => {
     const modeBtn = event.target.closest('.mode-pill[data-mode], .route-btn[data-mode]');
     if (modeBtn) {
       setMode(modeBtn.dataset.mode);
-      if (modeBtn.classList.contains('route-btn')) goTo('#lessons');
+      if (modeBtn.classList.contains('route-btn')) {
+        window.location.href = '/lessons/';
+      }
+      return;
+    }
+    const arcadeBtn = event.target.closest('[data-arcade]');
+    if (arcadeBtn) {
+      openArcadeGame(Number(arcadeBtn.dataset.arcade));
       return;
     }
     const lessonBtn = event.target.closest('[data-lesson]');
@@ -2033,7 +2481,13 @@
     }
   });
 
-  $('#heroStart').addEventListener('click', () => openLesson(1));
+  $('#heroStart').addEventListener('click', () => {
+    if (document.body.dataset.page === 'home') {
+      window.location.href = '/lessons/?lesson=1';
+      return;
+    }
+    openLesson(1);
+  });
 
   $('#unlockAll').addEventListener('click', () => {
     state.unlockAll = !state.unlockAll;
@@ -2099,7 +2553,7 @@
   window.addEventListener('appinstalled', () => {
     deferredInstall = null;
     updateInstallUI();
-    toast('SusorSafe installed. See you on the home screen.');
+    toast('SusOrSafe installed. See you on the home screen.');
   });
 
   $('#installBtn').addEventListener('click', async () => {

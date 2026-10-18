@@ -1,5 +1,5 @@
 /* ==========================================================
-   SusorSafe v2 — lessons, crew, shop, install
+   SusOrSafe v2 — lessons, crew, shop, install
    ========================================================== */
 
 /* Header profile chip -------------------------------------- */
@@ -773,6 +773,7 @@
 .auth-brand img{width:48px;height:48px;object-fit:contain}
 .auth-brand strong{display:block;font-size:1.15rem;letter-spacing:.04em}
 .auth-brand small{display:block;font-family:var(--display);font-size:.5rem;letter-spacing:.12em;color:var(--muted-2)}
+.auth-mode-note{margin:0;color:var(--muted-2);font-size:.68rem;text-align:center}
 .auth-card{width:100%;padding:28px;border-radius:22px;border:1px solid var(--line-strong);background:linear-gradient(165deg,rgba(255,255,255,.055),rgba(255,255,255,.015));box-shadow:0 30px 70px -35px rgba(0,0,0,.9)}
 .auth-card .kicker{margin-bottom:4px;font-size:.64rem}
 .auth-card h1{margin:0 0 6px;font-size:1.7rem;font-weight:800;letter-spacing:-.02em}
@@ -825,6 +826,13 @@ body[data-mode="kid"]::before{
   background-image:
     linear-gradient(rgba(39,54,83,.045) 1px,transparent 1px),
     linear-gradient(90deg,rgba(39,54,83,.045) 1px,transparent 1px);
+}
+body[data-mode="kid"]::after{
+  background:
+    radial-gradient(ellipse at 18% 26%,rgba(255,178,47,.25),transparent 28%),
+    radial-gradient(ellipse at 79% 38%,rgba(0,169,166,.20),transparent 25%),
+    radial-gradient(ellipse at 49% 81%,rgba(233,86,154,.17),transparent 29%);
+  opacity:.52;
 }
 
 body[data-mode="kid"] .site-header{
@@ -886,13 +894,192 @@ body[data-mode="adult"] .site-header{
 body[data-mode="adult"] .mode-switch{
   background:rgba(231,238,225,.035);
 }
+body[data-mode="adult"]::after{
+  background:
+    radial-gradient(ellipse at 18% 26%,rgba(143,196,177,.14),transparent 28%),
+    radial-gradient(ellipse at 79% 38%,rgba(170,165,199,.10),transparent 25%),
+    radial-gradient(ellipse at 49% 81%,rgba(209,162,170,.08),transparent 29%);
+  opacity:.34;
+}
+
+body[data-page="home"] main > :not(.hero):not(.routes),
+body[data-page="lessons"] main > :not(.quests):not(.crew):not(.cert-section),
+body[data-page="games"] main > :not(.games),
+body[data-page="toolkit"] main > :not(.toolbox),
+body[data-page="parents"] main > :not(.parents),
+body[data-page="install"] main > :not(.install),
+body[data-page="about"] main > :not(.about){
+  display:none !important;
+}
+
+body[data-page]:not([data-page="home"]) .ticker{display:none}
+
+body[data-page="lessons"] .crew{
+  padding-top:0;
+}
 .auth-field{display:grid;gap:6px}
 .auth-field label{font-size:.72rem;font-weight:700;color:var(--muted-2)}
 .auth-hint{margin:0;font-size:.62rem;line-height:1.5;color:var(--muted-2)}
 
+body[data-mode="kid"]{--lesson-panel:#fffdf5;--lesson-raised:#fff1cf;--lesson-text:#253451;--lesson-muted:#53627a;--lesson-outline:rgba(74,88,116,.2)}
+body[data-mode="teen"]{--lesson-panel:#101632;--lesson-raised:#141b3c;--lesson-text:#f3f5ff;--lesson-muted:#c5cce0;--lesson-outline:rgba(160,177,224,.2)}
+body[data-mode="adult"]{--lesson-panel:#243531;--lesson-raised:#2a3d38;--lesson-text:#e6e9df;--lesson-muted:#bdc7bb;--lesson-outline:rgba(231,238,225,.16)}
+
+.lesson-dialog .dialog-shell{
+  border-color:var(--lesson-outline);
+  background:
+    radial-gradient(circle at 90% -10%,color-mix(in srgb,var(--mint) 15%,transparent),transparent 45%),
+    var(--lesson-panel);
+}
+.lesson-dialog .dialog-head,.lesson-dialog .lesson-stepper{background:var(--lesson-raised)}
+.lesson-dialog .dialog-head h2,.lesson-dialog .quiz-question legend,.lesson-dialog .vocab-card h4{color:var(--lesson-text)}
+.lesson-dialog .lesson-stepper li span{border-color:var(--lesson-outline)}
+.lesson-dialog .lesson-point,.lesson-dialog .vocab-card,.lesson-dialog .quiz-question{border-color:var(--lesson-outline);background:color-mix(in srgb,var(--lesson-raised) 62%,transparent)}
+.lesson-dialog .lesson-point p,.lesson-dialog .mode-tip p,.lesson-dialog .quiz-option,.lesson-dialog .msg-line,.lesson-dialog .msg-row .v,.lesson-dialog .site-page,.lesson-dialog .tip-card p,.lesson-dialog .tip-card ul,.lesson-dialog .choice-btn{color:var(--lesson-muted)}
+.lesson-dialog .msg,.lesson-dialog .site-mock,.lesson-dialog .profile-card,.lesson-dialog .risk-card,.lesson-dialog .tip-card,.lesson-dialog .decision-card{border-color:var(--lesson-outline);background:var(--lesson-raised)}
+.lesson-dialog .msg-head,.lesson-dialog .browser-bar,.lesson-dialog .profile-head{background:color-mix(in srgb,var(--lesson-panel) 78%,var(--lesson-raised))}
+.lesson-dialog .browser-url,.lesson-dialog .pw-field input,.lesson-dialog .msg input:not([type="radio"]):not([type="checkbox"]){border-color:var(--lesson-outline);background:var(--lesson-panel);color:var(--lesson-text)}
+.lesson-dialog .browser-url{color:var(--lesson-text)}
+.lesson-dialog .quiz-option{border-color:var(--lesson-outline);background:color-mix(in srgb,var(--lesson-panel) 65%,transparent)}
+.lesson-dialog .quiz-why{background:color-mix(in srgb,var(--lesson-panel) 78%,transparent)}
+.lesson-dialog .quiz-why,.lesson-dialog .game-lede{color:var(--lesson-muted)}
+.lesson-dialog .mode-tip{background:color-mix(in srgb,var(--mint) 12%,var(--lesson-panel))}
+.lesson-dialog .dialog-body::-webkit-scrollbar-thumb{background:var(--lesson-outline);border-color:var(--lesson-panel)}
+body[data-mode="kid"] .lesson-dialog .dialog-shell{border-radius:22px}
+body[data-mode="kid"] .lesson-dialog .lesson-stepper li.is-active span{box-shadow:0 0 0 4px rgba(255,211,79,.2)}
+body[data-mode="adult"] .lesson-dialog .mode-tip{border-left-color:var(--amber)}
+
+/* Games hub ------------------------------------------------ */
+
+.games{padding:clamp(48px,7vw,84px) 0 clamp(64px,8vw,100px)}
+.games-hero{
+  display:flex;align-items:flex-end;justify-content:space-between;gap:28px;
+  margin-bottom:28px;
+}
+.games-hero .kicker{margin-bottom:10px}
+.games-hero h1{
+  max-width:760px;margin:0;
+  font-family:var(--display);
+  font-size:clamp(2.4rem,6vw,4.7rem);
+  font-weight:600;line-height:.98;letter-spacing:-.035em;
+}
+.games-hero .section-lede{max-width:670px;margin:18px 0 0}
+.games-mode-pill{
+  flex:none;margin-bottom:6px;padding:9px 14px;
+  border:1px solid color-mix(in srgb,var(--mint) 30%,var(--line));
+  border-radius:999px;background:color-mix(in srgb,var(--mint) 10%,var(--panel));
+  color:var(--ink);font-size:.78rem;font-weight:800;
+}
+.games-hint{margin-bottom:28px}
+.games-hint .mh-badge{white-space:nowrap}
+.games-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+.game-card{
+  position:relative;display:flex;flex-direction:column;min-width:0;
+  padding:20px;border:1px solid var(--line);border-radius:22px;
+  background:
+    radial-gradient(circle at 92% 0%,color-mix(in srgb,var(--game-color) 18%,transparent),transparent 42%),
+    linear-gradient(155deg,color-mix(in srgb,var(--panel) 94%,var(--game-color)),var(--panel));
+  box-shadow:0 16px 40px -30px color-mix(in srgb,var(--game-color) 48%,transparent);
+  animation:game-card-enter .55s cubic-bezier(.2,.7,.2,1) both;
+  animation-delay:calc(var(--game-order,0) * 45ms);
+  transition:transform .2s,border-color .2s,box-shadow .2s,opacity .2s;
+}
+.game-card:hover{transform:translateY(-4px);border-color:color-mix(in srgb,var(--game-color) 48%,var(--line));box-shadow:0 24px 50px -32px color-mix(in srgb,var(--game-color) 70%,transparent)}
+.game-card.is-locked{opacity:.62}
+.game-card.is-locked:hover{transform:none}
+.game-card-top{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.game-number{color:color-mix(in srgb,var(--game-color) 76%,var(--ink));font-size:.67rem;font-weight:900;letter-spacing:.14em}
+.game-duration{color:var(--muted-2);font-size:.7rem;font-weight:700}
+.game-icon{
+  display:grid;place-items:center;width:46px;height:46px;margin:18px 0 13px;
+  border:1px solid color-mix(in srgb,var(--game-color) 32%,var(--line));
+  border-radius:15px;background:color-mix(in srgb,var(--game-color) 15%,var(--panel));
+  color:color-mix(in srgb,var(--game-color) 78%,var(--ink));
+}
+.game-icon .ico{width:23px;height:23px}
+.game-card-lesson{margin:0 0 5px;color:var(--muted-2);font-size:.65rem;font-weight:800;letter-spacing:.05em;text-transform:uppercase}
+.game-card h2{margin:0 0 9px;color:var(--ink);font-size:1.18rem;line-height:1.3}
+.game-card-detail{margin:0 0 14px;color:var(--muted);font-size:.8rem;line-height:1.65}
+.game-card-skill{margin:auto 0 16px;padding-top:12px;border-top:1px solid var(--line);color:var(--muted);font-size:.74rem;line-height:1.55}
+.game-card-skill b{color:var(--ink)}
+.game-card-bottom{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:auto}
+.game-card-reward{color:var(--muted-2);font-size:.65rem;font-weight:800;letter-spacing:.035em}
+.game-card-button{padding:9px 14px;font-size:.76rem}
+.game-card-button:disabled{cursor:not-allowed;opacity:.72}
+.game-card-stars{display:flex;flex-direction:column;color:var(--amber);font-size:.82rem;letter-spacing:.07em}
+.game-card-stars small{color:var(--muted-2);font-size:.58rem;letter-spacing:0}
+.game-card-lock{display:flex;align-items:center;gap:5px;margin:12px 0 0;color:var(--muted-2);font-size:.67rem}
+.game-card-lock .ico{width:13px;height:13px}
+.games-footer-note{
+  display:flex;align-items:center;justify-content:space-between;gap:20px;
+  margin-top:24px;padding:20px 22px;border:1px solid var(--line);border-radius:18px;
+  background:color-mix(in srgb,var(--panel) 72%,transparent);
+}
+.games-footer-note p{margin:0;color:var(--muted);font-size:.78rem}
+.games-footer-note .btn{flex:none}
+
+.arcade-dialog{
+  width:min(650px,calc(100vw - 28px));max-width:650px;
+  max-height:min(88dvh,800px);margin:auto;padding:0;
+  border:1px solid var(--line-strong);border-radius:24px;
+  background:var(--panel);color:var(--ink);
+  box-shadow:0 36px 100px rgba(0,0,0,.55);
+}
+.arcade-dialog::backdrop{background:rgba(4,7,18,.74);backdrop-filter:blur(8px)}
+.arcade-shell{overflow:hidden;border-radius:inherit}
+.arcade-head{
+  display:flex;align-items:flex-start;justify-content:space-between;gap:16px;
+  padding:20px 24px 16px;border-bottom:1px solid var(--line);
+  background:linear-gradient(115deg,color-mix(in srgb,var(--mint) 13%,var(--panel)),var(--panel));
+}
+.arcade-head .dialog-kicker{margin:0 0 4px}
+.arcade-head h2{margin:0;color:var(--ink);font-size:clamp(1.2rem,4vw,1.7rem);line-height:1.2}
+.arcade-head .dialog-head-right{display:flex;align-items:center;gap:12px}
+.arcade-head .dialog-progress{white-space:nowrap}
+.arcade-body{padding:24px;max-height:calc(88dvh - 84px);overflow-y:auto}
+.arcade-round-label{margin:0 0 12px;color:var(--mint);font-size:.68rem;font-weight:900;letter-spacing:.12em;text-transform:uppercase}
+.arcade-prompt{
+  margin:0 0 18px;padding:clamp(18px,4vw,28px);
+  border:1px solid var(--line-strong);border-radius:18px;
+  background:linear-gradient(145deg,color-mix(in srgb,var(--mint) 10%,var(--panel-2)),var(--panel-2));
+  color:var(--ink);font-size:clamp(1.02rem,3vw,1.28rem);font-weight:800;line-height:1.55;
+}
+.arcade-blank{display:inline-block;min-width:5ch;border-bottom:3px solid var(--amber);color:var(--amber);text-align:center;letter-spacing:.14em}
+.arcade-reminder{margin:-6px 0 16px;color:var(--muted-2);font-size:.73rem;line-height:1.55}
+.arcade-answers{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.arcade-answer{
+  min-height:54px;padding:12px 15px;border:1px solid var(--line-strong);
+  border-radius:14px;background:color-mix(in srgb,var(--panel-2) 75%,transparent);
+  color:var(--ink);font:inherit;font-size:.82rem;font-weight:750;text-align:left;
+  cursor:pointer;transition:transform .16s,border-color .16s,background .16s;
+}
+.arcade-answer:hover:not(:disabled){transform:translateY(-2px);border-color:var(--mint);background:color-mix(in srgb,var(--mint) 10%,var(--panel-2))}
+.arcade-answer.is-correct{border-color:var(--mint);background:color-mix(in srgb,var(--mint) 18%,var(--panel));color:var(--ink)}
+.arcade-answer.is-wrong{border-color:var(--danger);background:color-mix(in srgb,var(--danger) 12%,var(--panel));color:var(--ink)}
+.arcade-feedback{margin-top:14px;padding:13px 15px;border:1px solid var(--line);border-radius:13px;color:var(--muted);font-size:.78rem;line-height:1.6}
+.arcade-feedback.is-correct{border-color:color-mix(in srgb,var(--mint) 42%,var(--line));background:color-mix(in srgb,var(--mint) 8%,var(--panel))}
+.arcade-feedback.is-wrong{border-color:color-mix(in srgb,var(--amber) 42%,var(--line));background:color-mix(in srgb,var(--amber) 8%,var(--panel))}
+.arcade-actions{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:20px}
+.arcade-score{color:var(--muted);font-size:.78rem;font-weight:700}
+.arcade-score b{color:var(--ink)}
+.arcade-result{max-width:440px;margin:0 auto;text-align:center}
+.arcade-result-icon{display:block;margin:0 auto 6px;font-size:2.6rem;animation:float 3s ease-in-out infinite}
+.arcade-result h3{margin:0 0 4px;font-size:1.5rem}
+.arcade-final-score{margin:4px 0 8px;color:var(--mint);font-family:var(--display);font-size:3.6rem;font-weight:600;line-height:1}
+.arcade-final-score span{color:var(--muted-2);font-size:1.4rem}
+.arcade-result > p:not(.arcade-round-label,.arcade-final-score){color:var(--muted);font-size:.82rem;line-height:1.65}
+.arcade-result-actions{justify-content:center;flex-wrap:wrap}
+
+@keyframes game-card-enter{
+  from{opacity:0;transform:translateY(12px) scale(.985)}
+  to{opacity:1;transform:translateY(0) scale(1)}
+}
+
 @media (max-width:900px){
   .about-grid{grid-template-columns:1fr}
   .about-cta{align-items:flex-start;flex-direction:column}
+  .games-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .games-hero{align-items:flex-start;flex-direction:column}
 }
 @media (max-width:720px){
   .header-inner{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px 10px}
@@ -905,7 +1092,21 @@ body[data-mode="adult"] .mode-switch{
   .brand-mark.brand-logo{width:44px;height:44px}
   .about-actions .btn{flex:1 1 160px}
   .auth-card{padding:22px}
+  .games{padding-top:40px}
+  .games-footer-note{align-items:flex-start;flex-direction:column}
+  .main-nav{grid-column:1 / -1;grid-row:3;justify-content:flex-start;flex-wrap:nowrap;overflow-x:auto;white-space:nowrap;scrollbar-width:thin}
+  .arcade-dialog{width:100%;max-width:100%;height:100dvh;max-height:100dvh;margin:0;border:0;border-radius:0}
+  .arcade-shell{height:100%;border-radius:0}
+  .arcade-head{padding:16px}
+  .arcade-body{max-height:calc(100dvh - 78px);padding:18px 16px 28px}
   html{scroll-padding-top:150px}
+}
+@media (max-width:520px){
+  .games-grid{grid-template-columns:1fr}
+  .games-hero h1{font-size:clamp(2.3rem,12vw,3.4rem)}
+  .game-card{padding:18px}
+  .arcade-answers{grid-template-columns:1fr}
+  .arcade-head .dialog-progress{display:none}
 }
 
 
@@ -914,4 +1115,14 @@ body[data-mode="adult"] .mode-switch{
   .main-nav a{padding:8px 10px;font-size:.86rem}
   .mode-pill{padding:6px 10px}
   .auth-signup{padding:8px 10px}
+}
+
+@media (min-width:1121px){
+  .header-inner{flex-wrap:nowrap;gap:9px}
+  .main-nav{flex-wrap:nowrap;gap:1px;margin-left:auto}
+  .main-nav a{flex:none;padding:6px 7px;font-size:.74rem;white-space:nowrap}
+  .mode-switch{margin-left:0;flex:none}
+  .mode-pill{padding:5px 8px;font-size:.74rem}
+  .profile-chip{flex:none}
+  .auth-nav{flex:none;margin-left:0}
 }
