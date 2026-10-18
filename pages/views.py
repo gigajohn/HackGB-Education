@@ -40,60 +40,31 @@ class LandingPageView(TemplateView):
 
 
 class LoginPageView(View):
-    template_name = "registration/login.html"
+    template_name = 'pages/login.html'
 
     def get(self, request, *args, **kwargs):
         if request.user.is_authenticated:
-            return redirect("home")
-
-        form = AuthenticationForm(request=request)
-
-        return render(
-            request,
-            self.template_name,
-            {
-                "form": form,
-                "next": safe_next_url(request),
-            },
-        )
+            return redirect('landing')
+        return render(request, self.template_name)
 
     def post(self, request, *args, **kwargs):
-        form = AuthenticationForm(
-            request=request,
-            data=request.POST,
-        )
+        username = request.POST.get('username', '').strip()
+        password = request.POST.get('password', '')
+        remember = request.POST.get('remember')
 
-        if form.is_valid():
-            user = form.get_user()
-
-            login(
-                request,
-                user,
-                backend="django.contrib.auth.backends.ModelBackend",
-            )
-
-            if request.POST.get("remember"):
-                request.session.set_expiry(
-                    request.session.get_session_cookie_age()
-                )
-            else:
+        user = authenticate(request, username=username, password=password)
+        if user is not None:
+            login(request, user, backend="django.contrib.auth.backends.ModelBackend")
+            if not remember:
                 request.session.set_expiry(0)
-
-            messages.success(
-                request,
-                f"Welcome back, {user.get_username()}!",
-            )
-
-            return redirect(safe_next_url(request))
-
-        return render(
-            request,
-            self.template_name,
-            {
-                "form": form,
-                "next": safe_next_url(request),
-            },
-        )
+            messages.success(request, f"Welcome back, {user.get_username()}!")
+            next_url = request.GET.get('next') or request.POST.get('next') or reverse('landing')
+            return redirect(next_url)
+        else:
+            messages.error(request, "Invalid username or password. Please try again.")
+            return render(request, self.template_name, {
+                'username': username,
+            }, status=401)
 
 
 class OAuthStartView(View):
@@ -102,9 +73,11 @@ class OAuthStartView(View):
     Redirects to allauth OAuth login endpoint if configured,
     or falls back to demo account simulation in development.
     """
-
     def get(self, request, provider, *args, **kwargs):
         provider = provider.lower()
+        if provider not in ('google', 'microsoft'):
+            messages.error(request, f"Unsupported OAuth provider: {provider}")
+            return redirect('login')
 
         from allauth.socialaccount.adapter import get_adapter
         from urllib.parse import urlencode
@@ -139,19 +112,13 @@ class OAuthStartView(View):
         login(request, user, backend="django.contrib.auth.backends.ModelBackend")
         messages.success(
             request,
-            f"{provider.capitalize()} sign-in is not connected yet. "
-            "Please use your SusorSafe username and password.",
+            f"Successfully authenticated with {provider.capitalize()}! Welcome, {user.first_name}."
         )
-
-        return redirect("login")
+        next_url = request.GET.get('next') or reverse('landing')
+        return redirect(next_url)
 
     def post(self, request, provider, *args, **kwargs):
-        return self.get(
-            request,
-            provider,
-            *args,
-            **kwargs,
-        )
+        return self.get(request, provider, *args, **kwargs)
 
 
 class UserProgressAPIView(View):

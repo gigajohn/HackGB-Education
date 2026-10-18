@@ -3324,7 +3324,7 @@ body {
 
     <nav class="main-nav" aria-label="Main navigation">
       <a href="{% url 'home' %}" {% if page == 'home' %}aria-current="page"{% endif %}>Home</a>
-      <a href="{% url 'lessons' %}#lessons" {% if page == 'lessons' %}aria-current="page"{% endif %}>Lessons</a>
+      <a href="{% url 'lessons' %}" {% if page == 'lessons' %}aria-current="page"{% endif %}>Lessons &amp; Games</a>
       <a href="{% url 'games' %}" {% if page == 'games' %}aria-current="page"{% endif %}>Games</a>
       <a href="{% url 'toolkit' %}" {% if page == 'toolkit' %}aria-current="page"{% endif %}>Toolkit</a>
       <a href="{% url 'parents' %}" {% if page == 'parents' %}aria-current="page"{% endif %}>Parents</a>
@@ -3338,10 +3338,12 @@ body {
         <button class="mode-pill" type="button" data-mode="teen" aria-pressed="false">Teens</button>
         <button class="mode-pill" type="button" data-mode="adult" aria-pressed="false">Adults</button>
       </div>
-      <button class="profile-chip" id="profileBtn" type="button" aria-label="My crew and coins">
+      {% if user.is_authenticated %}
+      <a class="profile-chip" id="profileBtn" href="{% url 'lessons' %}#crew" aria-label="Customize your profile and spend points">
         <span class="profile-mini" id="headerAvatar"></span>
-        <span class="coin-count"><svg class="ico coin-ico"><use href="#i-coin"/></svg><b id="coinValue">0</b></span>
-      </button>
+        <span class="coin-count"><svg class="ico coin-ico"><use href="#i-coin"/></svg><b id="coinValue">0</b><span>points</span></span>
+      </a>
+      {% endif %}
       <div class="auth-nav">
         {% if user.is_authenticated %}
           <span class="auth-name">Hi, {{ user.username }}</span>
@@ -3519,31 +3521,6 @@ body {
     </div>
   </div>
 
-  <!-- ============ GAMES ============ -->
-  <section class="section games" id="games">
-    <div class="wrap">
-      <div class="games-hero">
-        <div>
-          <p class="kicker">Play to practise</p>
-          <h1>Seven lessons.<br><span class="hl-soft">Seven hands-on games.</span></h1>
-          <p class="section-lede" id="gamesModeIntro">Pick a game that fits your age mode. Each one teaches a safety skill, then gives you a quick check.</p>
-        </div>
-        <div class="games-mode-pill" id="gamesModeBadge">Kids · Little Islander</div>
-      </div>
-      <div class="mode-hint games-hint">
-        <span class="mh-badge">How to play</span>
-        <div class="mh-copy">
-          <p>Pick any game for three quick rounds. Guess, fill in a blank, or choose what happens next—then see why. Your best scores stay in this browser.</p>
-        </div>
-      </div>
-      <div class="games-grid" id="gamesGrid" aria-live="polite"></div>
-      <div class="games-footer-note">
-        <p>All games are ready to play in any order. Replay a challenge whenever you want another try.</p>
-        <a class="btn btn-ghost" href="{% url 'lessons' %}">View the full lesson path <svg class="ico"><use href="#i-arrow"/></svg></a>
-      </div>
-    </div>
-  </section>
-
   <!-- ============ EXPLORER / AGES ============ -->
   <section class="section routes" id="explorer">
     <div class="wrap">
@@ -3652,6 +3629,31 @@ body {
           <button class="btn btn-ghost" id="openCrew2" type="button">My crew</button>
           <button class="link-btn" id="resetProgress" type="button">Reset progress</button>
         </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ GAMES ============ -->
+  <section class="section games" id="games">
+    <div class="wrap">
+      <div class="games-hero">
+        <div>
+          <p class="kicker">Play to practise</p>
+          <h1>Seven lessons.<br><span class="hl-soft">Seven hands-on games.</span></h1>
+          <p class="section-lede" id="gamesModeIntro">Pick a game that fits your age mode. Each one teaches a safety skill, then gives you a quick check.</p>
+        </div>
+        <div class="games-mode-pill" id="gamesModeBadge">Kids · Little Islander</div>
+      </div>
+      <div class="mode-hint games-hint">
+        <span class="mh-badge">How to play</span>
+        <div class="mh-copy">
+          <p>Pick any game for three quick rounds. Guess, fill in a blank, or choose what happens next—then see why. Your best scores stay in this browser.</p>
+        </div>
+      </div>
+      <div class="games-grid" id="gamesGrid" aria-live="polite"></div>
+      <div class="games-footer-note">
+        <p>All games are ready to play in any order. Replay a challenge whenever you want another try.</p>
+        <a class="btn btn-ghost" href="{% url 'lessons' %}">View the full lesson path <svg class="ico"><use href="#i-arrow"/></svg></a>
       </div>
     </div>
   </section>
@@ -4019,6 +4021,21 @@ body {
       </div>
     </div>
   </section>
+
+  <!-- ============ SUPPORT ============ -->
+  <section class="section combined-support" id="support">
+    <div class="wrap support-panel">
+      <div>
+        <p class="kicker">Keep learning free</p>
+        <h2>Support the island</h2>
+        <p>Every lesson stays free. Optional support helps with hosting, accessibility and new learning activities—without ads or data selling.</p>
+      </div>
+      <div class="support-panel-actions">
+        <a class="btn btn-primary" href="{% url 'subscribe' %}">Monthly support</a>
+        <a class="btn btn-ghost" href="{% url 'donate' %}">One-time donation</a>
+      </div>
+    </div>
+  </section>
 </main>
 
 <footer class="site-footer">
@@ -4044,7 +4061,7 @@ body {
     <div class="footer-col">
       <h4>Explore</h4>
       <a href="{% url 'lessons' %}">Seven lessons</a>
-      <a href="{% url 'games' %}">Games</a>
+      <a href="{% url 'lessons' %}#games">Games</a>
       <a href="{% url 'toolkit' %}">Safety toolkit</a>
       <a href="{% url 'parents' %}">Parents &amp; teachers</a>
       <a href="{% url 'install' %}">Install the app</a>
@@ -4056,7 +4073,7 @@ body {
     </div>
   </div>
   <div class="wrap footer-bottom">
-    <span>© 2026 SusOrSafe · Made for curious minds.</span>
+    <span class="footer-copyright">@ 2026 Sus Or Safe</span>
     <div class="footer-legal-links" aria-label="Website information">
       <button class="footer-legal-link" type="button" data-legal="privacy">Privacy notice</button>
       <button class="footer-legal-link" type="button" data-legal="terms">Terms &amp; conditions</button>
