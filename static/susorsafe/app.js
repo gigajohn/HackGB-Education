@@ -1209,11 +1209,10 @@
       grid.innerHTML = PETS.map(pet => {
         const owned = state.owned.pets.includes(pet.id);
         const equipped = state.avatar.pet === pet.id;
-        const priceLabel = owned ? (equipped ? 'Equipped' : 'Owned') : (pet.price === 0 ? 'Free' : `${pet.price} coins`);
         return `<button class="shop-item pet-item ${equipped ? 'is-equipped' : ''}" type="button" data-buy-type="pets" data-buy-id="${pet.id}">
-          <span class="pet-emoji">${pet.emoji || '·'}</span>
+          <span class="pet-emoji" style="--pet-color:${pet.color}">${pet.emoji || '·'}</span>
           <span class="shop-item-copy"><b>${pet.name}</b><small>${pet.blurb}</small></span>
-          <span class="shop-price">${priceLabel}</span>
+          ${shopPriceMarkup(pet, owned, equipped)}
         </button>`;
       }).join('');
       return;
@@ -1222,27 +1221,34 @@
     const colors = AVATAR_COLORS.map(color => {
       const owned = state.owned.colors.includes(color.id);
       const equipped = state.avatar.color === color.id;
-      const priceLabel = owned ? (equipped ? 'Equipped' : 'Owned') : (color.price === 0 ? 'Free' : `${color.price} coins`);
       return `<button class="shop-item color-item ${equipped ? 'is-equipped' : ''}" type="button" data-buy-type="colors" data-buy-id="${color.id}">
         <span class="color-swatch" style="--sw:${color.hex}"></span>
         <span class="shop-item-copy"><b>${color.name}</b><small>Body colour</small></span>
-        <span class="shop-price">${priceLabel}</span>
+        ${shopPriceMarkup(color, owned, equipped)}
       </button>`;
     }).join('');
 
     const gear = ACCESSORIES.map(accessory => {
       const owned = state.owned.accessories.includes(accessory.id);
       const equipped = state.avatar.accessory === accessory.id;
-      const priceLabel = owned ? (equipped ? 'Equipped' : 'Owned') : (accessory.price === 0 ? 'Free' : `${accessory.price} coins`);
       return `<button class="shop-item gear-item ${equipped ? 'is-equipped' : ''}" type="button" data-buy-type="accessories" data-buy-id="${accessory.id}">
         <span class="gear-emoji">${ACCESSORY_EMOJI[accessory.id] || '—'}</span>
         <span class="shop-item-copy"><b>${accessory.name}</b><small>Wearable gear</small></span>
-        <span class="shop-price">${priceLabel}</span>
+        ${shopPriceMarkup(accessory, owned, equipped)}
       </button>`;
     }).join('');
 
     grid.innerHTML = `<div class="shop-section"><p class="shop-section-title">Body colour</p><div class="shop-subgrid">${colors}</div></div>
       <div class="shop-section"><p class="shop-section-title">Gear</p><div class="shop-subgrid">${gear}</div></div>`;
+  }
+
+  function shopPriceMarkup(item, owned, equipped) {
+    if (owned) {
+      const status = equipped ? 'Equipped' : 'Owned';
+      return `<span class="shop-price shop-price--${equipped ? 'equipped' : 'owned'}">${status}</span>`;
+    }
+    if (item.price === 0) return '<span class="shop-price shop-price--free">Free</span>';
+    return `<span class="shop-price shop-price--points"><svg class="ico coin-ico" aria-hidden="true"><use href="#i-coin"/></svg>${item.price}</span>`;
   }
 
   function renderCertificate() {

@@ -1034,10 +1034,42 @@ body[data-mode="adult"] .mascot-age-adult{
    ========================================================== */
 
 .site-footer{
-  border-top:1px solid var(--line);
-  background:linear-gradient(180deg,rgba(255,255,255,.018),transparent);
+  position:relative;
+  isolation:isolate;
+  overflow:hidden;
+  border-top:1px solid var(--line-strong);
+  background:
+    radial-gradient(ellipse at 14% 12%,rgba(157,140,255,.12),transparent 34%),
+    radial-gradient(ellipse at 88% 38%,rgba(92,225,196,.1),transparent 32%),
+    linear-gradient(145deg,#0b1026,#101632 55%,#0b1026);
   padding-top:clamp(44px,5vw,64px);
 }
+.site-footer::before{
+  content:"";
+  position:absolute;
+  z-index:-1;
+  inset:-50%;
+  pointer-events:none;
+  opacity:.45;
+  background:linear-gradient(115deg,transparent 35%,rgba(92,225,196,.14) 46%,rgba(157,140,255,.17) 54%,transparent 66%);
+  background-size:220% 220%;
+  animation:footer-aurora 22s ease-in-out infinite alternate;
+}
+.site-footer::after{
+  content:"";
+  position:absolute;
+  z-index:-1;
+  width:340px;
+  aspect-ratio:1;
+  right:-100px;
+  top:-190px;
+  border:1px solid rgba(92,225,196,.2);
+  border-radius:50%;
+  box-shadow:0 0 0 28px rgba(157,140,255,.04),0 0 0 58px rgba(92,225,196,.035),0 0 90px rgba(92,225,196,.08);
+  pointer-events:none;
+  animation:footer-orbit 18s ease-in-out infinite alternate;
+}
+.footer-orbit{display:none}
 .footer-grid{
   display:grid;grid-template-columns:1.6fr 1fr 1fr;
   gap:40px;
@@ -1082,6 +1114,7 @@ body[data-mode="adult"] .mascot-age-adult{
 }
 .footer-legal-link:hover{color:var(--lime)}
 .footer-bottom > span:last-child{text-align:right}
+.footer-signoff{font-weight:800}
 
 .legal-dialog{
   width:min(620px,calc(100vw - 32px));
@@ -1653,6 +1686,14 @@ body.modal-open{overflow:hidden}
   from{opacity:0;transform:translateY(6px) scale(.98)}
   to{opacity:1;transform:none}
 }
+@keyframes footer-aurora{
+  from{background-position:0% 50%;transform:rotate(-5deg) translateX(-3%)}
+  to{background-position:100% 50%;transform:rotate(5deg) translateX(3%)}
+}
+@keyframes footer-orbit{
+  from{transform:translate3d(0,0,0) rotate(-12deg)}
+  to{transform:translate3d(-34px,22px,0) rotate(14deg)}
+}
 
 /* ==========================================================
    Responsive
@@ -1809,6 +1850,7 @@ body.modal-open{overflow:hidden}
   .ticker-track{animation:none}
   .footer-reveal-ready{opacity:1;transform:none}
   body::after{animation:none}
+  .site-footer::before,.site-footer::after{animation:none}
 }
 
 /* ==========================================================
@@ -1912,7 +1954,6 @@ body[data-mode="kid"] .focus-tag {
   color: #805000;
 }
 
-
 /* Other page hidden characters and icons*/
 body:not([data-page="profile"]) #crew {
   display: none !important;
@@ -1954,3 +1995,4 @@ body[data-mode="teen"] .qp-label,
 body[data-mode="adult"] .qp-label {
   color: #d5dcf3 !important;
 }
+
