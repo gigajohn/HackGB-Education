@@ -28,6 +28,18 @@ def signup(request):
     return render(request, "registration/signup.html", {"form": form})
 
 
+def support_hub(request):
+    return render(request, "support/hub.html")
+
+
+def support_subscribe(request):
+    return render(request, "support/subscribe.html")
+
+
+def support_donate(request):
+    return render(request, "support/donate.html")
+
+
 def manifest(request):
     icons = [
         {"src": static("susorsafe/icons/icon-192.png"), "sizes": "192x192", "type": "image/png", "purpose": "any"},

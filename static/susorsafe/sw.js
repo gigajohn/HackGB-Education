@@ -1,5 +1,5 @@
-/* SusorSafe — Django service worker (served at /sw.js) */
-const CACHE = 'susorsafe-django-v4';
+﻿/* SusorSafe — Django service worker (served at /sw.js) */
+const CACHE = 'susorsafe-django-v5';
 const ASSETS = [
   '/',
   '/manifest.webmanifest',

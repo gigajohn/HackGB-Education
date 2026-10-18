@@ -1,0 +1,67 @@
+{% extends "support/base.html" %}
+
+{% block title %}Support SusorSafe{% endblock %}
+
+{% block content %}
+<section class="support-hero wrap">
+  <p class="eyebrow">Support the island</p>
+  <h1>Free to learn.<br><span class="hl">Supported by people who care.</span></h1>
+  <p class="support-lede">
+    Seven lessons, no ads, no data selling, no paywall. If SusorSafe has been useful to you,
+    you can help keep it that way with a small monthly subscription or a one-time donation.
+  </p>
+</section>
+
+<section class="wrap support-options" aria-label="Ways to support SusorSafe">
+  <a class="support-option" href="{% url 'subscribe' %}">
+    <p class="support-option-kicker">Monthly</p>
+    <h2>Subscribe</h2>
+    <p>Small, steady support for hosting, fixes and the next lesson. Cancel anytime.</p>
+    <p class="support-option-price">from $4 <span>/ month</span></p>
+    <span class="support-option-link">See plans →</span>
+  </a>
+
+  <a class="support-option" href="{% url 'donate' %}">
+    <p class="support-option-kicker">One-time</p>
+    <h2>Donate</h2>
+    <p>No subscription, no account. Give once, at whatever amount feels right.</p>
+    <p class="support-option-price">any amount <span>/ once</span></p>
+    <span class="support-option-link">Choose an amount →</span>
+  </a>
+</section>
+
+<section class="wrap support-section">
+  <div class="support-section-head">
+    <p class="kicker">Where it goes</p>
+    <h2>Small budget. <span class="hl-soft">Real costs.</span></h2>
+    <p>Support is used for the unglamorous parts of keeping a free learning site online.</p>
+  </div>
+
+  <div class="support-facts">
+    <article>
+      <span class="support-fact-num">01</span>
+      <h3>Hosting & domains</h3>
+      <p>Servers, storage and the domains that keep the island reachable.</p>
+    </article>
+    <article>
+      <span class="support-fact-num">02</span>
+      <h3>New lessons & fixes</h3>
+      <p>Research, writing, accessibility checks and the small bugs that never announce themselves.</p>
+    </article>
+    <article>
+      <span class="support-fact-num">03</span>
+      <h3>No ads, ever</h3>
+      <p>Support keeps the lessons free and keeps advertising and data selling out of the classroom.</p>
+    </article>
+  </div>
+</section>
+
+<section class="wrap support-panel">
+  <div>
+    <p class="kicker">No pressure</p>
+    <h2>You do not need to pay to learn here.</h2>
+    <p>Every lesson, every scenario and the certificate stay free. If you cannot support SusorSafe, use it anyway — and tell one person who needs it.</p>
+  </div>
+  <a class="btn btn-primary" href="{% url 'subscribe' %}">Support the island</a>
+</section>
+{% endblock %}
