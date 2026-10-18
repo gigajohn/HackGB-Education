@@ -2,6 +2,9 @@ from django.test import TestCase
 from django.urls import reverse
 from django.contrib.staticfiles import finders
 from django.contrib.auth import get_user_model
+from pages.models import Profile
+
+User = get_user_model()
 
 
 class LandingPageTests(TestCase):
@@ -25,18 +28,8 @@ class LoginPageTests(TestCase):
         response = self.client.get(reverse('login'))
         self.assertContains(response, 'Continue with Google')
         self.assertContains(response, 'Continue with Microsoft')
-        self.assertContains(response, reverse('oauth_start', kwargs={'provider': 'google'}))
-        self.assertContains(response, reverse('oauth_start', kwargs={'provider': 'microsoft'}))
-
-    def test_oauth_google_flow(self):
-        response = self.client.get(reverse('oauth_start', kwargs={'provider': 'google'}))
-        self.assertEqual(response.status_code, 302)
-        self.assertRedirects(response, reverse('landing'))
-
-    def test_oauth_microsoft_flow(self):
-        response = self.client.get(reverse('oauth_start', kwargs={'provider': 'microsoft'}))
-        self.assertEqual(response.status_code, 302)
-        self.assertRedirects(response, reverse('landing'))
+        self.assertContains(response, '/accounts/google/login/')
+        self.assertContains(response, '/accounts/microsoft/login/')
 
     def test_invalid_login_credentials(self):
         response = self.client.post(reverse('login'), {
@@ -49,3 +42,14 @@ class LoginPageTests(TestCase):
     def test_static_files_exist(self):
         self.assertIsNotNone(finders.find('susorsafe/styles.css'))
         self.assertIsNotNone(finders.find('susorsafe/fonts.css'))
+
+
+class ProfileModelTests(TestCase):
+    def test_profile_automatically_created_for_new_user(self):
+        user = User.objects.create_user(username='new_explorer', password='Password123!')
+        self.assertTrue(hasattr(user, 'profile'))
+        self.assertIsNotNone(user.profile.explorer_id)
+        self.assertTrue(user.profile.explorer_id.startswith('usr_'))
+        self.assertEqual(user.profile.coins, 0)
+        self.assertEqual(user.profile.age_mode, 'kid')
+

@@ -28,4 +28,4 @@ Once your environment is set up and active, start the development server using t
 
 bash
 
-python manage.py startserver
+python manage.py runserver
