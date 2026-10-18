@@ -1927,3 +1927,19 @@ body[data-page="profile"] #crew {
   display: block !important;
   padding-top: 48px;
 }
+
+/* All mode：word color darker */
+body .mode-hint p {
+  color: #34415C !important;
+}
+
+/* All mode：Tag text darker */
+body .mode-hint .mh-badge {
+  color: #463568 !important;
+  background: #EAE1FA !important;
+}
+
+/* Kids：Course completion text darker */
+body[data-mode="kid"] .quest-progress strong {
+  color: #6D3DD1 !important;
+}

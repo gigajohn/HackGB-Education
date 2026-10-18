@@ -2408,8 +2408,8 @@
         window.location.href = '/profile/';
         }
 
-    $('#profileBtn').addEventListener('click', jumpToProfile);
-    $('#openCrew2').addEventListener('click', jumpToProfile);
+    $('#profileBtn')?.addEventListener('click', jumpToProfile);
+    $('#openCrew2')?.addEventListener('click', jumpToProfile);
 
     
   if ($('#shopTabs')) $('#shopTabs').addEventListener('click', event => {

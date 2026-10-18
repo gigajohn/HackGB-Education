@@ -11,6 +11,12 @@ from django.urls import reverse
 def home(request):
     return app_page(request, "home")
 
+def profile(request):
+    return render(request, "profile.html", {
+        "page": "profile",
+        "page_title": "My profile · SusOrSafe",
+    })
+
 
 def app_page(request, page):
     if page in {"toolkit", "parents", "install"}:
@@ -20,11 +26,14 @@ def app_page(request, page):
         "home": "SusOrSafe — Cybersecurity you can play",
         "lessons": "Lessons & games · SusOrSafe",
         "about": "About & help · SusOrSafe",
+        "profile": "My profile · SusOrSafe",
     }
+    
     return render(request, "home.html", {
         "page": page,
         "page_title": page_titles[page],
     })
+
 
 
 def games_page(request):
