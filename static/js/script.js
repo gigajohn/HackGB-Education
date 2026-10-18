@@ -82,3 +82,11 @@ if (legalClose && legalDialog) {
     if (event.target === legalDialog) legalDialog.close();
   });
 }
+function setTheme(ageGroup) {
+  document.body.classList.remove('theme-kids', 'theme-teens', 'theme-adults');
+  document.body.classList.add(`theme-${ageGroup}`);
+}
+
+// Example usage:
+// setTheme('kids');
+// setTheme('adults');
