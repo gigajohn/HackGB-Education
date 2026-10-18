@@ -5,14 +5,15 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="color-scheme" content="dark">
-  <meta name="theme-color" content="#080b1c">
-  <title>Sign In — SusorSafe</title>
-  <meta name="description" content="Sign in to SusorSafe with Google, Microsoft, or your account to save lessons, badges, and progress.">
+  <meta name="color-scheme" content="light">
+  <meta name="theme-color" content="#fff8df">
+  <title>Sign In — SusOrSafe</title>
+  <meta name="description" content="Sign in to SusOrSafe with Google, Microsoft, or your account to save lessons, badges, and progress.">
   <link rel="icon" href="{% static 'susorsafe/icons/favicon.png' %}" type="image/png" sizes="64x64">
-  <link rel="stylesheet" href="{% static 'susorsafe/fonts.css' %}">
-  <link rel="stylesheet" href="{% static 'susorsafe/styles.css' %}">
-  <link rel="stylesheet" href="{% static 'susorsafe/v2.css' %}">
+  <link rel="stylesheet" href="{% static 'susorsafe/fonts.css' %}?v=19">
+  <link rel="stylesheet" href="{% static 'susorsafe/styles.css' %}?v=19">
+  <link rel="stylesheet" href="{% static 'susorsafe/v2.css' %}?v=19">
+  <script src="{% static 'susorsafe/theme.js' %}?v=19" defer></script>
 
   <style>
     .auth-page {
@@ -426,17 +427,24 @@
     }
   </style>
 </head>
-<body>
+<body class="auth-body" data-mode="kid">
   <div class="auth-page">
     <div class="auth-glow" aria-hidden="true"></div>
 
     <div class="auth-container">
+      <div class="mode-switch auth-mode-switch" role="group" aria-label="Choose an age mode">
+        <button class="mode-pill" data-mode="kid" aria-pressed="false" type="button">Kids</button>
+        <button class="mode-pill" data-mode="teen" aria-pressed="false" type="button">Teens</button>
+        <button class="mode-pill" data-mode="adult" aria-pressed="false" type="button">Adults</button>
+      </div>
+      <p class="auth-mode-note" data-age-copy-kid="Kids mode · bright colours and simple safety wording" data-age-copy-teen="Teens mode · practical guidance for school, work and online accounts" data-age-copy-adult="Adults mode · calm, practical guidance for everyday online safety">Kids mode · bright colours and simple safety wording</p>
+
       <div class="back-nav">
         <a href="{% url 'landing' %}" class="back-btn">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
             <path d="M19 12H5M12 19l-7-7 7-7"/>
           </svg>
-          Back to SusorSafe
+          Back to SusOrSafe
         </a>
       </div>
 
@@ -445,7 +453,7 @@
           <span class="brand-mark" style="background:none;border:0;box-shadow:none;padding:0;">
             <img src="{% static 'susorsafe/icons/logo-mark.png' %}" alt="" style="width:100%;height:100%;object-fit:contain;">
           </span>
-          <span class="brand-text">SusorSafe</span>
+          <span class="brand-text">SusOrSafe</span>
         </a>
         <h1>Sign In</h1>
         <p>Sync your lessons, island badges, coins, and certificate.</p>
@@ -568,7 +576,7 @@
           </div>
 
           <button type="submit" class="btn btn-primary btn-submit">
-            <span>Sign In to Explorer HQ</span>
+            <span data-age-copy-kid="Sign in to your island" data-age-copy-teen="Sign in to your account" data-age-copy-adult="Sign in to your account">Sign in to your island</span>
             <svg class="ico" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
               <path d="M5 12h13M13 6l6 6-6 6"/>
             </svg>
@@ -587,7 +595,7 @@
           <path d="m9 12 2 2 4-4"/>
         </svg>
         <div>
-          <strong>Cybersecurity First:</strong> We practice what we teach. SusorSafe only uses Google and Microsoft OAuth to confirm your identity. We never access your emails, contacts, or drive files.
+          <strong>Cybersecurity First:</strong> We practice what we teach. SusOrSafe only uses Google and Microsoft OAuth to confirm your identity. We never access your emails, contacts, or drive files.
         </div>
       </div>
     </div>
@@ -612,4 +620,3 @@
   </script>
 </body>
 </html>
-

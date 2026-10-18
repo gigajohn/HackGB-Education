@@ -1,18 +1,18 @@
 {% extends "support/base.html" %}
 
-{% block title %}Support SusorSafe{% endblock %}
+{% block title %}Support SusOrSafe{% endblock %}
 
 {% block content %}
 <section class="support-hero wrap">
   <p class="eyebrow">Support the island</p>
   <h1>Free to learn.<br><span class="hl">Supported by people who care.</span></h1>
-  <p class="support-lede">
-    Seven lessons, no ads, no data selling, no paywall. If SusorSafe has been useful to you,
+  <p class="support-lede" data-age-copy-kid="SusOrSafe lessons stay free for everyone. Grown-ups can help cover hosting and improvements with a monthly subscription or one-time donation." data-age-copy-teen="The lessons stay free for everyone. If SusOrSafe has been useful, optional support helps cover hosting and future improvements." data-age-copy-adult="The lessons stay free for everyone. Optional support helps cover hosting, accessibility and future improvements—without ads or data selling.">
+    Seven lessons, no ads, no data selling, no paywall. If SusOrSafe has been useful to you,
     you can help keep it that way with a small monthly subscription or a one-time donation.
   </p>
 </section>
 
-<section class="wrap support-options" aria-label="Ways to support SusorSafe">
+<section class="wrap support-options" aria-label="Ways to support SusOrSafe">
   <a class="support-option" href="{% url 'subscribe' %}">
     <p class="support-option-kicker">Monthly</p>
     <h2>Subscribe</h2>
@@ -60,7 +60,7 @@
   <div>
     <p class="kicker">No pressure</p>
     <h2>You do not need to pay to learn here.</h2>
-    <p>Every lesson, every scenario and the certificate stay free. If you cannot support SusorSafe, use it anyway — and tell one person who needs it.</p>
+    <p>Every lesson, every scenario and the certificate stay free. If you cannot support SusOrSafe, use it anyway — and tell one person who needs it.</p>
   </div>
   <a class="btn btn-primary" href="{% url 'subscribe' %}">Support the island</a>
 </section>

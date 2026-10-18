@@ -1,15 +1,36 @@
-﻿/* ==========================================================
-   SusorSafe — curriculum, scenarios and shop data
+/* ==========================================================
+   SusOrSafe — curriculum, scenarios and shop data
    ========================================================== */
 
 window.SUSOR_DATA = (() => {
-  const SCHOOLS = [
-    { id: 'primary', label: 'Primary school' },
-    { id: 'middle', label: 'Middle school' },
-    { id: 'high', label: 'High school' },
-    { id: 'university', label: 'University or college' },
-    { id: 'none', label: 'Not at school right now' }
-  ];
+  const STAGES = {
+    kid: [
+      { id: 'preschool', label: 'Preschool' },
+      { id: 'primary', label: 'Elementary school' },
+      { id: 'middle', label: 'Middle school' }
+    ],
+    teen: [
+      { id: 'high', label: 'High school' },
+      { id: 'university', label: 'College or university' },
+      { id: 'none', label: 'Taking a break from school' }
+    ],
+    adult: [
+      { id: 'working', label: 'Working or caregiving' },
+      { id: 'retired', label: 'Retired' },
+      { id: 'none', label: 'Prefer not to say' }
+    ]
+  };
+
+  const STAGE_TIPS = {
+    preschool: 'Practise asking a trusted grown-up before tapping a prize, link or download.',
+    primary: 'Watch for game prizes, stranger chats and requests for passwords.',
+    middle: 'Look out for fake game rewards, copied accounts and private details requests.',
+    high: 'Watch for fake jobs, tickets, gaming giveaways and copied sign-in pages.',
+    university: 'Check housing, scholarship, internship and campus account messages carefully.',
+    working: 'Watch for fake work requests, bank impersonators and urgent payment changes.',
+    retired: 'Pause on unexpected bank, delivery, government and family emergency messages.',
+    none: 'Scams can target anyone. Pause when a message asks for money, a code or a quick click.'
+  };
 
   const AVATAR_COLORS = [
     { id: 'mint', name: 'Mint', hex: '#7CF0C6', price: 0 },
@@ -17,7 +38,10 @@ window.SUSOR_DATA = (() => {
     { id: 'sky', name: 'Sky', hex: '#7DD3FC', price: 80 },
     { id: 'blush', name: 'Blush', hex: '#FF9EC7', price: 80 },
     { id: 'violet', name: 'Violet', hex: '#B9A7FF', price: 120 },
-    { id: 'sunset', name: 'Sunset', hex: '#FFB86B', price: 160 }
+    { id: 'sunset', name: 'Sunset', hex: '#FFB86B', price: 160 },
+    { id: 'ocean', name: 'Ocean', hex: '#4D7CFE', price: 120 },
+    { id: 'coral', name: 'Coral', hex: '#FF776B', price: 160 },
+    { id: 'lavender', name: 'Lavender', hex: '#C4A1FF', price: 180 }
   ];
 
   const ACCESSORIES = [
@@ -25,7 +49,11 @@ window.SUSOR_DATA = (() => {
     { id: 'cap', name: 'Cap', price: 60 },
     { id: 'glasses', name: 'Glasses', price: 80 },
     { id: 'headphones', name: 'Headphones', price: 120 },
-    { id: 'crown', name: 'Crown', price: 220 }
+    { id: 'crown', name: 'Crown', price: 220 },
+    { id: 'scarf', name: 'Scarf', price: 90 },
+    { id: 'bow', name: 'Bow', price: 90 },
+    { id: 'backpack', name: 'Backpack', price: 140 },
+    { id: 'headband', name: 'Star headband', price: 160 }
   ];
 
   const PETS = [
@@ -56,9 +84,9 @@ window.SUSOR_DATA = (() => {
           'The common thread: urgency, a link or attachment, and a request to act now.'
         ],
         modeTips: {
-          kid: "Think of it as a stranger in a familiar uniform. The uniform can be fake, so check with a grown-up.",
-          teen: 'Your inbox and DMs are the front door. A fake login page is often the whole attack.',
-          adult: 'The most expensive attacks are rarely technical. They are a convincing email and one tired click.'
+          kid: 'A message offering free game coins or a surprise prize may be trying to steal your game password. Do not tap it; show a grown-up.',
+          teen: 'A fake job, concert-ticket deal or gaming giveaway in your DMs may lead to a copycat sign-in page that steals your account.',
+          adult: 'A text about a parcel fee or a bank email warning of a blocked account may be bait. Open the official app or call the number on your card.'
         }
       },
       vocab: [
@@ -107,9 +135,9 @@ window.SUSOR_DATA = (() => {
           'Take 5: stop, name the feeling, then verify through a channel you chose.'
         ],
         modeTips: {
-          kid: "If a stranger says “don't tell your parents”, that is the exact moment to tell them.",
-          teen: 'Being polite is good. Being polite to a scammer is expensive. You can always hang up.',
-          adult: "You are not immune because you are busy. Busy is exactly the state they target."
+          kid: 'Someone in a game chat says “keep this secret” or asks for your password or a gift card? Stop and tell a grown-up.',
+          teen: 'A “friend” urgently asks for a login code, money, or help buying gift cards? Contact them another way before you act.',
+          adult: 'A caller pretending to be your bank, the police, or family may pressure you to move money quickly. Hang up and call a number you already trust.'
         }
       },
       vocab: [
@@ -158,9 +186,9 @@ window.SUSOR_DATA = (() => {
           'A padlock means the connection is encrypted, not that the site is honest. Scareware wants you to install a “cleaner”.'
         ],
         modeTips: {
-          kid: 'If a page says your phone is infected, close it. That is the ad talking, not your phone.',
-          teen: 'Free skins, free coins, free downloads: the price is usually your login.',
-          adult: 'Check the domain before you type a password. Bookmark the sites you use often.'
+          kid: 'A “free Robux/coins/skins” page may copy a real game and steal your password. Close it and ask a grown-up.',
+          teen: 'Fake ticket, sneaker, rental or scholarship sites can copy real brands. Check the full web address before signing in or paying.',
+          adult: 'A fake bank, delivery or government website may look real. Use a saved bookmark or the official app instead of a link in a message.'
         }
       },
       vocab: [
@@ -209,9 +237,9 @@ window.SUSOR_DATA = (() => {
           'Let a password manager remember them, and lock the vault with 2FA.'
         ],
         modeTips: {
-          kid: "A passphrase can be silly: “otter-mango-rocket-slipper”. Silly is fine if it's long.",
-          teen: "That one password you use everywhere? It's probably in a leaked list already.",
-          adult: 'Use the manager’s generator, then replace your email password first. It resets everything else.'
+          kid: 'If someone guesses your game password, they could take your character or spend your game coins. Keep it secret and ask a grown-up to help make it strong.',
+          teen: 'If a gaming, school or social password is reused, one leaked account can let scammers into the others. Use a different password for each.',
+          adult: 'A reused email password can expose password resets for banking and shopping accounts. Start with a unique email password stored in a password manager.'
         }
       },
       vocab: [
@@ -260,9 +288,9 @@ window.SUSOR_DATA = (() => {
           'Save backup codes offline so a lost phone does not lock you out.'
         ],
         modeTips: {
-          kid: 'The code is like the key to your house. Not even “support” needs it.',
-          teen: 'Turn on 2FA for email first, then socials and games. Put backup codes somewhere safe.',
-          adult: 'Passkeys are phishing-resistant and faster. Use them where offered, starting with email.'
+          kid: 'A sign-in code is a secret key. If someone in a game or chat asks you to read it out, say no and tell a grown-up.',
+          teen: 'A fake support message may ask for the code sent to your phone to steal your account. Never share it; turn on extra sign-in protection.',
+          adult: 'A caller claiming to stop fraud may ask for a one-time bank code. That code can approve a transfer—never read it to someone who called you.'
         }
       },
       vocab: [
@@ -311,9 +339,9 @@ window.SUSOR_DATA = (() => {
           'Scammers use personal details to make a fake story believable.'
         ],
         modeTips: {
-          kid: "If you wouldn't want a stranger at the bus stop to know it, don't post it publicly.",
-          teen: '“Close friends” is not a magic shield. Screenshots travel.',
-          adult: 'Your birthday, pet names and old street photos are password-reset gold. Lock down your profiles.'
+          kid: 'A stranger could use your school, full name or where you are to find you. Ask a grown-up before posting personal details or photos.',
+          teen: 'A fake giveaway or new online friend may ask for your school, location or private photos. “Close friends” posts can still be screenshotted.',
+          adult: 'Scammers can use birthdays, family names and travel posts to impersonate you or guess account-recovery answers. Limit what is public.'
         }
       },
       vocab: [
@@ -362,9 +390,9 @@ window.SUSOR_DATA = (() => {
           'Decline unexpected profiles, certificates or app installs. Keep your device updated.'
         ],
         modeTips: {
-          kid: 'Ask the staff for the Wi-Fi name. If a pop-up asks you to install something, get a grown-up.',
-          teen: 'Free Wi-Fi at the mall is fine for browsing, not for logging into your bank.',
-          adult: 'Your phone hotspot is safer than an open network for sensitive work. Turn it off when done.'
+          kid: 'A fake “Free Game Wi-Fi” could show a pretend prize or ask you to install something. Ask a grown-up before joining or downloading.',
+          teen: 'A fake café or campus hotspot could lead to a copycat school or social sign-in page. Confirm the network with staff and do not log in through pop-ups.',
+          adult: 'A fake airport or hotel Wi-Fi login can capture your account details. Confirm the network with staff; use mobile data for banking.'
         }
       },
       vocab: [
@@ -504,9 +532,9 @@ window.SUSOR_DATA = (() => {
     },
     {
       url: 'https://play.google.com/store/apps/details?id=com.susor.safe',
-      title: 'SusorSafe — Google Play',
+      title: 'SusOrSafe — Google Play',
       lines: [
-        'SusorSafe · Education',
+        'SusOrSafe · Education',
         '4.8 ★ · 10K+ downloads · Contains ads? No.'
       ],
       action: 'Install',
@@ -746,7 +774,8 @@ window.SUSOR_DATA = (() => {
   ];
 
   return {
-    SCHOOLS,
+    STAGES,
+    STAGE_TIPS,
     LESSONS,
     PHISHING_CASES,
     SITE_CASES,

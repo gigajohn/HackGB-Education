@@ -9,7 +9,23 @@ from django.templatetags.static import static
 
 
 def home(request):
-    return render(request, "home.html")
+    return app_page(request, "home")
+
+
+def app_page(request, page):
+    page_titles = {
+        "home": "SusOrSafe — Cybersecurity you can play",
+        "lessons": "Lessons · SusOrSafe",
+        "games": "Games · SusOrSafe",
+        "toolkit": "Safety toolkit · SusOrSafe",
+        "parents": "Parents & teachers · SusOrSafe",
+        "install": "Install SusOrSafe",
+        "about": "About SusOrSafe",
+    }
+    return render(request, "home.html", {
+        "page": page,
+        "page_title": page_titles[page],
+    })
 
 
 def signup(request):
@@ -47,8 +63,8 @@ def manifest(request):
         {"src": static("susorsafe/icons/maskable-512.png"), "sizes": "512x512", "type": "image/png", "purpose": "maskable"},
     ]
     data = {
-        "name": "SusorSafe — Cybersecurity you can play",
-        "short_name": "SusorSafe",
+        "name": "SusOrSafe — Cybersecurity you can play",
+        "short_name": "SusOrSafe",
         "description": "Seven short, playful cybersecurity lessons for ages 8 to 88.",
         "start_url": "/",
         "scope": "/",

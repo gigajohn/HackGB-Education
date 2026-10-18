@@ -1,5 +1,4 @@
 {% load static %}
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -9,41 +8,27 @@
 <meta id="themeColor" name="theme-color" content="#fff8df">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="SusorSafe">
+<meta name="apple-mobile-web-app-title" content="SusOrSafe">
 <meta name="mobile-web-app-capable" content="yes">
-<title>SusorSafe — Cybersecurity you can play</title>
+<title>{{ page_title }}</title>
 <meta name="description" content="A cybersecurity playground for ages 8 to 88. Seven short lessons on attacks, pressure, fake sites, passwords, 2FA, privacy and public Wi-Fi. Earn coins, dress your explorer and collect a certificate. No sign-up. Nothing leaves your browser.">
 <link rel="icon" href="{% static 'susorsafe/icons/favicon.png' %}" type="image/png" sizes="64x64">
 <link rel="apple-touch-icon" href="{% static 'susorsafe/icons/apple-touch-icon.png' %}">
 <link rel="manifest" href="/manifest.webmanifest">
-<link rel="stylesheet" href="{% static 'susorsafe/fonts.css' %}">
-<link rel="stylesheet" href="{% static 'susorsafe/styles.css' %}">
-<link rel="stylesheet" href="{% static 'susorsafe/v2.css' %}">
-<style>
-  .auth-nav { display: flex; align-items: center; gap: 0.75rem; margin-left: 0.5rem; }
-  .auth-name { font-size: 0.85rem; font-weight: 600; color: #94a3b8; }
-  .logout-form { display: inline; margin: 0; padding: 0; }
-  .auth-link {
-    background: none; border: none; padding: 0; font: inherit; cursor: pointer;
-    font-size: 0.85rem; font-weight: 700; color: #f87171; text-decoration: none;
-    transition: opacity 0.15s;
-  }
-  .auth-link:hover { opacity: 0.8; text-decoration: underline; }
-  .site-alert {
-    padding: 12px 20px; border-radius: 12px; margin: 16px auto; font-size: 0.95rem;
-    font-weight: 600; display: flex; align-items: center; justify-content: space-between;
-  }
-  .site-alert-success { background: rgba(34, 197, 94, 0.15); border: 1px solid rgba(34, 197, 94, 0.4); color: #86efac; }
-  .site-alert-info { background: rgba(56, 189, 248, 0.15); border: 1px solid rgba(56, 189, 248, 0.4); color: #7dd3fc; }
-  .site-alert-error { background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.4); color: #fca5a5; }
-</style>
+<link rel="stylesheet" href="{% static 'susorsafe/fonts.css' %}?v=19">
+<link rel="stylesheet" href="{% static 'susorsafe/styles.css' %}?v=19">
+<link rel="stylesheet" href="{% static 'susorsafe/v2.css' %}?v=19">
 </head>
-<body data-mode="kid">
+<body data-mode="kid" data-page="{{ page }}">
 
-<a class="skip-link" href="#lessons">Skip to the lessons</a>
+{% if page == 'games' %}
+<a class="skip-link" href="#games">Skip to the games</a>
+{% else %}
+<a class="skip-link" href="{% url 'lessons' %}">Skip to the lessons</a>
+{% endif %}
 
 <noscript>
-  <div class="noscript"><div class="wrap"><b>SusorSafe needs JavaScript.</b> The lessons, games and local progress all run in your browser. Enable JavaScript and reload.</div></div>
+  <div class="noscript"><div class="wrap"><b>SusOrSafe needs JavaScript.</b> The lessons, games and local progress all run in your browser. Enable JavaScript and reload.</div></div>
 </noscript>
 
 <svg class="svg-sprite" aria-hidden="true" focusable="false">
@@ -69,18 +54,20 @@
 
 <header class="site-header">
   <div class="wrap header-inner">
-    <a class="brand" href="#top" aria-label="SusorSafe, back to top">
+    <a class="brand" href="{% url 'home' %}" aria-label="SusOrSafe home">
       <span class="brand-mark brand-logo"><img src="{% static 'susorsafe/icons/logo-mark.png' %}" alt=""></span>
-      <span class="brand-text"><strong>SusorSafe</strong><small>SAFETY PLAYGROUND</small></span>
+      <span class="brand-text"><strong>SusOrSafe</strong><small>SAFETY PLAYGROUND</small></span>
     </a>
 
     <nav class="main-nav" aria-label="Main navigation">
-      <a href="#lessons">Lessons</a>
-      <a href="#toolkit">Toolkit</a>
-      <a href="#parents">Parents</a>
-      <a href="#install">Install</a>
+      <a href="{% url 'home' %}" {% if page == 'home' %}aria-current="page"{% endif %}>Home</a>
+      <a href="{% url 'lessons' %}" {% if page == 'lessons' %}aria-current="page"{% endif %}>Lessons</a>
+      <a href="{% url 'games' %}" {% if page == 'games' %}aria-current="page"{% endif %}>Games</a>
+      <a href="{% url 'toolkit' %}" {% if page == 'toolkit' %}aria-current="page"{% endif %}>Toolkit</a>
+      <a href="{% url 'parents' %}" {% if page == 'parents' %}aria-current="page"{% endif %}>Parents</a>
+      <a href="{% url 'install' %}" {% if page == 'install' %}aria-current="page"{% endif %}>Install</a>
+      <a href="{% url 'about' %}" {% if page == 'about' %}aria-current="page"{% endif %}>About</a>
       <a href="{% url 'support' %}">Support</a>
-      <a href="#about">About Us</a>
     </nav>
 
       <div class="mode-switch" role="group" aria-label="Choose an age mode">
@@ -124,12 +111,12 @@
     <div class="hero-glow" aria-hidden="true"></div>
     <div class="wrap hero-grid">
       <div class="hero-copy">
-        <p class="eyebrow"><span class="pulse-dot" aria-hidden="true"></span>Cyber safety for every age</p>
+        <p class="eyebrow"><span class="pulse-dot" aria-hidden="true"></span><span id="homeAudience">Cyber safety for every age</span></p>
         <h1>The internet is fun.<br>Scams are <span class="hl">clever</span></h1>
-        <p class="lede">Seven short lessons on a tiny island where cybersecurity becomes a game: spot attacks, resist pressure, read URLs, build passwords, turn on 2FA, protect privacy and survive public Wi-Fi. Choose an age mode for examples and guidance that fit you.</p>
+        <p class="lede" id="homeModeCopy">Seven short lessons on a tiny island where cybersecurity becomes a game. Choose an age mode to practise spotting scams that match your life.</p>
         <div class="hero-cta">
           <button class="btn btn-primary" id="heroStart" type="button">Start Lesson 1 <svg class="ico"><use href="#i-arrow"/></svg></button>
-          <a class="btn btn-ghost" href="#lessons">See the path</a>
+          <a class="btn btn-ghost" href="{% url 'lessons' %}">See the lessons</a>
         </div>
         <ul class="hero-notes">
           <li><svg class="ico"><use href="#i-shield"/></svg>No sign-up</li>
@@ -143,7 +130,7 @@
         <div class="orbit orbit-b"></div>
         <div class="art-glow"></div>
 
-        <svg class="mascot" viewBox="0 0 460 460" role="img" aria-label="Suso, the SusorSafe shield mascot">
+        <svg class="mascot" viewBox="0 0 460 460" role="img" aria-label="Suso, the SusOrSafe shield mascot">
           <defs>
             <linearGradient id="bodyGrad" x1="0" y1="0" x2="1" y2="1">
               <stop offset="0" stop-color="#D9FF7A"/>
@@ -178,6 +165,21 @@
               <ellipse cx="308" cy="234" rx="19" ry="11" fill="#FF8FB8" opacity=".65"/>
               <path d="M198 240q32 30 64 0" fill="none" stroke="#0B1026" stroke-width="10" stroke-linecap="round"/>
               <path d="M214 252q16 10 32 0" fill="#FF8FB8" opacity=".85"/>
+            </g>
+
+            <g class="mascot-age-teen" aria-hidden="true">
+              <path d="M145 145q85-38 170 0l-5 16q-80-29-160 0Z" fill="#17244a" stroke="#0a102a" stroke-width="7" stroke-linejoin="round"/>
+              <path d="M210 127q20-22 40 0" fill="none" stroke="#5ce1c4" stroke-width="8" stroke-linecap="round"/>
+            </g>
+            <g class="mascot-age-adult" aria-hidden="true">
+              <path d="M153 185q35-27 68 0M239 185q33-27 68 0" fill="none" stroke="#d5bd8d" stroke-width="7" stroke-linecap="round"/>
+              <g fill="none" stroke="#172321" stroke-width="8">
+                <circle cx="188" cy="196" r="29"/>
+                <circle cx="272" cy="196" r="29"/>
+                <path d="M217 194q13-9 26 0"/>
+              </g>
+              <path d="M157 252q17-20 35-2M268 250q18-18 35 2" fill="none" stroke="#d5bd8d" stroke-width="5" stroke-linecap="round"/>
+              <path d="M184 266q46 23 92 0" fill="none" stroke="#172321" stroke-width="9" stroke-linecap="round"/>
             </g>
 
             <g class="arm arm-left">
@@ -254,15 +256,40 @@
     </div>
   </div>
 
+  <!-- ============ GAMES ============ -->
+  <section class="section games" id="games">
+    <div class="wrap">
+      <div class="games-hero">
+        <div>
+          <p class="kicker">Play to practise</p>
+          <h1>Seven lessons.<br><span class="hl-soft">Seven hands-on games.</span></h1>
+          <p class="section-lede" id="gamesModeIntro">Pick a game that fits your age mode. Each one teaches a safety skill, then gives you a quick check.</p>
+        </div>
+        <div class="games-mode-pill" id="gamesModeBadge">Kids · Little Islander</div>
+      </div>
+      <div class="mode-hint games-hint">
+        <span class="mh-badge">How to play</span>
+        <div class="mh-copy">
+          <p>Pick any game for three quick rounds. Guess, fill in a blank, or choose what happens next—then see why. Your best scores stay in this browser.</p>
+        </div>
+      </div>
+      <div class="games-grid" id="gamesGrid" aria-live="polite"></div>
+      <div class="games-footer-note">
+        <p>All games are ready to play in any order. Replay a challenge whenever you want another try.</p>
+        <a class="btn btn-ghost" href="{% url 'lessons' %}">View the full lesson path <svg class="ico"><use href="#i-arrow"/></svg></a>
+      </div>
+    </div>
+  </section>
+
   <!-- ============ EXPLORER / AGES ============ -->
   <section class="section routes" id="explorer">
     <div class="wrap">
       <div class="section-head">
         <div>
-          <p class="kicker">01 / Your explorer</p>
+          <p class="kicker" id="profileSectionKicker">01 / Your explorer</p>
           <h2>A path that fits <span class="hl-soft">your age.</span></h2>
         </div>
-        <p class="section-lede">Pick an age mode. Examples, hints and difficulty adapt. Your progress and coins never reset when you switch.</p>
+        <p class="section-lede" data-age-copy-kid="Pick an age mode. Examples, hints and difficulty adapt. Your progress and coins never reset when you switch." data-age-copy-teen="Choose the examples that fit your life: school, college, work, social accounts and money. Your progress and coins stay when you switch." data-age-copy-adult="Choose practical examples for working life, caregiving or retirement. Your progress and coins stay when you switch.">Pick an age mode. Examples, hints and difficulty adapt. Your progress and coins never reset when you switch.</p>
       </div>
 
       <div class="route-grid">
@@ -281,12 +308,12 @@
 
         <article class="route-card" data-route="teen" style="--r:#5CE1C4">
           <div class="route-emoji" aria-hidden="true">🎒</div>
-          <p class="route-age">High school–college · Explorer</p>
+          <p class="route-age">High school–college · Digital Navigator</p>
           <h3>Start owning<br>your accounts</h3>
           <p class="route-desc">Scams show up in social apps, gaming, jobs, housing and campus life. Practise spotting the tells before you click.</p>
           <ul>
             <li>Social, gaming and job scams</li>
-            <li>Protect school and personal accounts</li>
+            <li>Protect personal, work and school accounts</li>
             <li>Check housing and money requests</li>
           </ul>
           <button class="btn route-btn" data-mode="teen" type="button">Switch mode</button>
@@ -294,7 +321,7 @@
 
         <article class="route-card" data-route="adult" style="--r:#FF7FB6">
           <div class="route-emoji" aria-hidden="true">🧑‍💼</div>
-          <p class="route-age">Middle age–senior · Island Keeper</p>
+          <p class="route-age">Middle age–senior · Online Guardian</p>
           <h3>You think you won't fall.<br>Scams keep evolving.</h3>
           <p class="route-desc">Calm, practical practice for midlife and older adults: recognise fake support, investment and AI voice scams without needing technical know-how.</p>
           <ul>
@@ -309,11 +336,11 @@
       <div class="explorer-setup">
         <div class="setup-avatar" id="setupAvatar"></div>
         <div class="setup-copy">
-          <p class="kicker">Your explorer</p>
+          <p class="kicker" id="setupProfileKicker">Your explorer</p>
           <h3 id="setupName">Curious Explorer</h3>
           <p id="setupMeta">Kids · Primary school</p>
         </div>
-        <a class="btn btn-ghost" href="#crew">Open my crew <svg class="ico"><use href="#i-arrow"/></svg></a>
+        <a class="btn btn-ghost" href="{% url 'lessons' %}#crew">Open my crew <svg class="ico"><use href="#i-arrow"/></svg></a>
       </div>
     </div>
   </section>
@@ -352,7 +379,7 @@
           <div class="xp-ring-in"><b id="lessonCountBig">0</b><small>/ 7</small></div>
         </div>
         <div class="passport-main">
-          <p class="kicker">Explorer passport</p>
+          <p class="kicker" id="profilePassportLabel">Explorer passport</p>
           <h3 id="rankName">New Islander</h3>
           <p id="passportText">Your first stamp is one lesson away. Everything stays in this browser.</p>
           <div class="stamp-row" id="stampRow"></div>
@@ -372,7 +399,7 @@
       <div class="section-head">
         <div>
           <p class="kicker">03 / Your crew</p>
-          <h2>Dress your explorer. <span class="hl-soft">Spend your coins.</span></h2>
+          <h2><span id="profileShopTitle">Dress your explorer.</span> <span class="hl-soft">Spend your coins.</span></h2>
         </div>
         <p class="section-lede">Coins come from finishing lessons. Buy colours, gear and pets — no real money, no ads, no loot boxes.</p>
       </div>
@@ -387,7 +414,7 @@
             </div>
           </div>
           <div class="crew-details">
-            <p class="kicker">Explorer profile</p>
+            <p class="kicker">Profile &amp; stage</p>
             <h3 id="crewRank">New Islander</h3>
 
             <div class="age-picker">
@@ -399,22 +426,19 @@
               </div>
             </div>
 
-            <label class="field-label" for="explorerName">Explorer name
+            <label class="field-label" for="explorerName"><span id="profileNameLabel">Explorer name</span>
               <input id="explorerName" type="text" maxlength="24" placeholder="Name your explorer" autocomplete="off">
             </label>
             <label class="field-label" for="petName">Pet name
               <input id="petName" type="text" maxlength="14" placeholder="Name your pet" autocomplete="off">
             </label>
-            <label class="field-label" for="schoolSelect">School stage <span>(optional)</span>
+            <label class="field-label" for="schoolSelect"><span id="schoolStageLabel">Age or school stage</span> <span>(optional)</span>
               <select id="schoolSelect">
-                <option value="primary">Primary school</option>
+                <option value="primary">Elementary school</option>
                 <option value="middle">Middle school</option>
-                <option value="high">High school</option>
-                <option value="university">University or college</option>
-                <option value="none">Not at school right now</option>
               </select>
             </label>
-            <p class="field-note"><svg class="ico"><use href="#i-lock"/></svg>We never ask for your school's name. This only tailors your explorer tips.</p>
+            <p class="field-note"><svg class="ico"><use href="#i-lock"/></svg><span id="schoolStageNote">We never ask for your school's name. This only tailors your safety tips.</span></p>
             <p class="school-tip" id="schoolTip"></p>
           </div>
         </div>
@@ -446,7 +470,7 @@
           <p class="kicker">04 / Safety toolkit</p>
           <h2>Don't memorise. <span class="hl-soft">Remember these.</span></h2>
         </div>
-        <p class="section-lede">Cyber safety isn't “never go online”. It's knowing which moment deserves a three-second pause. Open a card for the how.</p>
+        <p class="section-lede" id="toolkitModeIntro">Cyber safety isn't “never go online”. It's knowing which moment deserves a three-second pause. Open a card for the how.</p>
       </div>
 
       <div class="tool-grid">
@@ -533,7 +557,7 @@
           <p class="kicker">05 / For parents &amp; teachers</p>
           <h2>Questions aren't the problem. <span class="hl-soft">Going it alone is.</span></h2>
         </div>
-        <p class="section-lede">This island doesn't test memory — it trains judgement. Adults don't need to be technical. They just need to play one round.</p>
+        <p class="section-lede" data-age-copy-kid="Play together: children can practise asking for help, and grown-ups can model how to pause and check a surprising message." data-age-copy-teen="Talk through real situations like fake job offers, ticket deals and account recovery. Practise checking together without blame." data-age-copy-adult="Use the lessons to compare notes on impersonation, payment requests and account recovery. No technical background is needed.">This island doesn't test memory — it trains judgement. Adults don't need to be technical. They just need to play one round.</p>
       </div>
 
       <div class="parent-grid">
@@ -590,7 +614,7 @@
           <p class="kicker">06 / About us</p>
           <h2>Online safety, <span class="hl-soft">made approachable.</span></h2>
         </div>
-        <p class="section-lede">SusorSafe started with a simple frustration: most cyber safety advice is either a scare poster or a compliance slide. We wanted something a family could play together — and something an adult would actually finish.</p>
+        <p class="section-lede" data-age-copy-kid="SusOrSafe makes online safety a friendly place to practise with a trusted grown-up: short lessons, clear examples and room to ask questions." data-age-copy-teen="SusOrSafe turns online safety into practical decisions about accounts, money and messages—not another lecture or scare poster." data-age-copy-adult="SusOrSafe turns online safety into calm, practical decisions about accounts, money and messages—not a scare poster or technical manual.">SusOrSafe started with a simple frustration: most cyber safety advice is either a scare poster or a compliance slide. We wanted something a family could play together — and something an adult would actually finish.</p>
       </div>
 
       <div class="about-grid">
@@ -623,8 +647,8 @@
       <div class="about-cta">
         <p><b>Built for curious humans, 8 to 88.</b> Start with one lesson, or send the island to someone who needs it.</p>
         <div class="about-actions">
-          <a class="btn btn-primary" href="#lessons">Start a lesson <svg class="ico"><use href="#i-arrow"/></svg></a>
-          <a class="btn btn-ghost" href="#toolkit">Open the toolkit</a>
+          <a class="btn btn-primary" href="{% url 'lessons' %}">Start a lesson <svg class="ico"><use href="#i-arrow"/></svg></a>
+          <a class="btn btn-ghost" href="{% url 'toolkit' %}">Open the toolkit</a>
         </div>
       </div>
     </div>
@@ -637,7 +661,7 @@
         <div class="install-copy">
           <p class="kicker">07 / Take it with you</p>
           <h2>Put the island <span class="hl-soft">in your pocket.</span></h2>
-          <p>Install SusorSafe on your phone or laptop. It opens like an app, keeps your progress offline, and never asks for an account.</p>
+          <p data-age-copy-kid="Ask a grown-up to install SusOrSafe on your phone or laptop. It opens like an app and keeps your progress in this browser." data-age-copy-teen="Install SusOrSafe on your phone or laptop to keep lessons handy. Progress stays in your browser, including offline after the first visit." data-age-copy-adult="Install SusOrSafe on your phone or laptop for easy access. Progress stays in your browser, including offline after the first visit.">Install SusOrSafe on your phone or laptop. It opens like an app, keeps your progress offline, and never asks for an account.</p>
           <div class="install-actions">
             <button class="btn btn-primary" id="installBtn" type="button">Install app</button>
             <span class="install-status" id="installStatus">Free · No account · Works offline after the first visit.</span>
@@ -657,7 +681,7 @@
           <div class="phone-frame">
             <span class="phone-notch"></span>
             <div class="phone-screen">
-              <div class="phone-bar"><span class="phone-brand"><svg class="ico"><use href="#i-shield"/></svg> SusorSafe</span><span>7</span></div>
+              <div class="phone-bar"><span class="phone-brand"><svg class="ico"><use href="#i-shield"/></svg> SusOrSafe</span><span>7</span></div>
               <div class="phone-hero">
                 <span class="phone-kicker">LESSON 02</span>
                 <strong>The pressure playbook</strong>
@@ -700,7 +724,7 @@
             <span class="cert-no">NO. <span id="certNo">0000</span></span>
           </div>
           <p class="cert-kicker">CERTIFICATE OF CYBER SAVVY</p>
-          <h3>SAFE EXPLORER</h3>
+          <h3 id="certHeading">SAFE EXPLORER</h3>
           <div class="cert-identity">
             <div class="cert-avatar" id="certAvatar"></div>
             <div>
@@ -709,7 +733,7 @@
               <p class="cert-pet" id="certPet"></p>
             </div>
           </div>
-          <p class="cert-text">has completed all seven SusorSafe lessons — Cyber attacks, Social engineering, Fake websites, Passwords, Two-factor authentication, Privacy and Public Wi-Fi — and can recognise online traps, protect personal data and verify suspicious messages.</p>
+          <p class="cert-text">has completed all seven SusOrSafe lessons — Cyber attacks, Social engineering, Fake websites, Passwords, Two-factor authentication, Privacy and Public Wi-Fi — and can recognise online traps, protect personal data and verify suspicious messages.</p>
           <div class="cert-bottom">
             <div class="cert-seal"><svg class="ico"><use href="#i-shield"/></svg><span>VERIFIED</span></div>
             <div class="cert-sign"><span>Suso</span><small>ISLAND KEEPER</small><small id="certDate">17 OCT 2026</small></div>
@@ -720,7 +744,7 @@
           <span class="lock-icon"><svg class="ico"><use href="#i-lock"/></svg></span>
           <h3>Finish all 7 lessons to unlock</h3>
           <p>Progress <strong id="certProgress">0 / 7</strong>. The certificate is printed. It just needs your name.</p>
-          <a class="btn btn-ghost" href="#lessons">Back to the lessons</a>
+          <a class="btn btn-ghost" href="{% url 'lessons' %}">Back to the lessons</a>
         </div>
       </div>
 
@@ -734,43 +758,23 @@
   </section>
 </main>
 
-<footer class="site-footer">
-  <div class="wrap footer-grid">
-    <div class="footer-brand">
-      <a class="brand" href="#top" aria-label="SusorSafe, back to top">
-        <span class="brand-mark brand-logo"><img src="{% static 'susorsafe/icons/logo-mark.png' %}" alt=""></span>
-        <span class="brand-text"><strong>SusorSafe</strong><small>SAFETY PLAYGROUND</small></span>
-      </a>
-      <p>Practise judgement through play. It sticks better than rules.<br>For curious humans, 8 to 88.</p>
-      <p class="footer-fine">An educational demo. Every interaction and all progress stay in your browser. Nothing is uploaded and no personal data is collected.</p>
-    </div>
+{% include "partials/site_footer.html" %}
 
-    <div class="footer-col">
-      <h4>Need help</h4>
-      <a href="https://reportfraud.ftc.gov/" target="_blank" rel="noopener">FTC — Report Fraud</a>
-      <a href="https://www.ic3.gov/" target="_blank" rel="noopener">FBI IC3 — Internet Crime</a>
-      <a href="https://www.identitytheft.gov/" target="_blank" rel="noopener">IdentityTheft.gov</a>
-      <a href="https://www.cisa.gov/report" target="_blank" rel="noopener">CISA — Report a Cyber Issue</a>
-      <a href="tel:911">Emergency 911</a>
-      <a href="https://haveibeenpwned.com/" target="_blank" rel="noopener">Have I Been Pwned</a>
-    </div>
-
-    <div class="footer-col">
-      <h4>The island</h4>
-      <a href="#lessons">Seven lessons</a>
-      <a href="#crew">My crew</a>
-      <a href="#toolkit">Safety toolkit</a>
-      <a href="#about">About us</a>
-      <a href="#install">Install the app</a>
-      <a href="#certificate">Certificate</a>
-      <p class="footer-fine">Brands and people in the scenarios are fictional. No real account or website is ever contacted.</p>
-    </div>
+<dialog class="arcade-dialog" id="arcadeDialog" aria-labelledby="arcadeTitle">
+  <div class="arcade-shell">
+    <header class="arcade-head">
+      <div>
+        <p class="dialog-kicker" id="arcadeKicker">Arcade challenge</p>
+        <h2 id="arcadeTitle">Game</h2>
+      </div>
+      <div class="dialog-head-right">
+        <span class="dialog-progress" id="arcadeProgress"></span>
+        <button class="icon-btn" id="closeArcade" type="button" aria-label="Close game">×</button>
+      </div>
+    </header>
+    <div class="arcade-body" id="arcadeBody"></div>
   </div>
-  <div class="wrap footer-bottom">
-    <span>© 2026 SusorSafe · Made for curious humans.</span>
-    <span>Pause. Verify. Then act.</span>
-  </div>
-</footer>
+</dialog>
 
 <!-- ============ LESSON DIALOG ============ -->
 <dialog class="game-dialog lesson-dialog" id="lessonDialog" aria-labelledby="lessonTitle">
@@ -801,7 +805,8 @@
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 <canvas id="confetti" aria-hidden="true"></canvas>
 
-<script src="{% static 'susorsafe/data.js' %}"></script>
-<script src="{% static 'susorsafe/app.js' %}"></script>
+<script src="{% static 'susorsafe/data.js' %}?v=19"></script>
+<script src="{% static 'susorsafe/theme.js' %}?v=19"></script>
+<script src="{% static 'susorsafe/app.js' %}?v=19"></script>
 </body>
 </html>
