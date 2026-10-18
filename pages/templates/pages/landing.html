@@ -20,7 +20,7 @@
 <link rel="stylesheet" href="{% static 'susorsafe/styles.css' %}">
 <link rel="stylesheet" href="{% static 'susorsafe/v2.css' %}">
 </head>
-<body data-mode="kid">
+<body data-mode="teen">
 
 <a class="skip-link" href="#lessons">Skip to the lessons</a>
 
@@ -62,13 +62,15 @@
       <a href="#parents">Parents &amp; teachers</a>
       <a href="#install">Install</a>
     </nav>
-
-    <div class="header-tools">
-      <div class="mode-switch" role="group" aria-label="Choose an age mode">
-        <button class="mode-pill is-active" data-mode="kid" aria-pressed="true">Kids</button>
-        <button class="mode-pill" data-mode="teen" aria-pressed="false">Teens</button>
-        <button class="mode-pill" data-mode="adult" aria-pressed="false">Adults</button>
+<!-- Age Mode Selector -->
+      <div class="header-tools">
+        <div class="mode-switch" role="group" aria-label="Choose an age mode">
+          <button class="mode-pill" data-mode="kid" aria-pressed="false">Kids</button>
+          <button class="mode-pill is-active" data-mode="teen" aria-pressed="true">Teens</button>
+          <button class="mode-pill" data-mode="adult" aria-pressed="false">Adults</button>
+        </div>
       </div>
+    </div>
       <button class="profile-chip" id="profileBtn" type="button" aria-label="My crew and coins">
         <span class="profile-mini" id="headerAvatar"></span>
         <span class="coin-count"><svg class="ico coin-ico"><use href="#i-coin"/></svg><b id="coinValue">0</b></span>
