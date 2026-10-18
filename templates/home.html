@@ -8188,36 +8188,109 @@ const legalContent = {
 
 // Function to apply the selected age mode
 function setAgeMode(mode) {
-  if (!['kid', 'teen', 'adult'].includes(mode)) return;
-  if (typeof window.setSusOrSafeMode === 'function') {
-    window.setSusOrSafeMode(mode);
-    return;
-  }
-  if (typeof window.applySusOrSafeMode === 'function') {
-    window.applySusOrSafeMode(mode);
-    return;
+  if (!['kid', 'teen', 'adult'].includes(mode)) {
+    if (mode === 'kids') mode = 'kid';
+    else if (mode === 'teens') mode = 'teen';
+    else if (mode === 'adults') mode = 'adult';
+    else return;
   }
 
-  // Fallback if engines are not loaded
+  // 1. Update dataset and class list on body
   document.body.dataset.mode = mode;
   document.body.classList.remove('theme-kid', 'theme-teen', 'theme-adult', 'theme-kids', 'theme-teens', 'theme-adults');
-  document.body.classList.add(`theme-${mode}`);
+  document.body.classList.add(`theme-${mode}`, `theme-${mode}s`);
+
+  // 2. Set colorScheme and theme-color meta tag
   const themeColors = { kid: '#fff8df', teen: '#080b1c', adult: '#f8f5f0' };
   document.documentElement.style.colorScheme = mode === 'teen' ? 'dark' : 'light';
   document.querySelector('meta[name="theme-color"]')?.setAttribute('content', themeColors[mode]);
+
+  // 3. Update active state and aria-pressed attributes on the pills
   document.querySelectorAll('.mode-pill').forEach(btn => {
     const isCurrent = btn.getAttribute('data-mode') === mode;
     btn.classList.toggle('is-active', isCurrent);
     btn.setAttribute('aria-pressed', String(isCurrent));
   });
+
+  // 4. Update route cards and button labels
+  document.querySelectorAll('.route-card[data-route]').forEach(card => {
+    const isCurrent = card.getAttribute('data-route') === mode;
+    card.classList.toggle('is-active', isCurrent);
+    const btn = card.querySelector('.route-btn');
+    if (btn) btn.textContent = isCurrent ? 'Current mode' : 'Switch mode';
+  });
+
+  // 5. Update data-age-copy elements if present
+  document.querySelectorAll('[data-age-copy-kid], [data-age-copy-teen], [data-age-copy-adult]').forEach((element) => {
+    const copy = element.getAttribute(`data-age-copy-${mode}`);
+    if (copy) element.textContent = copy;
+  });
+
+  // 6. Save preference across storage keys so it persists
   try {
     const savedState = JSON.parse(localStorage.getItem('susorsafe.v2') || '{}');
     savedState.mode = mode;
     localStorage.setItem('susorsafe.v2', JSON.stringify(savedState));
   } catch (e) {}
   localStorage.setItem('susorsafe_mode', mode);
+
+  // 7. Invoke app engine to re-render curriculum, games, avatar, and toast
+  if (typeof window._susorsafeAppSetMode === 'function') {
+    window._susorsafeAppSetMode(mode);
+  } else if (typeof window.setSusOrSafeMode === 'function' && window.setSusOrSafeMode !== setAgeMode) {
+    window.setSusOrSafeMode(mode);
+  } else if (typeof window.applySusOrSafeMode === 'function') {
+    window.applySusOrSafeMode(mode);
+  }
 }
 
+// Attach click listeners to all mode pills and route buttons
+document.addEventListener('DOMContentLoaded', () => {
+  let savedMode = document.body.dataset.mode || 'kid';
+  try {
+    const savedState = JSON.parse(localStorage.getItem('susorsafe.v2') || '{}');
+    if (savedState.mode && ['kid', 'teen', 'adult'].includes(savedState.mode)) {
+      savedMode = savedState.mode;
+    } else {
+      const lsMode = localStorage.getItem('susorsafe_mode');
+      if (lsMode && ['kid', 'teen', 'adult'].includes(lsMode)) savedMode = lsMode;
+    }
+  } catch (e) {
+    const lsMode = localStorage.getItem('susorsafe_mode');
+    if (lsMode && ['kid', 'teen', 'adult'].includes(lsMode)) savedMode = lsMode;
+  }
+  setAgeMode(savedMode);
+
+  document.querySelectorAll('.mode-pill').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      const mode = btn.getAttribute('data-mode') || btn.dataset.mode;
+      if (mode) setAgeMode(mode);
+    });
+  });
+
+  document.querySelectorAll('.route-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      const mode = btn.getAttribute('data-mode') || btn.dataset.mode;
+      if (mode) setAgeMode(mode);
+    });
+  });
+});
+
+document.addEventListener('click', (event) => {
+  const btn = event.target.closest('.mode-pill[data-mode], .route-btn[data-mode]');
+  if (btn) {
+    const mode = btn.getAttribute('data-mode') || btn.dataset.mode;
+    if (mode) setAgeMode(mode);
+    return;
+  }
+  const card = event.target.closest('.route-card[data-route]');
+  if (card && !event.target.closest('a, button')) {
+    const mode = card.getAttribute('data-route') || card.dataset.route;
+    if (mode) setAgeMode(mode);
+  }
+});
 
 </script>
 </body>

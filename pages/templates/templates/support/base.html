@@ -1,0 +1,123 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <meta name="theme-color" content="#fff8df">
+  <title>{% block title %}Support SusOrSafe{% endblock %}</title>
+  <meta name="description" content="Support SusOrSafe with a monthly subscription or a one-time donation. The lessons stay free for everyone.">
+  <link rel="icon" href="{% static 'susorsafe/icons/favicon.png' %}" type="image/png" sizes="64x64">
+  <link rel="stylesheet" href="{% static 'susorsafe/fonts.css' %}?v=19">
+  <link rel="stylesheet" href="{% static 'susorsafe/styles.css' %}?v=19">
+  <link rel="stylesheet" href="{% static 'susorsafe/v2.css' %}?v=19">
+  <link rel="stylesheet" href="{% static 'susorsafe/support.css' %}?v=19">
+  <script src="{% static 'susorsafe/theme.js' %}?v=19" defer></script>
+</head>
+<body class="support-body" data-mode="{{ user_profile.age_mode|default:'kid' }}">
+  <header class="support-header">
+    <div class="wrap support-header-inner">
+      <a class="support-brand" href="{% url 'home' %}" aria-label="SusOrSafe home">
+        <img src="{% static 'susorsafe/icons/logo-mark.png' %}" alt="">
+        <span>
+          <strong>SusOrSafe</strong>
+          <small>SAFETY PLAYGROUND</small>
+        </span>
+      </a>
+
+      <nav class="main-nav support-nav" aria-label="Main navigation">
+        <a href="{% url 'home' %}" {% if request.resolver_match.url_name == 'home' %}aria-current="page"{% endif %}>Home</a>
+        <a href="{% url 'lessons' %}" {% if request.resolver_match.url_name == 'lessons' %}aria-current="page"{% endif %}>Lessons</a>
+        <a href="{% url 'games' %}" {% if request.resolver_match.url_name == 'games' %}aria-current="page"{% endif %}>Games</a>
+        <a href="{% url 'toolkit' %}" {% if request.resolver_match.url_name == 'toolkit' %}aria-current="page"{% endif %}>Toolkit</a>
+        <a href="{% url 'parents' %}" {% if request.resolver_match.url_name == 'parents' %}aria-current="page"{% endif %}>Parents</a>
+        <a href="{% url 'install' %}" {% if request.resolver_match.url_name == 'install' %}aria-current="page"{% endif %}>Install</a>
+        <a href="{% url 'about' %}" {% if request.resolver_match.url_name == 'about' %}aria-current="page"{% endif %}>About</a>
+        <a href="{% url 'support' %}" {% if request.resolver_match.url_name == 'support' or request.resolver_match.url_name == 'subscribe' or request.resolver_match.url_name == 'donate' %}aria-current="page"{% endif %}>Support</a>
+      </nav>
+      <div class="mode-switch" role="group" aria-label="Choose an age mode">
+        <button class="mode-pill" data-mode="kid" aria-pressed="false" type="button">Kids</button>
+        <button class="mode-pill" data-mode="teen" aria-pressed="false" type="button">Teens</button>
+        <button class="mode-pill" data-mode="adult" aria-pressed="false" type="button">Adults</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="support-main">
+    {% block content %}{% endblock %}
+  </main>
+
+  {% include "partials/site_footer.html" %}
+
+  <div class="support-modal" id="supportModal" hidden>
+    <div class="support-modal-backdrop" data-modal-close></div>
+    <div class="support-modal-card" role="dialog" aria-modal="true" aria-labelledby="supportModalTitle">
+      <button class="support-modal-close" type="button" data-modal-close aria-label="Close">×</button>
+      <p class="kicker">Preview checkout</p>
+      <h2 id="supportModalTitle" data-modal-title>Support SusOrSafe</h2>
+      <p data-modal-body>Payment checkout is not connected in this demo.</p>
+      <p class="support-modal-note">No payment is processed and no card details are collected. This page is a preview of the support flow.</p>
+      <div class="support-modal-actions">
+        <a class="btn btn-primary" href="https://github.com/gigajohn/HackGB-Education" target="_blank" rel="noopener">Open the project on GitHub</a>
+        <button class="btn btn-ghost" type="button" data-modal-close>Back</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (() => {
+      const modal = document.getElementById('supportModal');
+      if (!modal) return;
+      const title = modal.querySelector('[data-modal-title]');
+      const body = modal.querySelector('[data-modal-body]');
+      const closeBtn = modal.querySelector('.support-modal-close');
+      let lastFocus = null;
+
+      const open = (label) => {
+        lastFocus = document.activeElement;
+        title.textContent = label;
+        body.textContent = `You selected ${label}. Checkout is not connected in this demo, so nothing will be charged.`;
+        modal.hidden = false;
+        document.body.classList.add('support-modal-open');
+        closeBtn.focus();
+      };
+
+      const close = () => {
+        modal.hidden = true;
+        document.body.classList.remove('support-modal-open');
+        if (lastFocus) lastFocus.focus();
+      };
+
+      document.querySelectorAll('[data-support]').forEach((el) => {
+        el.addEventListener('click', (event) => {
+          event.preventDefault();
+          open(el.dataset.support);
+        });
+      });
+
+      const customBtn = document.getElementById('customDonate');
+      const customAmount = document.getElementById('customAmount');
+      if (customBtn && customAmount) {
+        customBtn.addEventListener('click', () => {
+          const value = Number(customAmount.value);
+          if (!value || value < 1) {
+            customAmount.focus();
+            customAmount.reportValidity?.();
+            return;
+          }
+          open(`One-time donation — $${value.toLocaleString()}`);
+        });
+      }
+
+      modal.querySelectorAll('[data-modal-close]').forEach((el) => {
+        el.addEventListener('click', close);
+      });
+
+      document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape' && !modal.hidden) close();
+      });
+    })();
+  </script>
+</body>
+</html>
