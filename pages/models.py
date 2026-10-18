@@ -3,6 +3,7 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+from django.apps import apps
 
 
 def generate_user_id():
@@ -55,22 +56,23 @@ def create_or_save_user_profile(sender, instance, created, **kwargs):
             instance.profile.save()
 
 
-# Connect allauth signal to capture provider and profile details upon social sign-up
+# Connect allauth signal safely with lazy import
 try:
     from allauth.account.signals import user_signed_up
-    from allauth.socialaccount.models import SocialAccount
 
     @receiver(user_signed_up)
     def populate_profile_from_social(request, user, **kwargs):
         profile, _ = Profile.objects.get_or_create(user=user)
-        social_acc = SocialAccount.objects.filter(user=user).first()
-        if social_acc:
-            profile.provider = social_acc.provider
-            extra = social_acc.extra_data or {}
-            if social_acc.provider == 'google':
-                profile.avatar = extra.get('picture', profile.avatar)
-            elif social_acc.provider == 'microsoft':
-                profile.avatar = 'microsoft'
-            profile.save()
-except ImportError:
+        if apps.is_installed('allauth.socialaccount'):
+            from allauth.socialaccount.models import SocialAccount
+            social_acc = SocialAccount.objects.filter(user=user).first()
+            if social_acc:
+                profile.provider = social_acc.provider
+                extra = social_acc.extra_data or {}
+                if social_acc.provider == 'google':
+                    profile.avatar = extra.get('picture', profile.avatar)
+                elif social_acc.provider == 'microsoft':
+                    profile.avatar = 'microsoft'
+                profile.save()
+except (ImportError, RuntimeError):
     pass
