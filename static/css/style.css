@@ -294,11 +294,11 @@ footer { border-top: 1px solid #e0e6ff; padding: 26px 0; color: #73758c; font-si
 }
 
 /* ==========================================================================
-   AGE-SPECIFIC COLOR THEMES
+   AGE THEME VARIABLES (Linked to your data-mode attributes)
    ========================================================================== */
 
-/* DEFAULT / TEENS THEME (Keeps your existing dark/slate & mint style) */
-:root, body.theme-teens {
+/* DEFAULT / TEEN MODE */
+:root, body.theme-teen {
   --bg-main: #12131C;
   --bg-card: #1C1D2A;
   --text-main: #E2E8F0;
@@ -308,38 +308,40 @@ footer { border-top: 1px solid #e0e6ff; padding: 26px 0; color: #73758c; font-si
   --mint: #30D158;
   --sc: #C8F65A;
   --accent: #5E5CE6;
-  --display: 'Fredoka', 'Nunito', sans-serif;
 }
 
-/* KIDS THEME (Playful, vibrant, high-energy childish colors) */
-body.theme-kids {
-  --bg-main: #FFF8E7; /* Soft cream/yellow */
+/* KID MODE (Bright, playful, childish colors) */
+body.theme-kid {
+  --bg-main: #FFF8E7;
   --bg-card: #FFFFFF;
   --text-main: #2D3142;
   --text-muted: #4F5D75;
   --muted-2: #6C757D;
   --border-color: #FFD166;
-  --mint: #06D6A0; /* Bright turquoise */
-  --sc: #FFD166;   /* Cheerful yellow */
-  --accent: #FF477E; /* Playful pink/red */
-  --display: 'Fredoka', 'Comic Sans MS', rounded, sans-serif;
+  --mint: #06D6A0;
+  --sc: #FFD166;
+  --accent: #FF477E;
 }
 
-/* ADULTS / SENIORS THEME (High-contrast, warm ivory background, gentle on eyes) */
-body.theme-adults {
-  --bg-main: #F8F5F0; /* Soft, non-glare warm ivory */
+/* ADULT / SENIOR MODE (Soft warm ivory background, high-contrast readable text) */
+body.theme-adult {
+  --bg-main: #F8F5F0;
   --bg-card: #FFFFFF;
-  --text-main: #111827; /* Deep slate for high contrast & easy readability */
+  --text-main: #111827;
   --text-muted: #374151;
   --muted-2: #4B5563;
   --border-color: #D1D5DB;
-  --mint: #2E7D32; /* Rich accessible green */
-  --sc: #3A7852;   /* Forest green accent */
-  --accent: #1E3A8A; /* High-contrast navy */
-  --display: system-ui, -apple-system, sans-serif;
-  
-  /* Increase base font size slightly for senior readability */
-  font-size: 110%;
+  --mint: #2E7D32;
+  --sc: #3A7852;
+  --accent: #1E3A8A;
+  font-size: 110%; /* Slightly larger font for easier reading */
+}
+
+/* Smooth transition when switching themes */
+body {
+  background-color: var(--bg-main);
+  color: var(--text-main);
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 
