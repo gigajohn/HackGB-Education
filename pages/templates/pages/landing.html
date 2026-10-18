@@ -3324,7 +3324,7 @@ body {
 
     <nav class="main-nav" aria-label="Main navigation">
       <a href="{% url 'home' %}" {% if page == 'home' %}aria-current="page"{% endif %}>Home</a>
-      <a href="{% url 'lessons' %}" {% if page == 'lessons' %}aria-current="page"{% endif %}>Lessons</a>
+      <a href="{% url 'lessons' %}#lessons" {% if page == 'lessons' %}aria-current="page"{% endif %}>Lessons</a>
       <a href="{% url 'games' %}" {% if page == 'games' %}aria-current="page"{% endif %}>Games</a>
       <a href="{% url 'toolkit' %}" {% if page == 'toolkit' %}aria-current="page"{% endif %}>Toolkit</a>
       <a href="{% url 'parents' %}" {% if page == 'parents' %}aria-current="page"{% endif %}>Parents</a>
@@ -4007,7 +4007,7 @@ body {
           <span class="lock-icon"><svg class="ico"><use href="#i-lock"/></svg></span>
           <h3>Finish all 7 lessons to unlock</h3>
           <p>Progress <strong id="certProgress">0 / 7</strong>. The certificate is printed. It just needs your name.</p>
-          <a class="btn btn-ghost" href="{% url 'lessons' %}">Back to the lessons</a>
+          <a class="btn btn-ghost" href="{% url 'lessons' %}#lessons">Back to the lessons</a>
         </div>
       </div>
 
@@ -6409,7 +6409,7 @@ window.SUSOR_DATA = (() => {
     if (!MODE_INFO[mode]) return;
     if (state.mode === mode) {
       renderModeUI();
-      if (!opts.silent) toast('You are already in this mode.');
+      if (!opts.silent) toast(`changing to ${mode} mode`);
       return;
     }
     state.mode = mode;
@@ -6432,7 +6432,7 @@ window.SUSOR_DATA = (() => {
     renderPassport();
     renderSetup();
     renderCrew();
-    if (!opts.silent) toast(`Mode: ${MODE_INFO[mode].badge}. Progress kept.`);
+    if (!opts.silent) toast(`changing to ${mode} mode`);
     if (lessonDialog && lessonDialog.open && currentLesson) {
       lessonTitleEl.textContent = LESSON_MODE_COPY[state.mode][currentLesson.id].title;
       renderLesson();

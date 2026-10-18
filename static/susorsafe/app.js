@@ -6,6 +6,10 @@
 (() => {
   'use strict';
 
+  /* Keep in-page links predictable; do not restore the certificate scroll
+     position when the user opens the lessons page again. */
+  if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+
   const {
     STAGES,
     STAGE_TIPS,
@@ -1339,7 +1343,7 @@
     if (!MODE_INFO[mode]) return;
     if (state.mode === mode) {
       renderModeUI();
-      if (!opts.silent) toast('You are already in this mode.');
+      if (!opts.silent) toast(`changing to ${mode} mode`);
       return;
     }
     state.mode = mode;
@@ -1362,7 +1366,7 @@
     renderPassport();
     renderSetup();
     renderCrew();
-    if (!opts.silent) toast(`Mode: ${MODE_INFO[mode].badge}. Progress kept.`);
+    if (!opts.silent) toast(`changing to ${mode} mode`);
     if (lessonDialog && lessonDialog.open && currentLesson) {
       lessonTitleEl.textContent = LESSON_MODE_COPY[state.mode][currentLesson.id].title;
       renderLesson();

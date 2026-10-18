@@ -507,8 +507,9 @@
     updateInstallUI();
   }
   function setMode(mode, opts = {}) {
-    if (!MODE_INFO[mode] || state.mode === mode) {
-      if (!opts.silent) toast('You are already in this mode.');
+    if (!MODE_INFO[mode]) return;
+    if (state.mode === mode) {
+      if (!opts.silent) toast(`changing to ${mode} mode`);
       return;
     }
     state.mode = mode;
@@ -517,7 +518,7 @@
     renderPath();
     renderSetup();
     renderCrew();
-    if (!opts.silent) toast(`Mode: ${MODE_INFO[mode].badge}. Progress kept.`);
+    if (!opts.silent) toast(`changing to ${mode} mode`);
   }
   /* ==========================================================
      Lesson engine
