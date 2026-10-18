@@ -1,0 +1,601 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <meta name="theme-color" content="#080b1c">
+  <title>Sign In — SusorSafe</title>
+  <meta name="description" content="Sign in to SusorSafe with Google, Microsoft, or your account to save lessons, badges, and progress.">
+  <link rel="icon" href="{% static 'susorsafe/icons/favicon.svg' %}" type="image/svg+xml">
+  <link rel="stylesheet" href="{% static 'susorsafe/fonts.css' %}">
+  <link rel="stylesheet" href="{% static 'susorsafe/styles.css' %}">
+  <link rel="stylesheet" href="{% static 'susorsafe/v2.css' %}">
+
+  <style>
+    .auth-page {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 32px 20px;
+      position: relative;
+    }
+
+    .auth-glow {
+      position: absolute;
+      width: 600px;
+      height: 600px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(157, 140, 255, 0.12), transparent 70%);
+      top: 10%;
+      left: 50%;
+      transform: translateX(-50%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .auth-container {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      max-width: 460px;
+    }
+
+    .auth-header {
+      text-align: center;
+      margin-bottom: 28px;
+    }
+
+    .auth-header .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+      margin-bottom: 18px;
+    }
+
+    .auth-header .brand-mark {
+      width: 44px;
+      height: 44px;
+      border-radius: 14px;
+      background: linear-gradient(135deg, rgba(200, 246, 90, 0.25), rgba(92, 225, 196, 0.35));
+      border: 1px solid rgba(200, 246, 90, 0.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--lime);
+      box-shadow: 0 0 20px rgba(92, 225, 196, 0.25);
+    }
+
+    .auth-header .brand-mark svg {
+      width: 24px;
+      height: 24px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 2;
+    }
+
+    .auth-header .brand-text {
+      font-family: var(--display);
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--ink);
+      letter-spacing: -0.02em;
+    }
+
+    .auth-header h1 {
+      font-size: 1.85rem;
+      margin: 0 0 8px;
+      font-weight: 800;
+      color: var(--ink);
+      letter-spacing: -0.02em;
+    }
+
+    .auth-header p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    .auth-card {
+      background: rgba(16, 22, 50, 0.85);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--line-strong);
+      border-radius: 24px;
+      padding: 32px 28px;
+      box-shadow: var(--shadow), 0 0 0 1px rgba(255, 255, 255, 0.05);
+    }
+
+    /* OAuth Buttons */
+    .oauth-group {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+
+    .btn-oauth {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 14px;
+      width: 100%;
+      padding: 13px 20px;
+      border-radius: 14px;
+      font-size: 0.96rem;
+      font-weight: 700;
+      text-decoration: none;
+      cursor: pointer;
+      transition: transform 0.18s ease, box-shadow 0.18s ease, background-color 0.18s ease, border-color 0.18s ease;
+      position: relative;
+    }
+
+    .btn-oauth svg {
+      width: 20px;
+      height: 20px;
+      flex-shrink: 0;
+    }
+
+    .btn-oauth-google {
+      background: #ffffff;
+      color: #1f1f1f;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+    }
+
+    .btn-oauth-google:hover {
+      background: #f7f9fc;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(255, 255, 255, 0.15), 0 6px 14px rgba(0, 0, 0, 0.3);
+    }
+
+    .btn-oauth-microsoft {
+      background: #2f2f2f;
+      color: #ffffff;
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
+    }
+
+    .btn-oauth-microsoft:hover {
+      background: #3a3a3a;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(0, 164, 239, 0.2), 0 6px 14px rgba(0, 0, 0, 0.4);
+    }
+
+    /* Divider */
+    .auth-divider {
+      display: flex;
+      align-items: center;
+      text-align: center;
+      margin: 22px 0;
+      color: var(--muted-2);
+      font-size: 0.82rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-weight: 700;
+    }
+
+    .auth-divider::before,
+    .auth-divider::after {
+      content: "";
+      flex: 1;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .auth-divider span {
+      padding: 0 14px;
+    }
+
+    /* Form Fields */
+    .form-group {
+      margin-bottom: 18px;
+    }
+
+    .form-label-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 7px;
+    }
+
+    .form-label {
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: var(--ink);
+    }
+
+    .forgot-link {
+      font-size: 0.8rem;
+      color: var(--mint);
+      text-decoration: none;
+      transition: color 0.15s;
+    }
+
+    .forgot-link:hover {
+      color: var(--lime);
+      text-decoration: underline;
+    }
+
+    .input-wrap {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .input-icon {
+      position: absolute;
+      left: 14px;
+      width: 18px;
+      height: 18px;
+      stroke: var(--muted-2);
+      stroke-width: 2;
+      fill: none;
+      pointer-events: none;
+    }
+
+    .auth-input {
+      width: 100%;
+      background: rgba(8, 11, 28, 0.7);
+      border: 1px solid var(--line-strong);
+      border-radius: 13px;
+      padding: 13px 14px 13px 44px;
+      color: var(--ink);
+      font-family: var(--font);
+      font-size: 0.95rem;
+      transition: border-color 0.18s, box-shadow 0.18s;
+    }
+
+    .auth-input:focus {
+      outline: none;
+      border-color: var(--mint);
+      box-shadow: 0 0 0 3px rgba(92, 225, 196, 0.2);
+    }
+
+    .auth-input::placeholder {
+      color: var(--muted-2);
+    }
+
+    .toggle-pwd {
+      position: absolute;
+      right: 12px;
+      background: none;
+      border: none;
+      color: var(--muted-2);
+      cursor: pointer;
+      padding: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 8px;
+      transition: color 0.15s;
+    }
+
+    .toggle-pwd:hover {
+      color: var(--ink);
+    }
+
+    .toggle-pwd svg {
+      width: 18px;
+      height: 18px;
+      stroke: currentColor;
+      stroke-width: 2;
+      fill: none;
+    }
+
+    .form-options {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin: 18px 0 22px;
+      font-size: 0.88rem;
+    }
+
+    .checkbox-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 9px;
+      color: var(--muted);
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .checkbox-label input[type="checkbox"] {
+      width: 17px;
+      height: 17px;
+      accent-color: var(--lime);
+      cursor: pointer;
+    }
+
+    .btn-submit {
+      width: 100%;
+      padding: 14px;
+      font-size: 1.02rem;
+    }
+
+    /* Alerts */
+    .auth-alert {
+      padding: 12px 16px;
+      border-radius: 12px;
+      margin-bottom: 20px;
+      font-size: 0.9rem;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .auth-alert-error {
+      background: rgba(255, 107, 122, 0.15);
+      border: 1px solid rgba(255, 107, 122, 0.4);
+      color: #ff9ca8;
+    }
+
+    .auth-alert-success {
+      background: rgba(92, 225, 196, 0.15);
+      border: 1px solid rgba(92, 225, 196, 0.4);
+      color: var(--mint);
+    }
+
+    .auth-alert-info {
+      background: rgba(157, 140, 255, 0.15);
+      border: 1px solid rgba(157, 140, 255, 0.4);
+      color: var(--violet);
+    }
+
+    /* Card Footer */
+    .auth-card-footer {
+      margin-top: 24px;
+      padding-top: 20px;
+      border-top: 1px solid var(--line);
+      text-align: center;
+      font-size: 0.9rem;
+      color: var(--muted);
+    }
+
+    .auth-card-footer a {
+      color: var(--mint);
+      font-weight: 700;
+      text-decoration: none;
+      transition: color 0.15s;
+    }
+
+    .auth-card-footer a:hover {
+      color: var(--lime);
+      text-decoration: underline;
+    }
+
+    /* Safety Banner */
+    .safety-notice {
+      margin-top: 24px;
+      background: rgba(16, 22, 50, 0.5);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 14px 18px;
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      font-size: 0.82rem;
+      color: var(--muted-2);
+      line-height: 1.5;
+    }
+
+    .safety-notice svg {
+      width: 20px;
+      height: 20px;
+      flex-shrink: 0;
+      stroke: var(--mint);
+      stroke-width: 2;
+      fill: none;
+      margin-top: 2px;
+    }
+
+    .safety-notice strong {
+      color: var(--ink);
+    }
+
+    .back-nav {
+      margin-bottom: 20px;
+      display: flex;
+      justify-content: flex-start;
+    }
+
+    .back-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 0.88rem;
+      font-weight: 700;
+      padding: 6px 12px;
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--line);
+      transition: color 0.15s, background 0.15s, transform 0.15s;
+    }
+
+    .back-btn:hover {
+      color: var(--ink);
+      background: rgba(255, 255, 255, 0.08);
+      transform: translateX(-3px);
+    }
+  </style>
+</head>
+<body>
+  <div class="auth-page">
+    <div class="auth-glow" aria-hidden="true"></div>
+
+    <div class="auth-container">
+      <div class="back-nav">
+        <a href="{% url 'landing' %}" class="back-btn">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M19 12H5M12 19l-7-7 7-7"/>
+          </svg>
+          Back to SusorSafe
+        </a>
+      </div>
+
+      <div class="auth-header">
+        <a class="brand" href="{% url 'landing' %}">
+          <span class="brand-mark">
+            <svg viewBox="0 0 24 24"><path d="M12 3 20 6v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6l8-3Z"/><path d="m8.8 12 2.2 2.2 4.4-4.6"/></svg>
+          </span>
+          <span class="brand-text">SusorSafe</span>
+        </a>
+        <h1>Sign In</h1>
+        <p>Sync your lessons, island badges, coins, and certificate.</p>
+      </div>
+
+      <div class="auth-card">
+        {% if messages %}
+          {% for message in messages %}
+            <div class="auth-alert auth-alert-{{ message.tags }}">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"/>
+                <path d="M12 16v-4M12 8h.01"/>
+              </svg>
+              <span>{{ message }}</span>
+            </div>
+          {% endfor %}
+        {% endif %}
+
+        <!-- OAuth Providers Section -->
+        <div class="oauth-group">
+          <!-- Google OAuth Button -->
+          <a href="{% url 'oauth_start' provider='google' %}" class="btn-oauth btn-oauth-google" id="googleOAuthBtn" aria-label="Sign in with Google">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+              <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+              <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
+              <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+            </svg>
+            <span>Continue with Google</span>
+          </a>
+
+          <!-- Microsoft OAuth Button -->
+          <a href="{% url 'oauth_start' provider='microsoft' %}" class="btn-oauth btn-oauth-microsoft" id="microsoftOAuthBtn" aria-label="Sign in with Microsoft">
+            <svg viewBox="0 0 21 21" aria-hidden="true">
+              <rect x="1" y="1" width="9" height="9" fill="#f25022"/>
+              <rect x="11" y="1" width="9" height="9" fill="#7fba00"/>
+              <rect x="1" y="11" width="9" height="9" fill="#00a4ef"/>
+              <rect x="11" y="11" width="9" height="9" fill="#ffb900"/>
+            </svg>
+            <span>Continue with Microsoft</span>
+          </a>
+        </div>
+
+        <div class="auth-divider">
+          <span>or sign in with password</span>
+        </div>
+
+        <!-- Email / Username & Password Form -->
+        <form method="post" action="{% url 'login' %}">
+          {% csrf_token %}
+          {% if request.GET.next %}
+            <input type="hidden" name="next" value="{{ request.GET.next }}">
+          {% endif %}
+
+          <div class="form-group">
+            <label class="form-label" for="username">Username or Email</label>
+            <div class="input-wrap">
+              <svg class="input-icon" viewBox="0 0 24 24">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                <circle cx="12" cy="7" r="4"/>
+              </svg>
+              <input
+                type="text"
+                id="username"
+                name="username"
+                class="auth-input"
+                placeholder="explorer@susorsafe.org"
+                value="{{ username|default:'' }}"
+                required
+                autocomplete="username"
+              >
+            </div>
+          </div>
+
+          <div class="form-group">
+            <div class="form-label-row">
+              <label class="form-label" for="password">Password</label>
+              <a href="#forgot" class="forgot-link" onclick="alert('Password reset link has been dispatched to your email (Demo mode).'); return false;">Forgot?</a>
+            </div>
+            <div class="input-wrap">
+              <svg class="input-icon" viewBox="0 0 24 24">
+                <rect x="5" y="10" width="14" height="10" rx="2.5"/>
+                <path d="M8 10V7a4 4 0 0 1 8 0v3"/>
+              </svg>
+              <input
+                type="password"
+                id="password"
+                name="password"
+                class="auth-input"
+                placeholder="••••••••••••"
+                required
+                autocomplete="current-password"
+              >
+              <button type="button" class="toggle-pwd" id="togglePassword" aria-label="Toggle password visibility">
+                <svg id="eyeIcon" viewBox="0 0 24 24">
+                  <path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12Z"/>
+                  <circle cx="12" cy="12" r="3.2"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <div class="form-options">
+            <label class="checkbox-label">
+              <input type="checkbox" name="remember" value="1" checked>
+              <span>Keep me signed in</span>
+            </label>
+          </div>
+
+          <button type="submit" class="btn btn-primary btn-submit">
+            <span>Sign In to Explorer HQ</span>
+            <svg class="ico" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <path d="M5 12h13M13 6l6 6-6 6"/>
+            </svg>
+          </button>
+        </form>
+
+        <div class="auth-card-footer">
+          Don’t have an account?
+          <a href="{% url 'landing' %}">Play as Guest &rarr;</a>
+        </div>
+      </div>
+
+      <div class="safety-notice">
+        <svg viewBox="0 0 24 24">
+          <path d="M12 3 20 6v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6l8-3Z"/>
+          <path d="m9 12 2 2 4-4"/>
+        </svg>
+        <div>
+          <strong>Cybersecurity First:</strong> We practice what we teach. SusorSafe only uses Google and Microsoft OAuth to confirm your identity. We never access your emails, contacts, or drive files.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Password visibility toggle
+    const toggleBtn = document.getElementById('togglePassword');
+    const pwdInput = document.getElementById('password');
+    const eyeIcon = document.getElementById('eyeIcon');
+
+    if (toggleBtn && pwdInput) {
+      toggleBtn.addEventListener('click', () => {
+        const isPassword = pwdInput.type === 'password';
+        pwdInput.type = isPassword ? 'text' : 'password';
+        toggleBtn.setAttribute('aria-label', isPassword ? 'Hide password' : 'Show password');
+        eyeIcon.innerHTML = isPassword
+          ? '<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/>'
+          : '<path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12Z"/><circle cx="12" cy="12" r="3.2"/>';
+      });
+    }
+  </script>
+</body>
+</html>
+
