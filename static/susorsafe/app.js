@@ -612,10 +612,12 @@
      ========================================================== */
 
   function renderHeader() {
-    $('#coinValue').textContent = String(state.coins);
+    const profilePoints = $('#coinValue');
+    const headerAvatar = $('#headerAvatar');
+    if (profilePoints) profilePoints.textContent = String(state.coins);
+    if (headerAvatar) headerAvatar.innerHTML = avatarSVG(state.avatar.color, state.avatar.accessory);
     $('#coinValue2').textContent = String(state.coins);
     $('#shopCoins').textContent = String(state.coins);
-    $('#headerAvatar').innerHTML = avatarSVG(state.avatar.color, state.avatar.accessory);
   }
 
   function updateSoundButton() {
@@ -697,7 +699,7 @@
           ${AGE_FOCUS[state.mode].lessons.includes(lesson.id) ? '<span class="focus-tag">For your age</span>' : ''}
           <div class="lesson-steps" aria-hidden="true">${stepLabels.map(label => `<span>${label}</span>`).join('')}</div>
           <div class="quest-footer">
-            <span class="lesson-reward"><svg class="ico coin-ico"><use href="#i-coin"/></svg> +100–160</span>
+            <span class="lesson-reward" title="Points earned for completing this lesson"><svg class="ico coin-ico"><use href="#i-coin"/></svg> +100–160 pts</span>
             <button class="btn quest-btn lesson-btn" type="button" data-lesson="${lesson.id}" ${unlocked ? '' : 'disabled'}>${unlocked ? (rec ? 'Replay' : 'Start lesson') : 'Locked'}</button>
           </div>
           ${rec ? `<span class="lesson-stars" aria-label="${rec.stars} stars">${STAR(rec.stars)}</span>` : ''}
@@ -880,8 +882,8 @@
 
     const next = LESSONS.find(lesson => !lessonDone(lesson.id) && lessonUnlocked(lesson.id));
     $('#passportText').textContent = count === LESSONS.length
-      ? `All 7 lessons complete · ${state.coins} coins · certificate unlocked.`
-      : `${count} of 7 lessons · ${state.coins} coins · ${next ? `next up: ${next.title}` : 'unlock the next lesson to continue'}.`;
+      ? `All 7 lessons complete · ${state.coins} points · certificate unlocked.`
+      : `${count} of 7 lessons · ${state.coins} points · ${next ? `next up: ${next.title}` : 'unlock the next lesson to continue'}.`;
 
     $('#stampRow').innerHTML = LESSONS.map(lesson => {
       const done = lessonDone(lesson.id);
@@ -932,11 +934,10 @@
       grid.innerHTML = PETS.map(pet => {
         const owned = state.owned.pets.includes(pet.id);
         const equipped = state.avatar.pet === pet.id;
-        const priceLabel = owned ? (equipped ? 'Equipped' : 'Owned') : (pet.price === 0 ? 'Free' : `${pet.price} coins`);
         return `<button class="shop-item pet-item ${equipped ? 'is-equipped' : ''}" type="button" data-buy-type="pets" data-buy-id="${pet.id}">
-          <span class="pet-emoji">${pet.emoji || '·'}</span>
+          <span class="pet-emoji" style="--pet-color:${pet.color}">${pet.emoji || '·'}</span>
           <span class="shop-item-copy"><b>${pet.name}</b><small>${pet.blurb}</small></span>
-          <span class="shop-price">${priceLabel}</span>
+          ${shopPriceMarkup(pet, owned, equipped)}
         </button>`;
       }).join('');
       return;
@@ -945,27 +946,34 @@
     const colors = AVATAR_COLORS.map(color => {
       const owned = state.owned.colors.includes(color.id);
       const equipped = state.avatar.color === color.id;
-      const priceLabel = owned ? (equipped ? 'Equipped' : 'Owned') : (color.price === 0 ? 'Free' : `${color.price} coins`);
       return `<button class="shop-item color-item ${equipped ? 'is-equipped' : ''}" type="button" data-buy-type="colors" data-buy-id="${color.id}">
         <span class="color-swatch" style="--sw:${color.hex}"></span>
         <span class="shop-item-copy"><b>${color.name}</b><small>Body colour</small></span>
-        <span class="shop-price">${priceLabel}</span>
+        ${shopPriceMarkup(color, owned, equipped)}
       </button>`;
     }).join('');
 
     const gear = ACCESSORIES.map(accessory => {
       const owned = state.owned.accessories.includes(accessory.id);
       const equipped = state.avatar.accessory === accessory.id;
-      const priceLabel = owned ? (equipped ? 'Equipped' : 'Owned') : (accessory.price === 0 ? 'Free' : `${accessory.price} coins`);
       return `<button class="shop-item gear-item ${equipped ? 'is-equipped' : ''}" type="button" data-buy-type="accessories" data-buy-id="${accessory.id}">
         <span class="gear-emoji">${ACCESSORY_EMOJI[accessory.id] || '—'}</span>
         <span class="shop-item-copy"><b>${accessory.name}</b><small>Wearable gear</small></span>
-        <span class="shop-price">${priceLabel}</span>
+        ${shopPriceMarkup(accessory, owned, equipped)}
       </button>`;
     }).join('');
 
     grid.innerHTML = `<div class="shop-section"><p class="shop-section-title">Body colour</p><div class="shop-subgrid">${colors}</div></div>
       <div class="shop-section"><p class="shop-section-title">Gear</p><div class="shop-subgrid">${gear}</div></div>`;
+  }
+
+  function shopPriceMarkup(item, owned, equipped) {
+    if (owned) {
+      const status = equipped ? 'Equipped' : 'Owned';
+      return `<span class="shop-price shop-price--${equipped ? 'equipped' : 'owned'}">${status}</span>`;
+    }
+    if (item.price === 0) return '<span class="shop-price shop-price--free">Free</span>';
+    return `<span class="shop-price shop-price--points"><svg class="ico coin-ico" aria-hidden="true"><use href="#i-coin"/></svg>${item.price}</span>`;
   }
 
   function renderCertificate() {
@@ -1296,7 +1304,7 @@
       <div class="quiz-result lesson-complete">
         <div class="big-stars" aria-label="${stars} out of 3 stars">${STAR(stars)}</div>
         <h3>${first ? 'Lesson complete!' : 'Practice complete!'}</h3>
-        <p>${correct} / ${lesson.quiz.length} on the quick test. ${first ? `You earned <b>${coinsEarned} coins</b>.` : 'No new coins on a replay — but the practice still counts.'}</p>
+        <p>${correct} / ${lesson.quiz.length} on the quick test. ${first ? `You earned <b>${coinsEarned} points</b>.` : 'No new points on a replay — but the practice still counts.'}</p>
         <div class="completion-crew">
           <div class="completion-avatar">${avatarSVG(state.avatar.color, state.avatar.accessory)}${petMarkup()}</div>
           <div><b>${equippedName()}</b><small>${rankFor(completedLessons().length)}${state.avatar.pet !== 'none' ? ` · ${petDisplayName()}` : ''}</small></div>
@@ -2382,7 +2390,7 @@
     const owned = state.owned[type];
     if (!owned.includes(id)) {
       if (state.coins < item.price) {
-        toast(`Not enough coins — ${item.price - state.coins} more to go. Finish a lesson first.`);
+        toast(`Not enough points — ${item.price - state.coins} more to go. Finish a lesson first.`);
         return;
       }
       state.coins -= item.price;
@@ -2410,7 +2418,10 @@
     goTo('#crew');
   }
 
-  $('#profileBtn').addEventListener('click', scrollToCrew);
+  $('#profileBtn')?.addEventListener('click', event => {
+    event.preventDefault();
+    scrollToCrew();
+  });
   $('#openCrew2').addEventListener('click', scrollToCrew);
 
   $('#shopTabs').addEventListener('click', event => {
@@ -2498,7 +2509,7 @@
   });
 
   $('#resetProgress').addEventListener('click', () => {
-    const ok = window.confirm("Clear all lesson progress, coins, gear and the certificate? This can't be undone.");
+    const ok = window.confirm("Clear all lesson progress, points, gear and the certificate? This can't be undone.");
     if (!ok) return;
     state = defaultState();
     save();

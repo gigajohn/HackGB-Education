@@ -11,21 +11,17 @@
 <meta name="apple-mobile-web-app-title" content="SusOrSafe">
 <meta name="mobile-web-app-capable" content="yes">
 <title>{{ page_title }}</title>
-<meta name="description" content="A cybersecurity playground for ages 8 to 88. Seven short lessons on attacks, pressure, fake sites, passwords, 2FA, privacy and public Wi-Fi. Earn coins, dress your explorer and collect a certificate. No sign-up. Nothing leaves your browser.">
+<meta name="description" content="A cybersecurity playground for ages 8 to 88. Seven short lessons and games on attacks, pressure, fake sites, passwords, 2FA, privacy and public Wi-Fi. Earn points, dress your explorer and collect a certificate. Nothing leaves your browser.">
 <link rel="icon" href="{% static 'susorsafe/icons/favicon.png' %}" type="image/png" sizes="64x64">
 <link rel="apple-touch-icon" href="{% static 'susorsafe/icons/apple-touch-icon.png' %}">
 <link rel="manifest" href="/manifest.webmanifest">
-<link rel="stylesheet" href="{% static 'susorsafe/fonts.css' %}?v=19">
-<link rel="stylesheet" href="{% static 'susorsafe/styles.css' %}?v=19">
-<link rel="stylesheet" href="{% static 'susorsafe/v2.css' %}?v=19">
+<link rel="stylesheet" href="{% static 'susorsafe/fonts.css' %}?v=26">
+<link rel="stylesheet" href="{% static 'susorsafe/styles.css' %}?v=26">
+<link rel="stylesheet" href="{% static 'susorsafe/v2.css' %}?v=26">
 </head>
 <body data-mode="kid" data-page="{{ page }}">
 
-{% if page == 'games' %}
-<a class="skip-link" href="#games">Skip to the games</a>
-{% else %}
 <a class="skip-link" href="{% url 'lessons' %}">Skip to the lessons</a>
-{% endif %}
 
 <noscript>
   <div class="noscript"><div class="wrap"><b>SusOrSafe needs JavaScript.</b> The lessons, games and local progress all run in your browser. Enable JavaScript and reload.</div></div>
@@ -61,13 +57,8 @@
 
     <nav class="main-nav" aria-label="Main navigation">
       <a href="{% url 'home' %}" {% if page == 'home' %}aria-current="page"{% endif %}>Home</a>
-      <a href="{% url 'lessons' %}" {% if page == 'lessons' %}aria-current="page"{% endif %}>Lessons</a>
-      <a href="{% url 'games' %}" {% if page == 'games' %}aria-current="page"{% endif %}>Games</a>
-      <a href="{% url 'toolkit' %}" {% if page == 'toolkit' %}aria-current="page"{% endif %}>Toolkit</a>
-      <a href="{% url 'parents' %}" {% if page == 'parents' %}aria-current="page"{% endif %}>Parents</a>
-      <a href="{% url 'install' %}" {% if page == 'install' %}aria-current="page"{% endif %}>Install</a>
-      <a href="{% url 'about' %}" {% if page == 'about' %}aria-current="page"{% endif %}>About</a>
-      <a href="{% url 'support' %}">Support</a>
+      <a href="{% url 'lessons' %}" {% if page == 'lessons' %}aria-current="page"{% endif %}>Lessons &amp; Games</a>
+      <a href="{% url 'about' %}" {% if page == 'about' %}aria-current="page"{% endif %}>About &amp; Help</a>
     </nav>
 
       <div class="mode-switch" role="group" aria-label="Choose an age mode">
@@ -75,12 +66,12 @@
         <button class="mode-pill" data-mode="teen" aria-pressed="false">Teens</button>
         <button class="mode-pill" data-mode="adult" aria-pressed="false">Adults</button>
       </div>
-      <button class="profile-chip" id="profileBtn" type="button" aria-label="My crew and coins">
-        <span class="profile-mini" id="headerAvatar"></span>
-        <span class="coin-count"><svg class="ico coin-ico"><use href="#i-coin"/></svg><b id="coinValue">0</b></span>
-      </button>
       <div class="auth-nav">
         {% if user.is_authenticated %}
+          <a class="profile-chip" id="profileBtn" href="{% url 'lessons' %}#crew" aria-label="Customize your profile and spend points">
+            <span class="profile-mini" id="headerAvatar"></span>
+            <span class="coin-count"><svg class="ico coin-ico"><use href="#i-coin"/></svg><b id="coinValue">0</b><span>points</span></span>
+          </a>
           <span class="auth-name">Hi, {{ user.username }}</span>
           <form class="logout-form" method="post" action="{% url 'logout' %}">
             {% csrf_token %}
@@ -246,31 +237,6 @@
     </div>
   </div>
 
-  <!-- ============ GAMES ============ -->
-  <section class="section games" id="games">
-    <div class="wrap">
-      <div class="games-hero">
-        <div>
-          <p class="kicker">Play to practise</p>
-          <h1>Seven lessons.<br><span class="hl-soft">Seven hands-on games.</span></h1>
-          <p class="section-lede" id="gamesModeIntro">Pick a game that fits your age mode. Each one teaches a safety skill, then gives you a quick check.</p>
-        </div>
-        <div class="games-mode-pill" id="gamesModeBadge">Kids · Little Islander</div>
-      </div>
-      <div class="mode-hint games-hint">
-        <span class="mh-badge">How to play</span>
-        <div class="mh-copy">
-          <p>Pick any game for three quick rounds. Guess, fill in a blank, or choose what happens next—then see why. Your best scores stay in this browser.</p>
-        </div>
-      </div>
-      <div class="games-grid" id="gamesGrid" aria-live="polite"></div>
-      <div class="games-footer-note">
-        <p>All games are ready to play in any order. Replay a challenge whenever you want another try.</p>
-        <a class="btn btn-ghost" href="{% url 'lessons' %}">View the full lesson path <svg class="ico"><use href="#i-arrow"/></svg></a>
-      </div>
-    </div>
-  </section>
-
   <!-- ============ EXPLORER / AGES ============ -->
   <section class="section routes" id="explorer">
     <div class="wrap">
@@ -279,7 +245,7 @@
           <p class="kicker" id="profileSectionKicker">01 / Your explorer</p>
           <h2>A path that fits <span class="hl-soft">your age.</span></h2>
         </div>
-        <p class="section-lede" data-age-copy-kid="Pick an age mode. Examples, hints and difficulty adapt. Your progress and coins never reset when you switch." data-age-copy-teen="Choose the examples that fit your life: school, college, work, social accounts and money. Your progress and coins stay when you switch." data-age-copy-adult="Choose practical examples for working life, caregiving or retirement. Your progress and coins stay when you switch.">Pick an age mode. Examples, hints and difficulty adapt. Your progress and coins never reset when you switch.</p>
+        <p class="section-lede" data-age-copy-kid="Pick an age mode. Examples, hints and difficulty adapt. Your progress and points never reset when you switch." data-age-copy-teen="Choose the examples that fit your life: school, college, work, social accounts and money. Your progress and points stay when you switch." data-age-copy-adult="Choose practical examples for working life, caregiving or retirement. Your progress and points stay when you switch.">Pick an age mode. Examples, hints and difficulty adapt. Your progress and points never reset when you switch.</p>
       </div>
 
       <div class="route-grid">
@@ -375,10 +341,35 @@
           <div class="stamp-row" id="stampRow"></div>
         </div>
         <div class="passport-side">
-          <div class="coin-balance-large"><svg class="ico coin-ico"><use href="#i-coin"/></svg><b id="coinValue2">0</b><span>coins</span></div>
+          <div class="coin-balance-large"><svg class="ico coin-ico"><use href="#i-coin"/></svg><b id="coinValue2">0</b><span>points</span></div>
           <button class="btn btn-ghost" id="openCrew2" type="button">My crew</button>
           <button class="link-btn" id="resetProgress" type="button">Reset progress</button>
         </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ GAMES ============ -->
+  <section class="section games" id="games">
+    <div class="wrap">
+      <div class="games-hero">
+        <div>
+          <p class="kicker">Play to practise</p>
+          <h1>Seven lessons.<br><span class="hl-soft">Seven hands-on games.</span></h1>
+          <p class="section-lede" id="gamesModeIntro">Pick a game that fits your age mode. Each one teaches a safety skill, then gives you a quick check.</p>
+        </div>
+        <div class="games-mode-pill" id="gamesModeBadge">Kids · Little Islander</div>
+      </div>
+      <div class="mode-hint games-hint">
+        <span class="mh-badge">How to play</span>
+        <div class="mh-copy">
+          <p>Pick any game for three quick rounds. Guess, fill in a blank, or choose what happens next—then see why. Your best scores stay in this browser.</p>
+        </div>
+      </div>
+      <div class="games-grid" id="gamesGrid" aria-live="polite"></div>
+      <div class="games-footer-note">
+        <p>All games are ready to play in any order. Replay a challenge whenever you want another try.</p>
+        <a class="btn btn-ghost" href="{% url 'lessons' %}">View the full lesson path <svg class="ico"><use href="#i-arrow"/></svg></a>
       </div>
     </div>
   </section>
@@ -389,7 +380,7 @@
       <div class="section-head">
         <div>
           <p class="kicker">03 / Your crew</p>
-          <h2><span id="profileShopTitle">Dress your explorer.</span> <span class="hl-soft">Spend your coins.</span></h2>
+          <h2><span id="profileShopTitle">Dress your explorer.</span> <span class="hl-soft">Spend your points.</span></h2>
         </div>
         <p class="section-lede">Coins come from finishing lessons. Buy colours, gear and pets — no real money, no ads, no loot boxes.</p>
       </div>
@@ -439,14 +430,14 @@
               <p class="kicker">The trading post</p>
               <h3>Coins, not cash</h3>
             </div>
-            <div class="coin-balance-large"><svg class="ico coin-ico"><use href="#i-coin"/></svg><b id="shopCoins">0</b><span>coins</span></div>
+            <div class="coin-balance-large"><svg class="ico coin-ico"><use href="#i-coin"/></svg><b id="shopCoins">0</b><span>points</span></div>
           </div>
           <div class="shop-tabs" id="shopTabs" role="tablist" aria-label="Shop categories">
             <button class="shop-tab is-active" data-shop-tab="looks" role="tab" aria-selected="true" type="button">Looks</button>
             <button class="shop-tab" data-shop-tab="pets" role="tab" aria-selected="false" type="button">Pets</button>
           </div>
           <div class="shop-grid" id="shopGrid"></div>
-          <p class="shop-note">Earn 100–160 coins per lesson. Replays are free practice and don't add coins.</p>
+          <p class="shop-note">Earn 100–160 points per lesson. Replays are free practice and don't add points.</p>
         </div>
       </div>
     </div>
@@ -455,6 +446,13 @@
   <!-- ============ TOOLKIT ============ -->
   <section class="section toolbox" id="toolkit">
     <div class="wrap">
+      <nav class="help-jump-nav" aria-label="About and help sections">
+        <a href="#about">About</a>
+        <a href="#toolkit">Safety toolkit</a>
+        <a href="#parents">Parents &amp; teachers</a>
+        <a href="#install">Install</a>
+        <a href="#support">Support</a>
+      </nav>
       <div class="section-head">
         <div>
           <p class="kicker">04 / Safety toolkit</p>
@@ -638,7 +636,7 @@
         <p><b>Built for curious humans, 8 to 88.</b> Start with one lesson, or send the island to someone who needs it.</p>
         <div class="about-actions">
           <a class="btn btn-primary" href="{% url 'lessons' %}">Start a lesson <svg class="ico"><use href="#i-arrow"/></svg></a>
-          <a class="btn btn-ghost" href="{% url 'toolkit' %}">Open the toolkit</a>
+          <a class="btn btn-ghost" href="#toolkit">Open the toolkit</a>
         </div>
       </div>
     </div>
@@ -688,10 +686,25 @@
                 <div><b>03</b><small>Fake websites</small></div>
                 <span class="phone-lock"><svg class="ico"><use href="#i-lock"/></svg></span>
               </div>
-              <div class="phone-coins"><svg class="ico coin-ico"><use href="#i-coin"/></svg> 140 coins</div>
+              <div class="phone-coins"><svg class="ico coin-ico"><use href="#i-coin"/></svg> 140 points</div>
             </div>
           </div>
         </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ SUPPORT ============ -->
+  <section class="section combined-support" id="support">
+    <div class="wrap support-panel">
+      <div>
+        <p class="kicker">Keep learning free</p>
+        <h2>Support the island</h2>
+        <p>Every lesson stays free. Optional support helps with hosting, accessibility and new learning activities—without ads or data selling.</p>
+      </div>
+      <div class="support-panel-actions">
+        <a class="btn btn-primary" href="{% url 'subscribe' %}">Monthly support</a>
+        <a class="btn btn-ghost" href="{% url 'donate' %}">One-time donation</a>
       </div>
     </div>
   </section>
@@ -795,8 +808,8 @@
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 <canvas id="confetti" aria-hidden="true"></canvas>
 
-<script src="{% static 'susorsafe/data.js' %}?v=19"></script>
-<script src="{% static 'susorsafe/theme.js' %}?v=19"></script>
-<script src="{% static 'susorsafe/app.js' %}?v=19"></script>
+<script src="{% static 'susorsafe/data.js' %}?v=26"></script>
+<script src="{% static 'susorsafe/theme.js' %}?v=26"></script>
+<script src="{% static 'susorsafe/app.js' %}?v=26"></script>
 </body>
 </html>

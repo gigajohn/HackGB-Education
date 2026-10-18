@@ -15,7 +15,7 @@ class LoginPageView(View):
 
     def get(self, request, *args, **kwargs):
         if request.user.is_authenticated:
-            return redirect('landing')
+            return redirect('home')
         return render(request, self.template_name)
 
     def post(self, request, *args, **kwargs):
@@ -29,7 +29,7 @@ class LoginPageView(View):
             if not remember:
                 request.session.set_expiry(0)
             messages.success(request, f"Welcome back, {user.get_username()}!")
-            next_url = request.GET.get('next') or request.POST.get('next') or reverse('landing')
+            next_url = request.GET.get('next') or request.POST.get('next') or reverse('home')
             return redirect(next_url)
         else:
             messages.error(request, "Invalid username or password. Please try again.")
@@ -65,7 +65,7 @@ class OAuthStartView(View):
             request,
             f"Successfully authenticated with {provider.capitalize()}! Welcome, {user.first_name}."
         )
-        next_url = request.GET.get('next') or reverse('landing')
+        next_url = request.GET.get('next') or reverse('home')
         return redirect(next_url)
 
 
@@ -77,7 +77,7 @@ class LogoutView(View):
     def get(self, request, *args, **kwargs):
         logout(request)
         messages.info(request, "You have been signed out.")
-        return redirect('landing')
+        return redirect('home')
 
     def post(self, request, *args, **kwargs):
         return self.get(request, *args, **kwargs)

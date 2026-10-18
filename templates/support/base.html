@@ -9,10 +9,10 @@
   <title>{% block title %}Support SusOrSafe{% endblock %}</title>
   <meta name="description" content="Support SusOrSafe with a monthly subscription or a one-time donation. The lessons stay free for everyone.">
   <link rel="icon" href="{% static 'susorsafe/icons/favicon.png' %}" type="image/png" sizes="64x64">
-  <link rel="stylesheet" href="{% static 'susorsafe/fonts.css' %}?v=19">
-  <link rel="stylesheet" href="{% static 'susorsafe/styles.css' %}?v=19">
-  <link rel="stylesheet" href="{% static 'susorsafe/v2.css' %}?v=19">
-  <link rel="stylesheet" href="{% static 'susorsafe/support.css' %}?v=19">
+  <link rel="stylesheet" href="{% static 'susorsafe/fonts.css' %}?v=26">
+  <link rel="stylesheet" href="{% static 'susorsafe/styles.css' %}?v=26">
+  <link rel="stylesheet" href="{% static 'susorsafe/v2.css' %}?v=26">
+  <link rel="stylesheet" href="{% static 'susorsafe/support.css' %}?v=25">
   <script src="{% static 'susorsafe/theme.js' %}?v=19" defer></script>
 </head>
 <body class="support-body" data-mode="kid">
@@ -28,13 +28,8 @@
 
       <nav class="main-nav support-nav" aria-label="Main navigation">
         <a href="{% url 'home' %}" {% if request.resolver_match.url_name == 'home' %}aria-current="page"{% endif %}>Home</a>
-        <a href="{% url 'lessons' %}" {% if request.resolver_match.url_name == 'lessons' %}aria-current="page"{% endif %}>Lessons</a>
-        <a href="{% url 'games' %}" {% if request.resolver_match.url_name == 'games' %}aria-current="page"{% endif %}>Games</a>
-        <a href="{% url 'toolkit' %}" {% if request.resolver_match.url_name == 'toolkit' %}aria-current="page"{% endif %}>Toolkit</a>
-        <a href="{% url 'parents' %}" {% if request.resolver_match.url_name == 'parents' %}aria-current="page"{% endif %}>Parents</a>
-        <a href="{% url 'install' %}" {% if request.resolver_match.url_name == 'install' %}aria-current="page"{% endif %}>Install</a>
-        <a href="{% url 'about' %}" {% if request.resolver_match.url_name == 'about' %}aria-current="page"{% endif %}>About</a>
-        <a href="{% url 'support' %}" {% if request.resolver_match.url_name == 'support' or request.resolver_match.url_name == 'subscribe' or request.resolver_match.url_name == 'donate' %}aria-current="page"{% endif %}>Support</a>
+        <a href="{% url 'lessons' %}" {% if request.resolver_match.url_name == 'lessons' %}aria-current="page"{% endif %}>Lessons &amp; Games</a>
+        <a href="{% url 'about' %}" aria-current="page">About &amp; Help</a>
       </nav>
       <div class="mode-switch" role="group" aria-label="Choose an age mode">
         <button class="mode-pill" data-mode="kid" aria-pressed="false" type="button">Kids</button>
