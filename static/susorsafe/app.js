@@ -6,6 +6,10 @@
 (() => {
   'use strict';
 
+  /* Keep in-page links predictable; do not restore the certificate scroll
+     position when the user opens the lessons page again. */
+  if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+
   const {
     STAGES,
     STAGE_TIPS,

@@ -1,5 +1,5 @@
 /* SusOrSafe — Django service worker (served at /sw.js) */
-const CACHE = 'susorsafe-django-v19';
+const CACHE = 'susorsafe-django-v20';
 const ASSETS = [
   '/',
   '/lessons/',

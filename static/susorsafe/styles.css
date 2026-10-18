@@ -1943,3 +1943,14 @@ body .mode-hint .mh-badge {
 body[data-mode="kid"] .quest-progress strong {
   color: #6D3DD1 !important;
 }
+
+/* Teen / adult dark backgrounds need light hint text and labels */
+body[data-mode="teen"] .mode-hint p,
+body[data-mode="adult"] .mode-hint p {
+  color: #d5dcf3 !important;
+}
+
+body[data-mode="teen"] .qp-label,
+body[data-mode="adult"] .qp-label {
+  color: #d5dcf3 !important;
+}

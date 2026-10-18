@@ -61,7 +61,7 @@
 
     <nav class="main-nav" aria-label="Main navigation">
       <a href="{% url 'home' %}" {% if page == 'home' %}aria-current="page"{% endif %}>Home</a>
-      <a href="{% url 'lessons' %}" {% if page == 'lessons' %}aria-current="page"{% endif %}>Lessons</a>
+      <a href="{% url 'lessons' %}#lessons" ...>Lessons</a>
       <a href="{% url 'games' %}" {% if page == 'games' %}aria-current="page"{% endif %}>Games</a>
       <a href="{% url 'toolkit' %}" {% if page == 'toolkit' %}aria-current="page"{% endif %}>Toolkit</a>
       <a href="{% url 'parents' %}" {% if page == 'parents' %}aria-current="page"{% endif %}>Parents</a>
@@ -671,7 +671,7 @@
           <span class="lock-icon"><svg class="ico"><use href="#i-lock"/></svg></span>
           <h3>Finish all 7 lessons to unlock</h3>
           <p>Progress <strong id="certProgress">0 / 7</strong>. The certificate is printed. It just needs your name.</p>
-          <a class="btn btn-ghost" href="{% url 'lessons' %}">Back to the lessons</a>
+          <a class="btn btn-ghost" href="{% url 'lessons' %}#lessons">Back to the lessons</a>
         </div>
       </div>
 
