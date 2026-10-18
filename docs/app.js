@@ -1,5 +1,5 @@
 /* ==========================================================
-   SusorSafe — app logic
+   SusOrSafe — app logic
    State lives in localStorage. Nothing leaves the browser.
    ========================================================== */
 (() => {
@@ -1868,7 +1868,7 @@
   window.addEventListener('appinstalled', () => {
     deferredInstall = null;
     updateInstallUI();
-    toast('SusorSafe installed. See you on the home screen.');
+    toast('SusOrSafe installed. See you on the home screen.');
   });
   $('#installBtn').addEventListener('click', async () => {
     if (deferredInstall) {

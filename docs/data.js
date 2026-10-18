@@ -1,5 +1,5 @@
 /* ==========================================================
-   SusorSafe — curriculum, scenarios and shop data
+   SusOrSafe — curriculum, scenarios and shop data
    ========================================================== */
 window.SUSOR_DATA = (() => {
   const SCHOOLS = [
@@ -491,9 +491,9 @@ window.SUSOR_DATA = (() => {
     },
     {
       url: 'https://play.google.com/store/apps/details?id=com.susor.safe',
-      title: 'SusorSafe — Google Play',
+      title: 'SusOrSafe — Google Play',
       lines: [
-        'SusorSafe · Education',
+        'SusOrSafe · Education',
         '4.8 ★ · 10K+ downloads · Contains ads? No.'
       ],
       action: 'Install',

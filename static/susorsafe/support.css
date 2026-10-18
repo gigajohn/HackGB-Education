@@ -1,4 +1,4 @@
-/* SusorSafe support pages */
+/* SusOrSafe support pages */
 .support-body {
   background: radial-gradient(800px 560px at 50% 0%, rgba(92,225,196,.08), transparent 65%), var(--bg);
   color: var(--ink);
@@ -12,6 +12,8 @@
   backdrop-filter: blur(18px);
   border-bottom: 1px solid var(--line);
 }
+body.support-body[data-mode="kid"] .support-header { background: rgba(255,248,223,.9); }
+body.support-body[data-mode="adult"] .support-header { background: rgba(23,35,33,.9); }
 .support-header-inner {
   min-height: 70px;
   display: flex;
@@ -35,16 +37,20 @@
   letter-spacing: .12em;
   color: var(--muted-2);
 }
-.support-nav { display: flex; align-items: center; gap: 22px; }
+.support-nav { display: flex; align-items: center; justify-content: flex-end; flex-wrap: wrap; gap: 8px; }
+.support-nav { margin: 0; }
 .support-nav a {
+  padding: 8px 10px;
+  border-radius: 10px;
   font-size: .78rem;
   font-weight: 700;
   color: var(--muted);
   text-decoration: none;
 }
-.support-nav a:hover { color: var(--ink); }
+.support-nav a:hover, .support-nav a[aria-current="page"] { color: var(--ink); background: rgba(255,255,255,.07); }
+.support-nav a[aria-current="page"] { color: var(--lime); }
 
-.support-main { padding-bottom: 80px; }
+.support-main { padding-bottom: 36px; }
 .support-hero { padding: 76px 0 38px; }
 .support-hero-compact { padding-bottom: 24px; }
 .support-hero h1 {
@@ -223,12 +229,6 @@
 .custom-amount-row input:focus { outline: 2px solid var(--mint); outline-offset: 2px; }
 .custom-amount-row .btn { padding: 11px 18px; font-size: .8rem; }
 
-.support-footer { border-top: 1px solid var(--line); padding: 24px 0 34px; }
-.support-footer-inner { display: flex; align-items: center; justify-content: space-between; gap: 18px; }
-.support-footer p { margin: 0; color: var(--muted-2); font-size: .72rem; }
-.support-footer div { display: flex; gap: 16px; flex-wrap: wrap; }
-.support-footer a { color: var(--muted); text-decoration: none; font-size: .72rem; font-weight: 700; }
-.support-footer a:hover { color: var(--ink); }
 
 .support-modal[hidden] { display: none; }
 .support-modal {
@@ -272,18 +272,21 @@
 
 @media (max-width: 900px) {
   .support-options, .plan-grid, .support-facts { grid-template-columns: 1fr; }
-  .support-panel, .support-footer-inner { align-items: flex-start; flex-direction: column; }
+  .support-panel { align-items: flex-start; flex-direction: column; }
   .donation-amounts { grid-template-columns: repeat(2, 1fr); }
+}
+@media (prefers-reduced-motion:reduce){
 }
 @media (max-width: 620px) {
   .support-hero { padding-top: 48px; }
-  .support-header-inner { min-height: 62px; }
-  .support-nav { gap: 14px; }
-  .support-nav a { font-size: .72rem; }
+  .support-header-inner { min-height: 62px; padding-block: 8px; align-items: flex-start; flex-direction: column; gap: 4px; }
+  .support-nav { justify-content: flex-start; gap: 2px; }
+  .support-nav a { padding: 6px 8px; font-size: .7rem; }
   .support-option, .donate-card, .plan-card { padding: 20px; }
   .support-brand img { width: 40px; height: 40px; }
   .support-brand strong { font-size: 1rem; }
   .support-brand small { font-size: .44rem; }
+  .support-header-inner .mode-switch { width: 100%; justify-content: space-between; }
   .custom-amount-row { flex-wrap: wrap; }
   .custom-amount-row input { flex: 1 1 100px; }
 }

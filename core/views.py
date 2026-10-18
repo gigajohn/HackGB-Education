@@ -1,5 +1,4 @@
 from pathlib import Path
-
 from django.conf import settings
 from django.contrib.auth import login
 from django.contrib.auth.forms import UserCreationForm
@@ -9,7 +8,29 @@ from django.templatetags.static import static
 
 
 def home(request):
-    return render(request, "home.html")
+    return app_page(request, "home")
+
+
+def profile(request):
+    return render(request, "profile.html")
+
+
+def app_page(request, page):
+    page_titles = {
+        "home": "SusOrSafe — Cybersecurity you can play",
+        "lessons": "Lessons · SusOrSafe",
+        "games": "Games · SusOrSafe",
+        "toolkit": "Safety toolkit · SusOrSafe",
+        "parents": "Parents & teachers · SusOrSafe",
+        "install": "Install SusOrSafe",
+        "about": "About SusOrSafe",
+        "profile": "My profile · SusOrSafe",
+    }
+
+    return render(request, "home.html", {
+        "page": page,
+        "page_title": page_titles[page],
+    })
 
 
 def signup(request):
@@ -18,14 +39,25 @@ def signup(request):
 
     if request.method == "POST":
         form = UserCreationForm(request.POST)
+
         if form.is_valid():
             user = form.save()
-            login(request, user, backend="django.contrib.auth.backends.ModelBackend")
+
+            login(
+                request,
+                user,
+                backend="django.contrib.auth.backends.ModelBackend",
+            )
+
             return redirect("home")
     else:
         form = UserCreationForm()
 
-    return render(request, "registration/signup.html", {"form": form})
+    return render(
+        request,
+        "registration/signup.html",
+        {"form": form},
+    )
 
 
 def support_hub(request):
@@ -42,14 +74,33 @@ def support_donate(request):
 
 def manifest(request):
     icons = [
-        {"src": static("susorsafe/icons/icon-192.png"), "sizes": "192x192", "type": "image/png", "purpose": "any"},
-        {"src": static("susorsafe/icons/icon-512.png"), "sizes": "512x512", "type": "image/png", "purpose": "any"},
-        {"src": static("susorsafe/icons/maskable-512.png"), "sizes": "512x512", "type": "image/png", "purpose": "maskable"},
+        {
+            "src": static("susorsafe/icons/icon-192.png"),
+            "sizes": "192x192",
+            "type": "image/png",
+            "purpose": "any",
+        },
+        {
+            "src": static("susorsafe/icons/icon-512.png"),
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "any",
+        },
+        {
+            "src": static("susorsafe/icons/maskable-512.png"),
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "maskable",
+        },
     ]
+
     data = {
-        "name": "SusorSafe — Cybersecurity you can play",
-        "short_name": "SusorSafe",
-        "description": "Seven short, playful cybersecurity lessons for ages 8 to 88.",
+        "name": "SusOrSafe — Cybersecurity you can play",
+        "short_name": "SusOrSafe",
+        "description": (
+            "Seven short, playful cybersecurity lessons "
+            "for ages 8 to 88."
+        ),
         "start_url": "/",
         "scope": "/",
         "display": "standalone",
@@ -59,15 +110,27 @@ def manifest(request):
         "categories": ["education", "security", "kids"],
         "icons": icons,
     }
-    return JsonResponse(data, content_type="application/manifest+json")
+
+    return JsonResponse(
+        data,
+        content_type="application/manifest+json",
+    )
 
 
 def service_worker(request):
-    path = Path(settings.BASE_DIR) / "static" / "susorsafe" / "sw.js"
+    path = (
+        Path(settings.BASE_DIR)
+        / "static"
+        / "susorsafe"
+        / "sw.js"
+    )
+
     response = HttpResponse(
         path.read_text(encoding="utf-8"),
         content_type="application/javascript",
     )
+
     response["Service-Worker-Allowed"] = "/"
     response["Cache-Control"] = "no-cache"
+
     return response
