@@ -1835,3 +1835,111 @@ body.modal-open{overflow:hidden}
   }
   .cert-card::before{border-color:rgba(27,27,43,.35)}
 }
+
+/* Kid mode title color */
+body[data-mode="kid"] .mode-hint {
+  background: #F0EAFE !important;
+  border: 1px solid #D8C9F3 !important;
+}
+
+body[data-mode="kid"] .mode-hint p {
+  color: #463568 !important;
+}
+
+body[data-mode="kid"] .mh-badge {
+  background: #6D3DD1 !important;
+  color: #FFFFFF !important;
+}
+
+body[data-mode="kid"] .quest-progress {
+  background: #FFFFFF;
+  border-color: #D8C9F3;
+}
+
+body[data-mode="kid"] .qp-label {
+  color: #526079;
+}
+
+body[data-mode="kid"] .quest-progress strong {
+  color: #6D3DD1;
+}
+
+/* Kid Mode：Course Cards */
+body[data-mode="kid"] .lesson-card {
+  background: #FFFFFF !important;
+  border: 1px solid #D8C9F3 !important;
+  color: #25324B;
+}
+
+body[data-mode="kid"] .lesson-card.is-current {
+  border: 2px solid #6D3DD1 !important;
+  box-shadow: 0 6px 20px rgba(109, 61, 209, .12);
+}
+
+body[data-mode="kid"] .lesson-card h3 {
+  color: #25324B !important;
+}
+
+body[data-mode="kid"] .lesson-card > p,
+body[data-mode="kid"] .quest-time,
+body[data-mode="kid"] .lesson-reward,
+body[data-mode="kid"] .lesson-lock,
+body[data-mode="kid"] .lesson-steps span {
+  color: #526079 !important;
+}
+
+/* Course number and icon */
+body[data-mode="kid"] .lesson-card {
+  --q: #6D3DD1 !important;
+}
+
+/* Start course */
+body[data-mode="kid"] .lesson-card .quest-btn {
+  background: #6D3DD1 !important;
+  border-color: #6D3DD1 !important;
+  color: #FFFFFF !important;
+}
+
+/* Locked course still maintains clarity */
+body[data-mode="kid"] .lesson-card.is-locked {
+  opacity: .7 !important;
+  background: #F5F3FA !important;
+}
+
+body[data-mode="kid"] .focus-tag {
+  background: #FFF0CF;
+  border-color: #E5C47C;
+  color: #805000;
+}
+
+
+/* Other page hidden characters and icons*/
+body:not([data-page="profile"]) #crew {
+  display: none !important;
+}
+
+/* Profile Page: show crew and store*/
+body[data-page="profile"] main > :not(#crew) {
+  display: none !important;
+}
+
+body[data-page="profile"] #crew {
+  display: block !important;
+  padding-top: 48px;
+}
+
+/* All mode：word color darker */
+body .mode-hint p {
+  color: #34415C !important;
+}
+
+/* All mode：Tag text darker */
+body .mode-hint .mh-badge {
+  color: #463568 !important;
+  background: #EAE1FA !important;
+}
+
+/* Kids：Course completion text darker */
+body[data-mode="kid"] .quest-progress strong {
+  color: #6D3DD1 !important;
+}

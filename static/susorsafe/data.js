@@ -57,11 +57,23 @@ window.SUSOR_DATA = (() => {
   ];
 
   const PETS = [
-    { id: 'none', name: 'No pet', emoji: '', price: 0, blurb: 'Travel light.' },
-    { id: 'pip', name: 'Pip', emoji: '🐣', price: 0, blurb: 'A tiny chick with big opinions.' },
-    { id: 'mochi', name: 'Mochi', emoji: '🐱', price: 120, blurb: 'Sleeps through every scam.' },
-    { id: 'nori', name: 'Nori', emoji: '🦎', price: 180, blurb: 'Suspicious of every link.' },
-    { id: 'ember', name: 'Ember', emoji: '🐉', price: 250, blurb: 'Guards your passwords fiercely.' }
+    { id: 'none', name: 'No pet', emoji: '', color: '#E2E8F0', price: 0, blurb: 'Travel light.' },
+    { id: 'pip', name: 'Pip', emoji: '🐣', color: '#FFE38A', price: 0, blurb: 'A tiny chick with big opinions.' },
+    { id: 'mochi', name: 'Mochi', emoji: '🐱', color: '#FFC5D9', price: 120, blurb: 'Sleeps through every scam.' },
+    { id: 'nori', name: 'Nori', emoji: '🦎', color: '#A9E8B0', price: 180, blurb: 'Suspicious of every link.' },
+    { id: 'ember', name: 'Ember', emoji: '🐉', color: '#FFB7A5', price: 250, blurb: 'Guards your passwords fiercely.' },
+    { id: 'luna', name: 'Luna', emoji: '🐰', color: '#D8C8FF', price: 220, blurb: 'A gentle hop toward safer choices.' },
+    { id: 'pixel', name: 'Pixel', emoji: '🦊', color: '#FFD0A1', price: 280, blurb: 'Sniffs out suspicious links.' },
+    { id: 'orbit', name: 'Orbit', emoji: '🦉', color: '#B9D8FF', price: 340, blurb: 'Keeps a wise eye on every message.' },
+    { id: 'pebble', name: 'Pebble', emoji: '🐢', color: '#B8E4C5', price: 360, blurb: 'Takes time to pause and verify.' },
+    { id: 'comet', name: 'Comet', emoji: '🐬', color: '#A8E8F2', price: 420, blurb: 'Dashes past scams without a click.' },
+    { id: 'sprout', name: 'Sprout', emoji: '🐼', color: '#D5E9C4', price: 480, blurb: 'A calm companion for big quests.' },
+    { id: 'seal', name: 'Bubbles', emoji: '🦭', color: '#F7B8E8', price: 520, blurb: 'Spots strange messages from a mile away.' },
+    { id: 'hedgehog', name: 'Prickle', emoji: '🦔', color: '#E8C8A5', price: 560, blurb: 'Keeps your private details tucked away.' },
+    { id: 'penguin', name: 'Waddles', emoji: '🐧', color: '#BBDCF7', price: 600, blurb: 'Stays cool when a message feels urgent.' },
+    { id: 'froglet', name: 'Jumps', emoji: '🐸', color: '#BDEB85', price: 640, blurb: 'Hops over suspicious links.' },
+    { id: 'whale', name: 'Bluebell', emoji: '🐳', color: '#A8DDF7', price: 700, blurb: 'Makes a splash for safer choices.' },
+    { id: 'redpanda', name: 'Maple', emoji: '🦝', color: '#FFC49A', price: 760, blurb: 'Checks twice before sharing anything.' }
   ];
 
   const LESSONS = [

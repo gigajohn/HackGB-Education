@@ -10,10 +10,10 @@
   <title>Sign In — SusOrSafe</title>
   <meta name="description" content="Sign in to SusOrSafe with Google, Microsoft, or your account to save lessons, badges, and progress.">
   <link rel="icon" href="{% static 'susorsafe/icons/favicon.png' %}" type="image/png" sizes="64x64">
-  <link rel="stylesheet" href="{% static 'susorsafe/fonts.css' %}?v=19">
-  <link rel="stylesheet" href="{% static 'susorsafe/styles.css' %}?v=19">
-  <link rel="stylesheet" href="{% static 'susorsafe/v2.css' %}?v=19">
-  <script src="{% static 'susorsafe/theme.js' %}?v=19" defer></script>
+  <link rel="stylesheet" href="{% static 'susorsafe/fonts.css' %}?v=25">
+  <link rel="stylesheet" href="{% static 'susorsafe/styles.css' %}?v=25">
+  <link rel="stylesheet" href="{% static 'susorsafe/v2.css' %}?v=25">
+  <script src="{% static 'susorsafe/theme.js' %}?v=25" defer></script>
 
   <style>
     .auth-page {
@@ -440,7 +440,7 @@
       <p class="auth-mode-note" data-age-copy-kid="Kids mode · bright colours and simple safety wording" data-age-copy-teen="Teens mode · practical guidance for school, work and online accounts" data-age-copy-adult="Adults mode · calm, practical guidance for everyday online safety">Kids mode · bright colours and simple safety wording</p>
 
       <div class="back-nav">
-        <a href="{% url 'landing' %}" class="back-btn">
+        <a href="{% url 'home' %}" class="back-btn">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
             <path d="M19 12H5M12 19l-7-7 7-7"/>
           </svg>
@@ -449,7 +449,7 @@
       </div>
 
       <div class="auth-header">
-        <a class="brand" href="{% url 'landing' %}">
+        <a class="brand" href="{% url 'home' %}">
           <span class="brand-mark" style="background:none;border:0;box-shadow:none;padding:0;">
             <img src="{% static 'susorsafe/icons/logo-mark.png' %}" alt="" style="width:100%;height:100%;object-fit:contain;">
           </span>
@@ -585,7 +585,7 @@
 
         <div class="auth-card-footer">
           Don’t have an account?
-          <a href="{% url 'page_signup' %}">Sign up</a>
+          <a href="{% url 'signup' %}">Sign up</a>
         </div>
       </div>
 

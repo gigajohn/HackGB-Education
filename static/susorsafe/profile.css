@@ -1,0 +1,31 @@
+/* Standalone profile page additions */
+.profile-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 22px;
+}
+.profile-actions .btn {
+  padding: 10px 16px;
+  font-size: .8rem;
+}
+.profile-support-link {
+  margin-left: auto;
+  color: var(--muted-2);
+  font-size: .74rem;
+  font-weight: 700;
+  text-decoration: none;
+}
+.profile-support-link:hover { color: var(--ink); }
+.profile-progress-line {
+  margin: -2px 0 14px;
+  color: var(--muted-2);
+  font-size: .72rem;
+  font-weight: 600;
+}
+@media (max-width: 720px) {
+  .profile-actions { align-items: stretch; }
+  .profile-actions .btn { flex: 1 1 160px; }
+  .profile-support-link { margin-left: 0; }
+}

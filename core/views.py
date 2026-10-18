@@ -1,5 +1,4 @@
 from pathlib import Path
-
 from django.conf import settings
 from django.contrib.auth import login
 from django.contrib.auth.forms import UserCreationForm
@@ -7,21 +6,28 @@ from django.http import HttpResponse, JsonResponse
 from django.shortcuts import redirect, render
 from django.templatetags.static import static
 from pages.progress import make_progress_sync_token
+from django.urls import reverse
 
 
 def home(request):
     return app_page(request, "home")
 
+def profile(request):
+    return render(request, "profile.html", {
+        "page": "profile",
+        "page_title": "My profile · SusOrSafe",
+    })
+
 
 def app_page(request, page):
+    if page in {"toolkit", "parents", "install"}:
+        page = "about"
+
     page_titles = {
         "home": "SusOrSafe — Cybersecurity you can play",
-        "lessons": "Lessons · SusOrSafe",
-        "games": "Games · SusOrSafe",
-        "toolkit": "Safety toolkit · SusOrSafe",
-        "parents": "Parents & teachers · SusOrSafe",
-        "install": "Install SusOrSafe",
-        "about": "About SusOrSafe",
+        "lessons": "Lessons & games · SusOrSafe",
+        "about": "About & help · SusOrSafe",
+        "profile": "My profile · SusOrSafe",
     }
     import json
     from pages.models import Profile
@@ -52,24 +58,44 @@ def app_page(request, page):
     return response
 
 
+
+def games_page(request):
+    return redirect(f"{reverse('lessons')}#games")
+
+
+def about_section(request, section):
+    return redirect(f"{reverse('about')}#{section}")
+
+
 def signup(request):
     if request.user.is_authenticated:
         return redirect("home")
 
     if request.method == "POST":
         form = UserCreationForm(request.POST)
+
         if form.is_valid():
             user = form.save()
-            login(request, user, backend="django.contrib.auth.backends.ModelBackend")
+
+            login(
+                request,
+                user,
+                backend="django.contrib.auth.backends.ModelBackend",
+            )
+
             return redirect("home")
     else:
         form = UserCreationForm()
 
-    return render(request, "registration/signup.html", {"form": form})
+    return render(
+        request,
+        "registration/signup.html",
+        {"form": form},
+    )
 
 
 def support_hub(request):
-    return render(request, "support/hub.html")
+    return redirect(f"{reverse('about')}#support")
 
 
 def support_subscribe(request):
@@ -118,12 +144,16 @@ def manifest(request):
             "purpose": "maskable"
         },
     ]
+
     data = {
         "id": "/?source=pwa",
         "name": "SusOrSafe — Cybersecurity you can play",
         "short_name": "SusOrSafe",
-        "description": "A cybersecurity playground for ages 8 to 88. Seven short lessons on attacks, fake sites, passwords, 2FA, privacy, and Wi-Fi.",
-        "start_url": "/?source=pwa",
+        "description": (
+            "Seven short, playful cybersecurity lessons "
+            "for ages 8 to 88."
+        ),
+        "start_url": "/",
         "scope": "/",
         "display": "standalone",
         "display_override": ["window-controls-overlay", "standalone", "minimal-ui"],
@@ -158,17 +188,27 @@ def manifest(request):
             }
         ]
     }
-    response = JsonResponse(data, content_type="application/manifest+json")
-    response["Cache-Control"] = "public, max-age=3600"
-    return response
+
+    return JsonResponse(
+        data,
+        content_type="application/manifest+json",
+    )
 
 
 def service_worker(request):
-    path = Path(settings.BASE_DIR) / "static" / "susorsafe" / "sw.js"
+    path = (
+        Path(settings.BASE_DIR)
+        / "static"
+        / "susorsafe"
+        / "sw.js"
+    )
+
     response = HttpResponse(
         path.read_text(encoding="utf-8"),
         content_type="application/javascript",
     )
+
     response["Service-Worker-Allowed"] = "/"
-    response["Cache-Control"] = "no-cache, no-store, must-revalidate"
+    response["Cache-Control"] = "no-cache"
+
     return response

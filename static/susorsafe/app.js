@@ -27,12 +27,12 @@
   const MODE_INFO = {
     kid: {
       badge: 'Little Islander',
-      themeColor: '#fff8df',
-      homeAudience: 'For preschool through middle school',
-      homeCopy: 'A free game prize, a stranger in chat, or a pop-up saying “you won!” might be a trick. Learn to spot it, keep secrets like passwords private, and tell a grown-up.',
-      toolkitCopy: 'If a game promises free coins or a stranger asks for your password, stop. Check with a grown-up before you tap, share, or download.',
-      gamesCopy: 'Play friendly, no-timer challenges about game prizes, chat secrets, passwords, sharing, and safe Wi-Fi. Younger kids can play with a trusted grown-up.',
-      hint: "Made for preschool through middle school. Younger kids can play with a grown-up; hints use simple comparisons, and there's no timer."
+      themeColor: '#F0EAFE',
+      homeAudience: 'For young learners and their families',
+      homeCopy:'Is that prize real? Should you share that password? Play short games and learn how to make safer choices online.',
+      toolkitCopy:'Pause before you click, share, or download. If something feels strange, ask a trusted grown-up for help.',
+      gamesCopy: 'Spot tricky messages, protect your passwords, and earn rewards. Take your time — there’s no timer!',
+      hint: "Learn through play, one safe choice at a time. Younger explorers can team up with a trusted grown-up."
     },
     teen: {
       badge: 'Digital Navigator',
@@ -1192,6 +1192,7 @@
   let shopTab = 'looks';
 
   function renderShop() {
+    if (!$('#shopGrid')) return;
     const grid = $('#shopGrid');
     if (!grid) return;
     $$('.shop-tab').forEach(tab => {
@@ -1647,8 +1648,6 @@
 
     updateStepper(true);
     activityStatus.textContent = '';
-    const next = LESSONS.find(item => item.id === lesson.id + 1);
-    const nextUnlocked = next && lessonUnlocked(next.id);
     const allDone = completedLessons().length === LESSONS.length;
 
     lessonBody.innerHTML = `
@@ -2761,16 +2760,12 @@
     playSound('click');
   }
 
-  function scrollToCrew() {
-    if (document.body.dataset.page !== 'lessons') {
-      window.location.href = '/lessons/#crew';
-      return;
-    }
-    goTo('#crew');
+  function jumpToProfile() {
+    window.location.href = '/profile/';
   }
 
-  $('#profileBtn')?.addEventListener('click', scrollToCrew);
-  $('#openCrew2')?.addEventListener('click', scrollToCrew);
+  $('#profileBtn')?.addEventListener('click', jumpToProfile);
+  $('#openCrew2')?.addEventListener('click', jumpToProfile);
 
   $('#shopTabs')?.addEventListener('click', event => {
     const tab = event.target.closest('[data-shop-tab]');

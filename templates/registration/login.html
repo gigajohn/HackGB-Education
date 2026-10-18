@@ -7,16 +7,75 @@
 <h1>Log in</h1>
 <p class="auth-lede">Pick up where you left off.</p>
 
-{% if form.non_field_errors %}
-  <div class="auth-error">{{ form.non_field_errors }}</div>
+{% if messages %}
+  {% for message in messages %}
+    <p role="status">{{ message }}</p>
+  {% endfor %}
 {% endif %}
 
 <form class="auth-form" method="post" action="{% url 'login' %}">
   {% csrf_token %}
-  {{ form.as_p }}
-  <input type="hidden" name="next" value="{{ next }}">
-  <button class="btn btn-primary auth-submit" type="submit">Log in</button>
+
+  {% if form.non_field_errors %}
+    <div class="auth-error">
+      {{ form.non_field_errors }}
+    </div>
+  {% endif %}
+
+  <div class="auth-field">
+    <label for="{{ form.username.id_for_label }}">Username</label>
+    {{ form.username }}
+    {{ form.username.errors }}
+  </div>
+
+  <div class="auth-field">
+    <label for="{{ form.password.id_for_label }}">Password</label>
+    {{ form.password }}
+    {{ form.password.errors }}
+  </div>
+
+  <label>
+    <input type="checkbox" name="remember">
+    Remember me
+  </label>
+
+  <input type="hidden" name="next" value="{{ next|default:'' }}">
+
+  <button class="btn btn-primary auth-submit" type="submit">
+    Log in
+  </button>
 </form>
 
-<p class="auth-alt">New to the island? <a href="{% url 'page_signup' %}">Create an account</a></p>
+<p style="text-align:center; margin:24px 0 16px;">
+  Or continue with
+</p>
+
+<div style="display:grid; gap:12px;">
+  <form method="post" action="{% url 'oauth_start' 'google' %}">
+    {% csrf_token %}
+    <button
+      class="btn btn-ghost"
+      type="submit"
+      style="width:100%;"
+    >
+      Continue with Google
+    </button>
+  </form>
+
+  <form method="post" action="{% url 'oauth_start' 'microsoft' %}">
+    {% csrf_token %}
+    <button
+      class="btn btn-ghost"
+      type="submit"
+      style="width:100%;"
+    >
+      Continue with Microsoft
+    </button>
+  </form>
+</div>
+
+<p class="auth-alt">
+  New to SusorSafe?
+  <a href="{% url 'signup' %}">Create an account</a>
+</p>
 {% endblock %}
