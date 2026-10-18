@@ -1,0 +1,121 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <meta name="theme-color" content="#080b1c">
+  <title>{% block title %}Support SusorSafe{% endblock %}</title>
+  <meta name="description" content="Support SusorSafe with a monthly subscription or a one-time donation. The lessons stay free for everyone.">
+  <link rel="icon" href="{% static 'susorsafe/icons/favicon.png' %}" type="image/png" sizes="64x64">
+  <link rel="stylesheet" href="{% static 'susorsafe/fonts.css' %}">
+  <link rel="stylesheet" href="{% static 'susorsafe/styles.css' %}">
+  <link rel="stylesheet" href="{% static 'susorsafe/v2.css' %}">
+  <link rel="stylesheet" href="{% static 'susorsafe/support.css' %}">
+</head>
+<body class="support-body">
+  <header class="support-header">
+    <div class="wrap support-header-inner">
+      <a class="support-brand" href="{% url 'home' %}" aria-label="SusorSafe home">
+        <img src="{% static 'susorsafe/icons/logo-mark.png' %}" alt="">
+        <span>
+          <strong>SusorSafe</strong>
+          <small>SAFETY PLAYGROUND</small>
+        </span>
+      </a>
+
+      <nav class="support-nav" aria-label="Support navigation">
+        <a href="{% url 'home' %}">Home</a>
+        <a href="{% url 'home' %}#lessons">Lessons</a>
+        <a href="{% url 'support' %}">Support</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="support-main">
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer class="support-footer">
+    <div class="wrap support-footer-inner">
+      <p>SusorSafe is free to play. Support is optional and never unlocks a lesson.</p>
+      <div>
+        <a href="{% url 'subscribe' %}">Subscribe</a>
+        <a href="{% url 'donate' %}">Donate</a>
+        <a href="{% url 'home' %}">Back to the island</a>
+      </div>
+    </div>
+  </footer>
+
+  <div class="support-modal" id="supportModal" hidden>
+    <div class="support-modal-backdrop" data-modal-close></div>
+    <div class="support-modal-card" role="dialog" aria-modal="true" aria-labelledby="supportModalTitle">
+      <button class="support-modal-close" type="button" data-modal-close aria-label="Close">×</button>
+      <p class="kicker">Preview checkout</p>
+      <h2 id="supportModalTitle" data-modal-title>Support SusorSafe</h2>
+      <p data-modal-body>Payment checkout is not connected in this demo.</p>
+      <p class="support-modal-note">No payment is processed and no card details are collected. This page is a preview of the support flow.</p>
+      <div class="support-modal-actions">
+        <a class="btn btn-primary" href="https://github.com/gigajohn/HackGB-Education" target="_blank" rel="noopener">Open the project on GitHub</a>
+        <button class="btn btn-ghost" type="button" data-modal-close>Back</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (() => {
+      const modal = document.getElementById('supportModal');
+      if (!modal) return;
+      const title = modal.querySelector('[data-modal-title]');
+      const body = modal.querySelector('[data-modal-body]');
+      const closeBtn = modal.querySelector('.support-modal-close');
+      let lastFocus = null;
+
+      const open = (label) => {
+        lastFocus = document.activeElement;
+        title.textContent = label;
+        body.textContent = `You selected ${label}. Checkout is not connected in this demo, so nothing will be charged.`;
+        modal.hidden = false;
+        document.body.classList.add('support-modal-open');
+        closeBtn.focus();
+      };
+
+      const close = () => {
+        modal.hidden = true;
+        document.body.classList.remove('support-modal-open');
+        if (lastFocus) lastFocus.focus();
+      };
+
+      document.querySelectorAll('[data-support]').forEach((el) => {
+        el.addEventListener('click', (event) => {
+          event.preventDefault();
+          open(el.dataset.support);
+        });
+      });
+
+      const customBtn = document.getElementById('customDonate');
+      const customAmount = document.getElementById('customAmount');
+      if (customBtn && customAmount) {
+        customBtn.addEventListener('click', () => {
+          const value = Number(customAmount.value);
+          if (!value || value < 1) {
+            customAmount.focus();
+            customAmount.reportValidity?.();
+            return;
+          }
+          open(`One-time donation — $${value.toLocaleString()}`);
+        });
+      }
+
+      modal.querySelectorAll('[data-modal-close]').forEach((el) => {
+        el.addEventListener('click', close);
+      });
+
+      document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape' && !modal.hidden) close();
+      });
+    })();
+  </script>
+</body>
+</html>

@@ -26,15 +26,18 @@
   const MODE_INFO = {
     kid: {
       badge: 'Little Islander',
-      hint: "Hints use simpler comparisons, and there's no timer. Stuck? Grab a grown-up."
+      themeColor: '#fff8df',
+      hint: "Made for preschool through middle school. Younger kids can play with a grown-up; hints use simple comparisons, and there's no timer."
     },
     teen: {
       badge: 'Explorer',
-      hint: 'Scenarios stay close to the social, gaming and side-hustle messages you actually get. Judge first, then read the breakdown.'
+      themeColor: '#080b1c',
+      hint: 'Made for high school and college life, with social, gaming, job, housing and money scenarios. Judge first, then read the breakdown.'
     },
     adult: {
       badge: 'Island Keeper',
-      hint: 'Straight into fake support, fake investments and transfer traps. Every step has caught someone smart.'
+      themeColor: '#172321',
+      hint: 'Made for midlife through older adulthood, with calm, practical guidance on fake support, investments and transfer traps.'
     }
   };
 
@@ -45,9 +48,9 @@
   };
 
   const AGE_FOCUS = {
-    kid: { lessons: [1, 2, 4, 6], text: 'free game currency, strangers, sharing, passwords' },
-    teen: { lessons: [2, 3, 4, 6], text: 'account theft, pressure, fake sites, privacy' },
-    adult: { lessons: [2, 3, 5, 7], text: 'fake support, fake sites, 2FA, public Wi-Fi' }
+    kid: { lessons: [1, 2, 4, 6], text: 'pretend prizes, asking a grown-up, sharing, passwords' },
+    teen: { lessons: [2, 3, 4, 6], text: 'account theft, job and housing scams, fake sites, privacy' },
+    adult: { lessons: [2, 3, 5, 7], text: 'fake support, investment and transfer scams, 2FA, public Wi-Fi' }
   };
 
   const SCHOOL_TIPS = {
@@ -380,6 +383,7 @@
 
   function renderModeUI() {
     document.body.dataset.mode = state.mode;
+    $('#themeColor')?.setAttribute('content', MODE_INFO[state.mode].themeColor);
     $$('.mode-pill[data-mode]').forEach(btn => {
       const on = btn.dataset.mode === state.mode;
       btn.classList.toggle('is-active', on);
@@ -2130,17 +2134,6 @@
     }
 
     renderAll();
-
-    const soundBtn = $('#soundBtn');
-    updateSoundButton();
-
-    soundBtn.addEventListener('click', () => {
-      state.sound = !state.sound;
-      save();
-      updateSoundButton();
-      if (state.sound) playSound('click');
-      toast(state.sound ? 'Sound on' : 'Sound off');
-    });
 
     const lesson = Number(params.get('lesson'));
     if (lesson && LESSONS.some(item => item.id === lesson)) {

@@ -1,0 +1,41 @@
+{% extends "registration/auth_base.html" %}
+
+{% block title %}Sign up · SusorSafe{% endblock %}
+
+{% block content %}
+<p class="kicker">Join the island</p>
+<h1>Create an account</h1>
+<p class="auth-lede">A name, a password, and you're in. No email required.</p>
+
+{% if form.non_field_errors %}
+  <div class="auth-error">{{ form.non_field_errors }}</div>
+{% endif %}
+
+<form class="auth-form" method="post" action="{% url 'page_signup' %}">
+  {% csrf_token %}
+
+  <div class="auth-field">
+    <label for="{{ form.username.id_for_label }}">Username</label>
+    {{ form.username }}
+    {% if form.username.errors %}<div class="auth-error">{{ form.username.errors }}</div>{% endif %}
+    <p class="auth-hint">Letters, digits and @/./+/-/_ only.</p>
+  </div>
+
+  <div class="auth-field">
+    <label for="{{ form.password1.id_for_label }}">Password</label>
+    {{ form.password1 }}
+    {% if form.password1.errors %}<div class="auth-error">{{ form.password1.errors }}</div>{% endif %}
+    <p class="auth-hint">At least 8 characters. Not entirely numeric, and not a commonly used password.</p>
+  </div>
+
+  <div class="auth-field">
+    <label for="{{ form.password2.id_for_label }}">Confirm password</label>
+    {{ form.password2 }}
+    {% if form.password2.errors %}<div class="auth-error">{{ form.password2.errors }}</div>{% endif %}
+  </div>
+
+  <button class="btn btn-primary auth-submit" type="submit">Sign up</button>
+</form>
+
+<p class="auth-alt">Already have an account? <a href="{% url 'login' %}">Log in</a></p>
+{% endblock %}

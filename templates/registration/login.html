@@ -1,0 +1,22 @@
+{% extends "registration/auth_base.html" %}
+
+{% block title %}Log in · SusorSafe{% endblock %}
+
+{% block content %}
+<p class="kicker">Welcome back</p>
+<h1>Log in</h1>
+<p class="auth-lede">Pick up where you left off.</p>
+
+{% if form.non_field_errors %}
+  <div class="auth-error">{{ form.non_field_errors }}</div>
+{% endif %}
+
+<form class="auth-form" method="post" action="{% url 'login' %}">
+  {% csrf_token %}
+  {{ form.as_p }}
+  <input type="hidden" name="next" value="{{ next }}">
+  <button class="btn btn-primary auth-submit" type="submit">Log in</button>
+</form>
+
+<p class="auth-alt">New to the island? <a href="{% url 'page_signup' %}">Create an account</a></p>
+{% endblock %}

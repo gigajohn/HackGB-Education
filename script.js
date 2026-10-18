@@ -82,3 +82,19 @@ if (legalClose && legalDialog) {
     if (event.target === legalDialog) legalDialog.close();
   });
 }
+
+
+// Keep the header's Avatar Points balance in sync with the learning/game progress.
+(function updateHeaderPoints() {
+  const output = document.querySelector("#headerPoints");
+  if (!output) return;
+  const update = () => {
+    try {
+      const state = JSON.parse(localStorage.getItem("susSafePhishLearningV2") || "{}");
+      output.textContent = String(Number(state.points) || 0);
+    } catch { output.textContent = "0"; }
+  };
+  update();
+  window.addEventListener("storage", update);
+  window.addEventListener("pageshow", update);
+})();

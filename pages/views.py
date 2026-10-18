@@ -25,7 +25,7 @@ class LoginPageView(View):
 
         user = authenticate(request, username=username, password=password)
         if user is not None:
-            login(request, user)
+            login(request, user, backend="django.contrib.auth.backends.ModelBackend")
             if not remember:
                 request.session.set_expiry(0)
             messages.success(request, f"Welcome back, {user.get_username()}!")
@@ -60,13 +60,17 @@ class OAuthStartView(View):
                 'email': f"{demo_username}@susorsafe.example",
             }
         )
-        login(request, user)
+        login(request, user, backend="django.contrib.auth.backends.ModelBackend")
         messages.success(
             request,
             f"Successfully authenticated with {provider.capitalize()}! Welcome, {user.first_name}."
         )
         next_url = request.GET.get('next') or reverse('landing')
         return redirect(next_url)
+
+
+    def post(self, request, provider, *args, **kwargs):
+        return self.get(request, provider, *args, **kwargs)
 
 
 class LogoutView(View):

@@ -1,0 +1,202 @@
+{% extends "support/base.html" %}
+
+{% block title %}Plans · SusorSafe{% endblock %}
+
+{% block content %}
+
+<style>
+  .subscription-plans {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 24px;
+  }
+
+  .subscription-plans .plan-card {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+  }
+
+  .subscription-plans .plan-btn {
+    margin-top: auto;
+  }
+
+  @media (max-width: 900px) {
+    .subscription-plans {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+
+<section class="support-hero support-hero-compact wrap">
+  <a class="support-back" href="{% url 'support' %}">
+    ← All support options
+  </a>
+
+  <p class="kicker">Our plans</p>
+
+  <h1>Start free. <span class="hl">Keep learning.</span></h1>
+
+  <p class="support-lede">
+    Try Lessons 1–3 for free.
+    Choose a plan to unlock Lesson 4 and beyond.
+  </p>
+</section>
+
+<section
+  class="wrap plan-grid subscription-plans"
+  aria-label="Proposed subscription plans"
+>
+
+  <!-- INDIVIDUAL -->
+  <article class="plan-card">
+    <p class="plan-label">Individual</p>
+
+    <p class="plan-price">
+      $3.99<span>/month</span>
+    </p>
+
+    <p class="plan-desc">
+      Learn at your own pace.
+    </p>
+
+    <ul>
+      <li>1 learner</li>
+      <li>Access to all course lessons</li>
+      <li>Personal learning progress</li>
+      <li>Coins and avatar customization</li>
+    </ul>
+
+    <button
+      class="btn btn-primary plan-btn"
+      type="button"
+      data-support="Individual plan — $3.99/month"
+    >
+      Choose Individual
+    </button>
+  </article>
+
+  <!-- FAMILY -->
+  <article class="plan-card plan-card-featured">
+    <p class="plan-badge">For families</p>
+
+    <p class="plan-label">Family</p>
+
+    <p class="plan-price">
+      $7.99<span>/month</span>
+    </p>
+
+    <p class="plan-desc">
+      Build safer online habits together.
+    </p>
+
+    <ul>
+      <li>Up to 5 family members</li>
+      <li>Access to all course lessons</li>
+      <li>Individual learning progress</li>
+      <li>Family challenges and shared milestones</li>
+    </ul>
+
+    <button
+      class="btn btn-primary plan-btn"
+      type="button"
+      data-support="Family plan — $7.99/month"
+    >
+      Choose Family
+    </button>
+  </article>
+
+  <!-- ORGANIZATION -->
+  <article class="plan-card">
+    <p class="plan-label">Organization</p>
+
+    <p class="plan-price">
+      $49<span>/month</span>
+    </p>
+
+    <p class="plan-desc">
+      Online safety learning for your group.
+    </p>
+
+    <ul>
+      <li>Unlimited learners within one organization</li>
+      <li>Access to all course lessons</li>
+      <li>Group progress dashboard</li>
+      <li>Lesson assignments and completion tracking</li>
+    </ul>
+
+    <button
+      class="btn btn-primary plan-btn"
+      type="button"
+      data-support="Organization plan — $49/month"
+    >
+      Choose Organization
+    </button>
+  </article>
+
+</section>
+
+<p class="wrap support-demo">
+  <strong>Demo preview.</strong>
+  Prices, paid access and group features are proposed.
+  Selecting a plan does not activate a subscription.
+  Checkout is not connected, and no payment will be taken.
+</p>
+
+<section class="wrap support-faq">
+  <h2>Common questions</h2>
+
+  <details>
+    <summary>What can I try for free?</summary>
+    <p>
+      Our proposed free preview includes Lessons 1–3.
+      A paid plan would unlock Lesson 4 and all remaining
+      lessons in the course.
+    </p>
+  </details>
+
+  <details>
+    <summary>What does the Individual plan include?</summary>
+    <p>
+      The proposed Individual plan gives one learner access
+      to all course lessons, personal progress, coins
+      and avatar customization.
+    </p>
+  </details>
+
+  <details>
+    <summary>How many people can use the Family plan?</summary>
+    <p>
+      The proposed Family plan includes up to 5 family members,
+      each with their own progress, plus family challenges
+      and shared milestones.
+    </p>
+  </details>
+
+  <details>
+    <summary>What does unlimited mean for organizations?</summary>
+    <p>
+      The proposed Organization plan covers learners within
+      a single school, club or organization.
+      Separate organizations would need separate plans.
+    </p>
+  </details>
+
+  <details>
+    <summary>Can I subscribe now?</summary>
+    <p>
+      Not yet. This page previews our planned subscriptions.
+      Payments and paid access are not connected in this demo.
+    </p>
+  </details>
+
+  <details>
+    <summary>Does this page collect payment information?</summary>
+    <p>
+      No. This demo does not collect card details
+      or process payments.
+    </p>
+  </details>
+</section>
+
+{% endblock %}

@@ -1,5 +1,5 @@
-/* SusorSafe — Django service worker (served at /sw.js) */
-const CACHE = 'susorsafe-django-v1';
+﻿/* SusorSafe — Django service worker (served at /sw.js) */
+const CACHE = 'susorsafe-django-v5';
 const ASSETS = [
   '/',
   '/manifest.webmanifest',
@@ -10,7 +10,8 @@ const ASSETS = [
   '/static/susorsafe/app.js',
   '/static/susorsafe/fonts/plus-jakarta-sans.woff2',
   '/static/susorsafe/fonts/fredoka.woff2',
-  '/static/susorsafe/icons/favicon.svg',
+  '/static/susorsafe/icons/favicon.png',
+  '/static/susorsafe/icons/logo-mark.png',
   '/static/susorsafe/icons/icon-192.png',
   '/static/susorsafe/icons/icon-512.png',
   '/static/susorsafe/icons/apple-touch-icon.png'
