@@ -16,6 +16,12 @@ class LandingPageTests(TestCase):
             'pages/landing.html' in [t.name for t in response.templates]
         )
 
+    def test_home_page_describes_each_age_mode(self):
+        response = self.client.get(reverse('home'))
+        self.assertContains(response, 'Preschool–middle school')
+        self.assertContains(response, 'High school–college')
+        self.assertContains(response, 'Middle age–senior')
+
     def test_landing_page_contains_login_link(self):
         response = self.client.get(reverse('landing'))
         self.assertContains(response, reverse('login'))
@@ -55,4 +61,3 @@ class ProfileModelTests(TestCase):
         self.assertTrue(user.profile.explorer_id.startswith('usr_'))
         self.assertEqual(user.profile.coins, 0)
         self.assertEqual(user.profile.age_mode, 'kid')
-

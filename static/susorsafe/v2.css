@@ -793,6 +793,99 @@
 .auth-back{font-size:.72rem;color:var(--muted-2);text-decoration:none}
 .auth-back:hover{color:var(--ink)}
 .auth-error{padding:9px 11px;border-radius:8px;background:rgba(255,107,122,.09);border:1px solid rgba(255,107,122,.25);color:#ffd2d6;font-size:.72rem}
+
+/* Age-mode themes ------------------------------------------ */
+
+body[data-mode="kid"]{
+  --bg:#fff8df;
+  --bg-2:#fff1c7;
+  --panel:#fffdf5;
+  --panel-2:#fff4d8;
+  --line:rgba(39,54,83,.14);
+  --line-strong:rgba(39,54,83,.24);
+  --ink:#253451;
+  --muted:#4e607d;
+  --muted-2:#637492;
+  --lime:#ffd34f;
+  --mint:#007773;
+  --pink:#bd3679;
+  --amber:#bb6b00;
+  --violet:#7458d7;
+  --danger:#c43a52;
+  --shadow:0 24px 60px -24px rgba(57,65,88,.2);
+  color-scheme:light;
+  background:
+    radial-gradient(900px 500px at 82% -8%,rgba(0,169,166,.15),transparent 60%),
+    radial-gradient(800px 500px at 8% 4%,rgba(116,88,215,.13),transparent 62%),
+    radial-gradient(700px 460px at 50% 108%,rgba(233,86,154,.1),transparent 65%),
+    var(--bg);
+}
+
+body[data-mode="kid"]::before{
+  background-image:
+    linear-gradient(rgba(39,54,83,.045) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(39,54,83,.045) 1px,transparent 1px);
+}
+
+body[data-mode="kid"] .site-header{
+  background:rgba(255,248,223,.88);
+}
+
+body[data-mode="kid"] .eyebrow{
+  color:var(--ink);
+  border-color:rgba(0,119,115,.25);
+  background:rgba(0,119,115,.07);
+}
+
+body[data-mode="kid"] .hero h1 .hl{
+  color:#8a5b00;
+  text-shadow:none;
+}
+
+body[data-mode="kid"] .hl-soft{
+  background-image:linear-gradient(100deg,#8a5b00,var(--mint) 55%,#42628e);
+}
+
+body[data-mode="kid"] .route-age{
+  color:color-mix(in srgb,var(--r) 38%,#253451);
+}
+
+body[data-mode="kid"] .route-card li{
+  color:var(--muted);
+}
+
+body[data-mode="adult"]{
+  --bg:#172321;
+  --bg-2:#1d2c29;
+  --panel:#243531;
+  --panel-2:#2a3d38;
+  --line:rgba(231,238,225,.1);
+  --line-strong:rgba(231,238,225,.18);
+  --ink:#e6e9df;
+  --muted:#bdc7bb;
+  --muted-2:#9eac9f;
+  --lime:#c2cf9d;
+  --mint:#8fc4b1;
+  --pink:#d1a2aa;
+  --amber:#d5bd8d;
+  --violet:#aaa5c7;
+  --danger:#df9b9b;
+  --shadow:0 24px 60px -24px rgba(0,0,0,.42);
+  color-scheme:dark;
+  background:
+    radial-gradient(900px 500px at 82% -8%,rgba(143,196,177,.07),transparent 60%),
+    radial-gradient(800px 500px at 8% 4%,rgba(170,165,199,.06),transparent 62%),
+    radial-gradient(700px 460px at 50% 108%,rgba(209,162,170,.04),transparent 65%),
+    var(--bg);
+}
+
+body[data-mode="adult"] .site-header{
+  background:rgba(23,35,33,.88);
+}
+
+body[data-mode="adult"] .mode-switch{
+  background:rgba(231,238,225,.035);
+}
 .auth-field{display:grid;gap:6px}
 .auth-field label{font-size:.72rem;font-weight:700;color:var(--muted-2)}
 .auth-hint{margin:0;font-size:.62rem;line-height:1.5;color:var(--muted-2)}
