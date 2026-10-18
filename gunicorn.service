@@ -1,0 +1,21 @@
+[Unit]
+Description=Gunicorn daemon for HackGB-Education (SusOrSafe)
+After=network.target
+
+[Service]
+Type=notify
+User=django_user
+Group=django_user
+WorkingDirectory=/home/django_user/HackGB-Education
+Environment="PATH=/home/django_user/HackGB-Education/.venv/bin:/usr/local/bin:/usr/bin"
+ExecStart=/home/django_user/HackGB-Education/.venv/bin/gunicorn --workers 3 --bind 127.0.0.1:8000 core.wsgi:application
+ExecReload=/bin/kill -s HUP $MAINPID
+KillMode=mixed
+TimeoutStopSec=5
+PrivateTmp=true
+Restart=always
+RestartSec=3
+
+[Install]
+WantedBy=multi-user.target
+

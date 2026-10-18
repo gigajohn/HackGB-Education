@@ -1,0 +1,10 @@
+# Caddy configuration for SusOrSafe production deployment
+# Domains: susorsafe.courses and susorsafe.study
+
+susorsafe.courses, www.susorsafe.courses, susorsafe.study, www.susorsafe.study {
+	# Compress responses with gzip and zstd
+	encode gzip zstd
+
+	# Reverse proxy all application and static traffic to Django (Gunicorn + WhiteNoise)
+	reverse_proxy 127.0.0.1:8000
+}

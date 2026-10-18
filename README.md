@@ -1,31 +1,44 @@
 ### SusOrSafe
 
-* [www.susorsaf.courses](http://www.susorsaf.courses)
-* [www.susorsafe.study](http://www.susorsafe.study)
+* [www.susorsafe.courses](https://www.susorsafe.courses)
+* [www.susorsafe.study](https://www.susorsafe.study)
 
 
 ### 🚀 How to Run
 
-### 1. Create and Activate a Python Environment
-
-First, set up a virtual environment to isolate your project dependencies and install the required packages. 
-
-bash
-
-# Create the virtual environment
-python -m venv .venv
-
-# Activate the virtual environment (Windows)
-.\.venv\Scripts\activate
-
-# Install the required dependencies
+#### 1. Setup Virtual Environment
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
 pip install -r requirements.txt
+python manage.py migrate
+python manage.py collectstatic --noinput
+```
 
-
-### 2. Run the Server
-
-Once your environment is set up and active, start the development server using the command below: 
-
-bash
-
+#### 2. Local Development Server
+```bash
 python manage.py runserver
+```
+
+#### 3. Production Deployment
+
+1. **Start Gunicorn as a system service**:
+   ```bash
+   sudo cp gunicorn.service /etc/systemd/system/gunicorn.service
+   sudo systemctl daemon-reload
+   sudo systemctl enable --now gunicorn
+   ```
+
+2. **Configure and start Caddy**:
+   ```bash
+   sudo cp Caddyfile /etc/caddy/Caddyfile
+   sudo systemctl enable --now caddy
+   sudo systemctl reload caddy
+   ```
+
+3. **Open firewall ports (ports 80 and 443)**:
+   ```bash
+   sudo firewall-cmd --permanent --add-service=http --add-service=https
+   sudo firewall-cmd --reload
+   ```
+

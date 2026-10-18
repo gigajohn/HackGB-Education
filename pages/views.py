@@ -70,7 +70,20 @@ class OAuthStartView(View):
 
 
 class LogoutView(View):
+    def handle_logout(self, request):
+        if request.user.is_authenticated:
+            name = request.user.first_name or request.user.username
+            logout(request)
+            messages.success(request, f"You have been signed out. See you next time, {name}!")
+        else:
+            logout(request)
+            messages.info(request, "You have been signed out.")
+
+        next_url = request.POST.get('next') or request.GET.get('next') or '/'
+        return redirect(next_url)
+
+    def post(self, request, *args, **kwargs):
+        return self.handle_logout(request)
+
     def get(self, request, *args, **kwargs):
-        logout(request)
-        messages.info(request, "You have been signed out.")
-        return redirect('landing')
+        return self.handle_logout(request)
