@@ -1,0 +1,1549 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sus or Safe - Cybersecurity Learning App</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        bgLight: '#F8F5F0',
+                        surfaceCream: '#F0EDE7',
+                        textDark: '#1E293B',
+                        forestAccent: '#3A7852',
+                        forestDark: '#2C5E3F',
+                        forestLight: '#EAF3ED',
+                        amberSus: '#D97706',
+                        roseWarn: '#E11D48'
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Custom App Styling & Transitions */
+        body {
+            background-color: #F8F5F0;
+            color: #1E293B;
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            overflow-x: hidden;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #F0EDE7;
+            border-radius: 8px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #3A7852;
+            border-radius: 8px;
+        }
+
+        .card-shadow {
+            box-shadow: 0 4px 20px -2px rgba(30, 41, 59, 0.05), 0 2px 6px -1px rgba(30, 41, 59, 0.03);
+        }
+
+        .glow-accent {
+            box-shadow: 0 0 15px rgba(58, 120, 82, 0.25);
+        }
+
+        .badge-pulse {
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: .7; }
+        }
+
+        /* Glassmorphism elements */
+        .glass-panel {
+            background: rgba(240, 237, 231, 0.85);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.6);
+        }
+
+        /* Custom flip animation for vocab */
+        .perspective-1000 {
+            perspective: 1000px;
+        }
+        .transform-style-3d {
+            transform-style: preserve-3d;
+        }
+        .backface-hidden {
+            backface-visibility: hidden;
+        }
+        .rotate-y-180 {
+            transform: rotateY(180deg);
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between selection:bg-forestAccent selection:text-white">
+
+    <!-- TOP HEADER / NAVBAR -->
+    <header class="sticky top-0 z-30 bg-surfaceCream/90 backdrop-blur-md border-b border-stone-200/80 px-4 lg:px-8 py-3 transition-all duration-300">
+        <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-4">
+            
+            <!-- Logo & Brand -->
+            <div class="flex items-center space-x-3 cursor-pointer" onclick="navigateTo('lesson-0')">
+                <div class="w-10 h-10 rounded-xl bg-forestAccent text-white flex items-center justify-center font-bold text-xl shadow-md">
+                    <i class="fa-solid fa-shield-halved"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-extrabold tracking-tight text-textDark flex items-center gap-2">
+                        Sus or Safe <span id="age-track-badge" class="text-xs font-semibold px-2 py-0.5 rounded-full bg-forestLight text-forestAccent border border-forestAccent/20">Kids Mode</span>
+                    </h1>
+                    <p class="text-xs text-stone-5th text-stone-500 font-medium hidden sm:block">Interactive Cybersecurity Mastery</p>
+                </div>
+            </div>
+
+            <!-- Controls: Track Selector, Points & Avatar Shop -->
+            <div class="flex items-center space-x-3 sm:space-x-4">
+                
+                <!-- Age Group Track Selector -->
+                <div class="relative">
+                    <label for="track-select" class="sr-only">Select Age Track</label>
+                    <select id="track-select" onchange="changeAgeTrack(this.value)" class="bg-white border border-stone-300 text-stone-700 text-xs sm:text-sm rounded-xl focus:ring-forestAccent focus:border-forestAccent px-3 py-2 font-medium shadow-sm transition cursor-pointer">
+                        <option value="kids">Younger Kids (7-10)</option>
+                        <option value="teens">Teens (11-17)</option>
+                        <option value="adults">Adults (18+)</option>
+                    </select>
+                </div>
+
+                <!-- Points Balance Counter -->
+                <div class="flex items-center space-x-2 bg-white border border-stone-200 px-3 py-1.5 rounded-xl shadow-sm">
+                    <i class="fa-solid fa-coins text-amber-500 text-base"></i>
+                    <span id="user-points" class="font-extrabold text-stone-800 text-sm sm:text-base">100</span>
+                    <span class="text-xs text-stone-500 font-semibold hidden md:inline">PTS</span>
+                </div>
+
+                <!-- Avatar Shop Drawer Trigger -->
+                <button onclick="toggleAvatarShop()" class="flex items-center space-x-2 bg-forestAccent hover:bg-forestDark text-white px-3 sm:px-4 py-2 rounded-xl transition shadow-md font-semibold text-xs sm:text-sm">
+                    <div id="avatar-mini-preview" class="w-6 h-6 rounded-full bg-stone-100 text-forestAccent flex items-center justify-center font-bold text-xs">
+                        🧙‍♂️
+                    </div>
+                    <span>Avatar Shop</span>
+                </button>
+
+                <!-- Mobile Menu Button -->
+                <button onclick="toggleSidebarMobile()" class="lg:hidden text-stone-700 hover:text-forestAccent p-2 text-xl">
+                    <i class="fa-solid fa-bars"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN APP WRAPPER -->
+    <div class="max-w-7xl w-full mx-auto flex-1 flex flex-col lg:flex-row px-4 lg:px-8 py-6 gap-6">
+
+        <!-- SIDEBAR NAVIGATION -->
+        <aside id="sidebar-nav" class="fixed inset-y-0 left-0 z-40 w-72 bg-surfaceCream border-r border-stone-200 transform -translate-x-full lg:translate-x-0 lg:static lg:w-64 lg:border-r-0 lg:bg-transparent transition-transform duration-300 ease-in-out p-5 lg:p-0 flex flex-col justify-between overflow-y-auto custom-scrollbar">
+            <div>
+                <div class="flex items-center justify-between lg:hidden mb-6">
+                    <span class="font-bold text-stone-800 text-lg">Course Navigation</span>
+                    <button onclick="toggleSidebarMobile()" class="text-stone-500 text-xl"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+
+                <div class="text-xs font-bold text-stone-400 uppercase tracking-wider mb-3 px-2">Course Dashboard</div>
+                
+                <nav class="space-y-1.5" id="nav-item-container">
+                    <!-- Navigation dynamically populated by JS -->
+                </nav>
+            </div>
+
+            <!-- Progress Summary Card in Sidebar -->
+            <div class="mt-8 bg-white p-4 rounded-2xl border border-stone-200/80 card-shadow">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-xs font-bold text-stone-600">Course Progress</span>
+                    <span id="progress-percent" class="text-xs font-extrabold text-forestAccent">0%</span>
+                </div>
+                <div class="w-full bg-stone-100 h-2.5 rounded-full overflow-hidden">
+                    <div id="progress-bar-inner" class="bg-forestAccent h-full rounded-full transition-all duration-500" style="width: 0%;"></div>
+                </div>
+                <p id="progress-text" class="text-[11px] text-stone-500 mt-2 font-medium">0 of 9 Modules Completed</p>
+            </div>
+        </aside>
+
+        <!-- MAIN VIEW CONTENT AREA -->
+        <main class="flex-1 min-w-0">
+            <!-- Dynamic Page Container -->
+            <div id="page-content" class="bg-white rounded-3xl border border-stone-200/80 p-5 sm:p-8 card-shadow min-h-[600px] flex flex-col justify-between transition-all duration-300">
+                <!-- Content will be injected dynamically by JS -->
+            </div>
+        </main>
+    </div>
+
+    <!-- AVATAR SHOP MODAL / DRAWER -->
+    <div id="avatar-modal" class="fixed inset-0 z-50 bg-stone-900/60 backdrop-blur-sm flex items-center justify-center p-4 hidden opacity-0 transition-opacity duration-300">
+        <div class="bg-white w-full max-w-2xl rounded-3xl shadow-2xl border border-stone-200 overflow-hidden transform scale-95 transition-transform duration-300 flex flex-col max-h-[90vh]">
+            
+            <!-- Modal Header -->
+            <div class="bg-surfaceCream px-6 py-4 border-b border-stone-200 flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 rounded-xl bg-forestAccent text-white flex items-center justify-center font-bold text-lg">
+                        <i class="fa-solid fa-shirt"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-stone-800 text-lg">Avatar & Gear Shop</h3>
+                        <p class="text-xs text-stone-500">Spend earned points to customize your identity!</p>
+                    </div>
+                </div>
+                <button onclick="toggleAvatarShop()" class="w-8 h-8 rounded-full bg-stone-200/70 hover:bg-stone-300 flex items-center justify-center text-stone-600 transition">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <!-- Modal Body -->
+            <div class="p-6 overflow-y-auto custom-scrollbar flex-1 grid grid-cols-1 md:grid-cols-3 gap-6">
+                
+                <!-- Avatar Preview Column -->
+                <div class="md:col-span-1 bg-surfaceCream/60 rounded-2xl p-4 border border-stone-200 flex flex-col items-center justify-center text-center">
+                    <div class="text-xs font-bold text-stone-400 uppercase tracking-wider mb-2">Current Avatar</div>
+                    <div id="avatar-full-display" class="w-28 h-28 rounded-2xl bg-white border-2 border-forestAccent flex items-center justify-center text-6xl shadow-md my-2 relative">
+                        🧙‍♂️
+                        <span id="avatar-accessory-badge" class="absolute -top-2 -right-2 bg-amber-500 text-white text-xs px-2 py-0.5 rounded-full font-bold shadow-sm">
+                            ⭐
+                        </span>
+                    </div>
+                    <h4 id="avatar-title-display" class="font-extrabold text-stone-800 text-base mt-1">Cyber Wizard</h4>
+                    <p id="avatar-gear-desc" class="text-xs text-stone-500 mt-0.5">Equipped: Wizard Hat</p>
+                    
+                    <div class="mt-4 w-full bg-white p-2.5 rounded-xl border border-stone-200 flex items-center justify-around">
+                        <span class="text-xs font-bold text-stone-600">Points Balance:</span>
+                        <span class="text-sm font-black text-amber-600 flex items-center gap-1">
+                            <i class="fa-solid fa-coins"></i> <span id="shop-points-display">100</span>
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Items Catalog Column -->
+                <div class="md:col-span-2 space-y-4">
+                    <div class="text-xs font-bold text-stone-400 uppercase tracking-wider">Available Items</div>
+                    <div id="shop-items-grid" class="grid grid-cols-2 gap-3">
+                        <!-- Items rendered via JS -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modal Footer -->
+            <div class="bg-stone-50 px-6 py-3 border-t border-stone-200 flex justify-end">
+                <button onclick="toggleAvatarShop()" class="bg-stone-800 hover:bg-stone-900 text-white px-5 py-2 rounded-xl text-sm font-semibold transition">
+                    Done
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- NOTIFICATION TOAST -->
+    <div id="toast-container" class="fixed bottom-5 right-5 z-50 pointer-events-none space-y-2"></div>
+
+    <!-- FOOTER -->
+    <footer class="bg-surfaceCream border-t border-stone-200 py-4 px-4 text-center text-xs text-stone-500">
+        <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2">
+            <p><strong>Sus or Safe</strong> &copy; 2026 Cybersecurity Education Hub. Built for all ages.</p>
+            <p class="text-stone-400">Privacy First &bull; No External Data Trackers</p>
+        </div>
+    </footer>
+
+    <!-- MAIN JAVASCRIPT APP LOGIC -->
+    <script>
+        /* ==========================================================================
+           STATE MANAGEMENT & APP CONSTANTS
+           ========================================================================== */
+        
+        // App State
+        let state = {
+            currentTrack: 'kids', // 'kids' | 'teens' | 'adults'
+            currentPageId: 'lesson-0',
+            points: 100,
+            completedLessons: ['lesson-0'], // Lesson 0 unlocked & complete by default
+            equippedAvatar: 'wizard',
+            inventory: ['wizard'],
+            safeWord: 'Pancake' // Default safe word for AI lesson
+        };
+
+        // Avatar Items Catalogue
+        const SHOP_ITEMS = [
+            { id: 'wizard', name: 'Cyber Wizard', emoji: '🧙‍♂️', cost: 0, desc: 'Master of defensive spells.' },
+            { id: 'ninja', name: 'Stealth Ninja', emoji: '🥷', cost: 150, desc: 'Undetectable on public networks.' },
+            { id: 'robot', name: 'AI Sentinel', emoji: '🤖', cost: 250, desc: 'Detects deepfakes instantly.' },
+            { id: 'detective', name: 'Sus Detective', emoji: '🕵️‍♂️', cost: 350, desc: 'Spouts phishing instantly.' },
+            { id: 'dragon', name: 'Firewall Dragon', emoji: '🐉', cost: 500, desc: 'Ultimate security guardian.' }
+        ];
+
+        // Lesson Definitions & Age-Tailored Content
+        const LESSON_DATA = {
+            'lesson-0': {
+                id: 'lesson-0',
+                title: 'Lesson 0: Welcome & Orientation',
+                shortTitle: '0. Welcome & Overview',
+                icon: 'fa-compass',
+                kids: {
+                    heading: 'Welcome to Sus or Safe! 🛡️',
+                    body: 'Hey Cyber Explorer! The internet is an amazing playground full of games, videos, and fun friends. But just like in real life, there are tricks and traps you need to know about! In this app, you will learn how to spot things that are **"Sus"** (suspicious) and keep your real self **"Safe"**.',
+                    rule1: '1. Finish a lesson to unlock fun mini-games!',
+                    rule2: '2. Win points to dress up your Avatar in cool gear.',
+                    rule3: '3. Master cybersecurity skills to protect yourself online!'
+                },
+                teens: {
+                    heading: 'Welcome to the Grid 🎮',
+                    body: 'Social media, online gaming, and digital comms are daily essentials. But scammers and threat actors use sneaky tactics to steal passwords, accounts, and money. **Sus or Safe** gives you real-world defensive skills to spot malicious tactics before they wreck your digital footprint.',
+                    rule1: '1. Read through modules and master key terminology.',
+                    rule2: '2. Complete modules to unlock targeted tactical challenges.',
+                    rule3: '3. Earn points to upgrade your profile badges & avatars.'
+                },
+                adults: {
+                    heading: 'Cybersecurity Orientation 🔒',
+                    body: 'Digital security can often feel overwhelming with complex jargon and constant news of data breaches. This platform translates essential digital hygiene—from identity theft prevention to public Wi-Fi safety—into quick, actionable modules designed for daily life.',
+                    rule1: '1. Complete brief, practical core lessons.',
+                    rule2: '2. Validate your knowledge through interactive simulations.',
+                    rule3: '3. Track your progress across key online safety categories.'
+                },
+                vocab: [
+                    { word: 'Sus', def: 'Short for "Suspicious." Something that feels off, fake, or unsafe online.' },
+                    { word: 'Safe', def: 'Secure, verified, and free from online dangers or scams.' },
+                    { word: 'Avatar', def: 'Your digital character that represents you inside this app.' }
+                ]
+            },
+            'lesson-1': {
+                id: 'lesson-1',
+                title: 'Lesson 1: Cyber Attacks (Phishing & Malware)',
+                shortTitle: '1. Cyber Attacks & Traps',
+                icon: 'fa-bug',
+                kids: {
+                    heading: 'Spotting Online Traps! 🪤',
+                    body: 'Imagine someone offering free candy if you open a mysterious door. Online scammers do the same thing! They send fake emails or place giant flashing "DOWNLOAD FREE GAME" buttons on websites. These tricks are called **Phishing** (fake messages) and **Malware** (bad software viruses).',
+                    tip: 'Rule of thumb: Never click giant flashing green download signs or links from people you don\'t know!'
+                },
+                teens: {
+                    heading: 'Phishing, Smishing & Ransomware 🚨',
+                    body: 'Scammers frequently clone real emails (like Discord or Steam notices) or text you fake package tracking links (**Smishing**). They try to steal login tokens or infect your system with **Ransomware**—malicious code that locks all your files until you pay money.',
+                    tip: 'Pro Tip: Always check the sender\'s email domain carefully (e.g. support@paypaI-security.net vs. paypal.com).'
+                },
+                adults: {
+                    heading: 'Recognizing Malicious Digital Vectors 🛡️',
+                    body: 'Social engineering attacks frequently manifest through email (**Phishing**), text messages (**Smishing**), and malicious downloads (**Malware**). **Ransomware** poses a severe risk by encrypting personal databases or financial documents and demanding payment.',
+                    tip: 'Standard Practice: Hover over links before clicking to review URL domains and never disclose passwords via message.'
+                },
+                vocab: [
+                    { word: 'Phishing', def: 'Fake emails designed to trick you into revealing personal info or passwords.' },
+                    { word: 'Smishing', def: 'Phishing scams sent specifically through SMS or text messages.' },
+                    { word: 'Malware', def: 'Harmful software disguised as fun games or files designed to damage your device.' },
+                    { word: 'Ransomware', def: 'Malicious software that locks your computer files until a ransom is paid.' }
+                ]
+            },
+            'lesson-2': {
+                id: 'lesson-2',
+                title: 'Lesson 2: Social Engineering & Urgency',
+                shortTitle: '2. Social Engineering',
+                icon: 'fa-masks-theater',
+                kids: {
+                    heading: 'Don\'t Let Scammers Rush You! ⏱️',
+                    body: 'Have you ever seen a popup that screams: *"YOU WON A FREE IPAD! CLICK IN 10 SECONDS OR IT\'S GONE!"*? That\'s a trick! Bad guys use urgency to make you panic or get excited so you don\'t pause to think. Always **Take 5** and ask an adult!',
+                    tip: 'Remember: Real rewards don\'t threaten you or make you hurry in panic!'
+                },
+                teens: {
+                    heading: 'Manipulative Urgency Tactics 🎭',
+                    body: '**Social Engineering** is psychological manipulation. Threat actors try to trigger fear or excitement ("Your account will be deleted in 1 hour!" or "You won $500 gift card!"). They count on you acting on emotion before analyzing the link.',
+                    tip: 'Always "Take 5": Pause, verify through a separate app, and check for official notifications.'
+                },
+                adults: {
+                    heading: 'Psychological Manipulation & Social Engineering 🧠',
+                    body: 'Attackers bypass technological safeguards by exploiting human psychology. They construct scenarios involving fake legal threats, fake banking holds, or urgent family emergencies demanding immediate wire transfers or gift cards.',
+                    tip: 'Actionable Advice: Legitimate institutions will never require immediate non-standard payment methods under threat.'
+                },
+                vocab: [
+                    { word: 'Social Engineering', def: 'Tricking people into giving away secret information by manipulating their feelings.' },
+                    { word: 'Urgency Tactic', def: 'Creating fake panic (like countdown timers) so you make mistakes without thinking.' },
+                    { word: 'Take 5', def: 'Pausing for 5 minutes to calm down and verify a strange message before clicking.' }
+                ]
+            },
+            'lesson-3': {
+                id: 'lesson-3',
+                title: 'Lesson 3: Passwords & Passphrases',
+                shortTitle: '3. Strong Passwords',
+                icon: 'fa-key',
+                kids: {
+                    heading: 'Creating Unbreakable Passwords! 🔑',
+                    body: 'Using simple passwords like "123456" or "doggy" is like leaving your front door unlocked! Instead of one short word, use a **Passphrase**—combine 3 or 4 random things you see around your room like `Blue-Pillow-Pizza-77!`',
+                    tip: 'Fun Trick: Look around your room right now! Pick 3 objects to build a super password!'
+                },
+                teens: {
+                    heading: 'Password Entropy & Passphrase Mechanics 🔐',
+                    body: 'Hacker bots can guess 8-character passwords in seconds using automated tools. To protect your accounts, use long **Passphrases** (15+ characters) with numbers and symbols, or use a **Password Manager** vault.',
+                    tip: 'Never reuse the same password across gaming, school, and email accounts.'
+                },
+                adults: {
+                    heading: 'Credential Security & Vault Management 🗝️',
+                    body: 'Short, predictable passwords containing birthdays or family names are vulnerable to dictionary attacks. Adopting randomized passphrases or employing a reputable Password Manager ensures unique, complex credentials across all online services.',
+                    tip: 'Best Practice: Length beats complexity alone. A 4-random-word passphrase is extremely resilient.'
+                },
+                vocab: [
+                    { word: 'Password', def: 'A secret phrase used to lock and safeguard your personal online accounts.' },
+                    { word: 'Passphrase', def: 'A long password made of multiple random words put together (e.g., Taco-Rocket-Guitar-99!).' },
+                    { word: 'Password Manager', def: 'A secure app that remembers all your complex passwords for you.' }
+                ]
+            },
+            'lesson-4': {
+                id: 'lesson-4',
+                title: 'Lesson 4: Two-Factor Authentication (2FA)',
+                shortTitle: '4. Two-Factor (2FA)',
+                icon: 'fa-mobile-screen-button',
+                kids: {
+                    heading: 'Double Lock Your Secrets! 🔐🔒',
+                    body: 'Imagine your bedroom door has a keyhole, BUT it also requires a secret high-five from your phone to open! That is **Two-Factor Authentication (2FA)**. Even if someone guesses your password, they can\'t get in without your phone!',
+                    tip: 'Ask a parent or guardian to help you turn on 2FA on your main accounts!'
+                },
+                teens: {
+                    heading: 'Multi-Factor Defense Systems 📱',
+                    body: 'Even strong passwords get leaked in database breaches. **2FA** adds a critical second barrier (like a code sent to your phone or an Authenticator App). Without that second code, hackers are blocked cold.',
+                    tip: 'Use an Authenticator App (Google/Microsoft) instead of SMS codes whenever possible.'
+                },
+                adults: {
+                    heading: 'Implementing Multi-Factor Authentication (MFA) ⚙️',
+                    body: 'MFA provides vital secondary verification. When credentials are compromised in dark web leaks, MFA prevents unauthorized login attempts by requiring a hardware key, biometric scan, or time-based one-time password (TOTP).',
+                    tip: 'Priority: Enable 2FA/MFA on primary email accounts, banking portals, and social media.'
+                },
+                vocab: [
+                    { word: '2FA / MFA', def: 'Two-Factor Authentication: Extra security requiring a second step (like a phone code) to log in.' },
+                    { word: 'Verification Code', def: 'A temporary 6-digit code sent to your trusted device to confirm your identity.' }
+                ]
+            },
+            'lesson-5': {
+                id: 'lesson-5',
+                title: 'Lesson 5: Keeping Things Private',
+                shortTitle: '5. Privacy & Footprint',
+                icon: 'fa-user-shield',
+                kids: {
+                    heading: 'The Billboard Rule! 🪧',
+                    body: 'Before posting something online, ask yourself: *"Would I put this picture or secret on a giant billboard on the highway for everyone to see?"* Never post your real name, address, school, or phone number online!',
+                    tip: 'If someone you don\'t know asks for your full name or address, practice saying NO!'
+                },
+                teens: {
+                    heading: 'Managing Your Digital Footprint 👣',
+                    body: 'Photos often contain hidden clues—like your school uniform logo, street signs outside your bedroom window, or geotagged coordinates. Keep personal info offline and lock down social accounts to "Friends Only."',
+                    tip: 'Check your app permissions and disable location sharing for non-essential applications.'
+                },
+                adults: {
+                    heading: 'Personally Identifiable Information (PII) Protection 🕶️',
+                    body: 'Over-sharing personal details (full birthdate, mother\'s maiden name, pet names) provides threat actors with answers to account recovery security questions. Regularly audit privacy settings across social platforms.',
+                    tip: 'Action: Restrict public profiles to "Friends Only" to safeguard against identity theft.'
+                },
+                vocab: [
+                    { word: 'PII', def: 'Personally Identifiable Information: Secret details like home address, SSN, or full name.' },
+                    { word: 'Digital Footprint', def: 'The permanent trail of pictures, comments, and info you leave behind on the web.' },
+                    { word: 'Privacy Settings', def: 'Controls in apps that let you choose who can view your posts and photos.' }
+                ]
+            },
+            'lesson-6': {
+                id: 'lesson-6',
+                title: 'Lesson 6: Wi-Fi Safety & VPNs',
+                shortTitle: '6. Public Wi-Fi & VPNs',
+                icon: 'fa-wifi',
+                kids: {
+                    heading: 'Beware of Public Wi-Fi! 📶',
+                    body: 'Connecting to free Wi-Fi at a park or coffee shop is like talking loudly in a crowded room—snoopers can eavesdrop! Never type passwords or private info while connected to open public Wi-Fi unless you use a **VPN**!',
+                    tip: 'Turn off "Auto-Connect to Wi-Fi" on your tablet or phone when away from home.'
+                },
+                teens: {
+                    heading: 'Unencrypted Hotspots & VPN Defense 🛡️',
+                    body: 'Open Wi-Fi networks in cafes or airports lack encryption. Anyone on the same network can inspect unencrypted traffic (Man-in-the-Middle attacks). A **VPN** (Virtual Private Network) scrambles your connection into a secure tunnel.',
+                    tip: 'Never log into banking or personal email on public Wi-Fi without an active VPN.'
+                },
+                adults: {
+                    heading: 'Network Security & Public Infrastructure Risk 🌐',
+                    body: 'Unsecured public Wi-Fi networks present high interception risks. Attackers often deploy rogue access points ("Evil Twins") named after local venues. Utilizing an encrypted VPN tunnel mitigates packet sniffing and credential theft.',
+                    tip: 'Protocol: Disable automatic network connections and activate VPN auto-connect protocols.'
+                },
+                vocab: [
+                    { word: 'Public Wi-Fi', def: 'Open wireless internet networks in public places with no password encryption.' },
+                    { word: 'VPN', def: 'Virtual Private Network: A secure tool that encrypts your internet connection.' },
+                    { word: 'Encryption', def: 'Scrambling secret data so only authorized receivers can read it.' }
+                ]
+            },
+            'lesson-7': {
+                id: 'lesson-7',
+                title: 'Lesson 7: AI & Deepfakes',
+                shortTitle: '7. AI & Deepfakes',
+                icon: 'fa-robot',
+                kids: {
+                    heading: 'Family Safe Words vs. AI Clones! 🤖🗣️',
+                    body: 'Did you know computers can now fake someone\'s voice or face? This is called a **Deepfake**. If a strange phone call says a family member is in trouble, don\'t panic! Ask them for your secret **Family Safe Word**!',
+                    tip: 'Pick a fun safe word with your family (like "Pancake") and NEVER write it online!'
+                },
+                teens: {
+                    heading: 'Synthetic Media & Voice Cloning Threats 🎙️',
+                    body: 'AI tools can clone a person\'s voice using just 5 seconds of audio from social media videos. Scammers use synthetic media to impersonate friends or relatives begging for urgent emergency cash.',
+                    tip: 'Establish a secret family verification code word that is never stored digitally.'
+                },
+                adults: {
+                    heading: 'Evaluating Synthetic Media & Voice Mimicry 🔬',
+                    body: 'AI-generated video and audio deepfakes represent a sophisticated social engineering escalation. Perpetrators simulate voice profiles of relatives claiming medical or legal emergencies to extort immediate funds.',
+                    tip: 'Defense: Establish an out-of-band verification protocol and non-digital family code word.'
+                },
+                vocab: [
+                    { word: 'Deepfake', def: 'Realistic fake video or audio created by AI to impersonate a real person.' },
+                    { word: 'Code Word / Safe Word', def: 'A secret word shared ONLY with family to verify someone is really who they claim to be.' },
+                    { word: 'Voice Cloning', def: 'Using AI software to copy how someone speaks from audio snippets.' }
+                ]
+            },
+            'lesson-8': {
+                id: 'lesson-8',
+                title: 'Lesson 8: Emergency Recovery',
+                shortTitle: '8. Emergency Steps',
+                icon: 'fa-kit-medical',
+                kids: {
+                    heading: 'Made a Mistake? Don\'t Panic! 🆘',
+                    body: 'If you clicked a bad link or downloaded something sus by accident, don\'t hide it! Everyone makes mistakes. Follow 3 quick steps right away: **1) Unplug Wi-Fi**, **2) Tell an Adult**, **3) Change Passwords**!',
+                    tip: 'Being brave and telling an adult quickly stops bad software before it hurts your computer!'
+                },
+                teens: {
+                    heading: 'Incident Response Protocol 🚨',
+                    body: 'If you fall for a scam or malware download: speed is everything! Immediately sever network access to isolate the device, notify a trusted guardian/admin, and reset compromised account credentials from a clean device.',
+                    tip: 'Containment Action: Turn on Airplane mode or pull the ethernet cable instantly.'
+                },
+                adults: {
+                    heading: 'Post-Compromise Containment & Mitigation 🛠️',
+                    body: 'Prompt containment minimizes damage following a security breach. Disconnect affected hardware from network routing, report the incident, change compromised credentials, and review financial statement logs for unauthorized charges.',
+                    tip: 'Remediation Sequence: Isolate network -> Contact financial institutions -> Change credentials.'
+                },
+                vocab: [
+                    { word: 'Incident Response', def: 'The emergency steps you take immediately after realizing you were hacked.' },
+                    { word: 'Quarantine / Disconnect', def: 'Cutting off Wi-Fi or internet connection to stop malware from spreading.' }
+                ]
+            }
+        };
+
+        /* ==========================================================================
+           CORE NAVIGATION & RENDERING ENGINE
+           ========================================================================== */
+
+        // Initialize App
+        window.onload = function() {
+            renderSidebarNav();
+            navigateTo('lesson-0');
+            updatePointsDisplay();
+            renderShopItems();
+        };
+
+        // Switch Age Track
+        function changeAgeTrack(newTrack) {
+            state.currentTrack = newTrack;
+            const badge = document.getElementById('age-track-badge');
+            
+            if (newTrack === 'kids') badge.innerText = 'Kids Mode (7-10)';
+            else if (newTrack === 'teens') badge.innerText = 'Teen Mode (11-17)';
+            else badge.innerText = 'Adult Mode (18+)';
+
+            showToast(`Switched to ${badge.innerText}`, 'info');
+            navigateTo(state.currentPageId); // Re-render current page with new track phrasing
+        }
+
+        // Toggle Sidebar Mobile
+        function toggleSidebarMobile() {
+            const sidebar = document.getElementById('sidebar-nav');
+            sidebar.classList.toggle('-translate-x-full');
+        }
+
+        // Render Sidebar Navigation Items
+        function renderSidebarNav() {
+            const container = document.getElementById('nav-item-container');
+            container.innerHTML = '';
+
+            // 1. Render Lessons
+            Object.keys(LESSON_DATA).forEach(lessonId => {
+                const lesson = LESSON_DATA[lessonId];
+                const isCompleted = state.completedLessons.includes(lessonId);
+                const isActive = state.currentPageId === lessonId;
+
+                const btn = document.createElement('button');
+                btn.onclick = () => {
+                    navigateTo(lessonId);
+                    if (window.innerWidth < 1024) toggleSidebarMobile();
+                };
+
+                btn.className = `w-full flex items-center justify-between px-3 py-2.5 rounded-xl font-medium text-xs sm:text-sm transition-all duration-200 ${
+                    isActive 
+                        ? 'bg-forestAccent text-white shadow-sm font-semibold' 
+                        : 'text-stone-700 hover:bg-stone-200/60'
+                }`;
+
+                btn.innerHTML = `
+                    <div class="flex items-center space-x-3 truncate">
+                        <i class="fa-solid ${lesson.icon} ${isActive ? 'text-white' : 'text-stone-500'} w-4 text-center"></i>
+                        <span class="truncate">${lesson.shortTitle}</span>
+                    </div>
+                    ${isCompleted ? `<i class="fa-solid fa-circle-check ${isActive ? 'text-white' : 'text-forestAccent'} text-xs"></i>` : ''}
+                `;
+                container.appendChild(btn);
+            });
+
+            // 2. Render All Games Hub Link
+            const isGamesActive = state.currentPageId === 'games-hub';
+            const gamesBtn = document.createElement('button');
+            gamesBtn.onclick = () => {
+                navigateTo('games-hub');
+                if (window.innerWidth < 1024) toggleSidebarMobile();
+            };
+            gamesBtn.className = `w-full flex items-center justify-between px-3 py-2.5 rounded-xl font-medium text-xs sm:text-sm transition-all duration-200 mt-3 border border-stone-300/80 ${
+                isGamesActive 
+                    ? 'bg-amber-600 text-white shadow-sm font-semibold' 
+                    : 'bg-white text-stone-800 hover:bg-stone-100'
+            }`;
+            gamesBtn.innerHTML = `
+                <div class="flex items-center space-x-3">
+                    <i class="fa-solid fa-gamepad ${isGamesActive ? 'text-white' : 'text-amber-600'} text-base"></i>
+                    <span class="font-bold">🎮 All Games Hub</span>
+                </div>
+                <span class="text-[10px] bg-amber-100 text-amber-800 font-bold px-2 py-0.5 rounded-full">Mini-Games</span>
+            `;
+            container.appendChild(gamesBtn);
+
+            // Update Progress Bar
+            updateProgressBar();
+        }
+
+        // Update Course Progress
+        function updateProgressBar() {
+            const totalLessons = Object.keys(LESSON_DATA).length;
+            const completedCount = state.completedLessons.length;
+            const percentage = Math.round((completedCount / totalLessons) * 100);
+
+            document.getElementById('progress-percent').innerText = `${percentage}%`;
+            document.getElementById('progress-bar-inner').style.width = `${percentage}%`;
+            document.getElementById('progress-text').innerText = `${completedCount} of ${totalLessons} Modules Completed`;
+        }
+
+        // Main Router Function
+        function navigateTo(pageId) {
+            state.currentPageId = pageId;
+            renderSidebarNav();
+
+            const contentArea = document.getElementById('page-content');
+            contentArea.style.opacity = '0';
+
+            setTimeout(() => {
+                if (pageId === 'games-hub') {
+                    renderGamesHub(contentArea);
+                } else if (pageId.startsWith('game-play-')) {
+                    const lessonKey = pageId.replace('game-play-', '');
+                    renderGameView(contentArea, lessonKey);
+                } else {
+                    renderLessonPage(contentArea, pageId);
+                }
+                contentArea.style.opacity = '1';
+            }, 150);
+
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        /* ==========================================================================
+           LESSON PAGE RENDERER
+           ========================================================================== */
+
+        function renderLessonPage(container, lessonId) {
+            const lesson = LESSON_DATA[lessonId];
+            const track = state.currentTrack;
+            const trackContent = lesson[track];
+            const isCompleted = state.completedLessons.includes(lessonId);
+
+            let vocabCardsHtml = lesson.vocab.map((v, idx) => `
+                <div class="perspective-1000 h-28 cursor-pointer" onclick="flipCard(this)">
+                    <div class="relative w-full h-full transform-style-3d transition-transform duration-500 rounded-2xl shadow-sm border border-stone-200">
+                        <!-- Front -->
+                        <div class="absolute inset-0 backface-hidden bg-surfaceCream p-4 rounded-2xl flex flex-col justify-between items-center text-center">
+                            <span class="text-[10px] font-bold uppercase text-stone-400 tracking-wider">Tap to Reveal Vocab</span>
+                            <span class="font-extrabold text-stone-800 text-base sm:text-lg">${v.word}</span>
+                            <i class="fa-solid fa-rotate text-stone-400 text-xs"></i>
+                        </div>
+                        <!-- Back -->
+                        <div class="absolute inset-0 backface-hidden rotate-y-180 bg-forestAccent text-white p-3 rounded-2xl flex items-center justify-center text-center text-xs sm:text-sm font-medium">
+                            ${v.def}
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+
+            container.innerHTML = `
+                <div>
+                    <!-- Header Banner -->
+                    <div class="flex flex-wrap items-center justify-between gap-3 border-b border-stone-200 pb-4 mb-6">
+                        <div>
+                            <span class="text-xs font-bold text-stone-400 uppercase tracking-wider">${lesson.title}</span>
+                            <h2 class="text-2xl sm:text-3xl font-black text-stone-800 tracking-tight mt-1">${trackContent.heading}</h2>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            ${isCompleted 
+                                ? `<span class="bg-forestLight text-forestAccent border border-forestAccent/30 text-xs font-extrabold px-3 py-1.5 rounded-xl flex items-center gap-1.5"><i class="fa-solid fa-circle-check"></i> Lesson Complete</span>`
+                                : `<span class="bg-amber-50 text-amber-700 border border-amber-200 text-xs font-bold px-3 py-1.5 rounded-xl flex items-center gap-1.5"><i class="fa-solid fa-lock"></i> In Progress</span>`
+                            }
+                        </div>
+                    </div>
+
+                    <!-- Lesson Body Content -->
+                    <div class="prose max-w-none text-stone-700 space-y-4 mb-8">
+                        <p class="text-base sm:text-lg leading-relaxed font-normal">${trackContent.body}</p>
+                        
+                        ${trackContent.rule1 ? `
+                            <div class="bg-surfaceCream/80 p-4 rounded-2xl border border-stone-200 space-y-2 text-sm font-medium my-4">
+                                <div class="text-xs font-bold text-stone-500 uppercase">Quick Rules</div>
+                                <div>${trackContent.rule1}</div>
+                                <div>${trackContent.rule2}</div>
+                                <div>${trackContent.rule3}</div>
+                            </div>
+                        ` : ''}
+
+                        ${trackContent.tip ? `
+                            <div class="bg-forestLight/60 border-l-4 border-forestAccent p-4 rounded-r-2xl text-stone-800 text-xs sm:text-sm font-medium flex items-start gap-3">
+                                <i class="fa-solid fa-lightbulb text-forestAccent text-lg mt-0.5"></i>
+                                <div><strong>Pro Tip:</strong> ${trackContent.tip}</div>
+                            </div>
+                        ` : ''}
+                    </div>
+
+                    <!-- Interactive Vocabulary Cards Section -->
+                    <div class="mb-8">
+                        <h3 class="text-sm font-extrabold text-stone-800 uppercase tracking-wider mb-3 flex items-center gap-2">
+                            <i class="fa-solid fa-book-bookmark text-forestAccent"></i> Key Vocabulary Flashcards (Tap to Flip)
+                        </h3>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                            ${vocabCardsHtml}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Footer Call To Action & Progression Bar -->
+                <div class="pt-6 border-t border-stone-200 flex flex-col sm:flex-row items-center justify-between gap-4">
+                    <div class="text-xs text-stone-500">
+                        ${isCompleted 
+                            ? '<span class="text-forestAccent font-bold"><i class="fa-solid fa-check"></i> You have unlocked the mini-game for this module!</span>'
+                            : '<span>Finish reading and click below to complete module & unlock game.</span>'
+                        }
+                    </div>
+
+                    <div class="flex items-center space-x-3 w-full sm:w-auto">
+                        ${!isCompleted ? `
+                            <button onclick="completeLesson('${lessonId}')" class="w-full sm:w-auto bg-forestAccent hover:bg-forestDark text-white px-6 py-3 rounded-xl font-extrabold text-sm shadow-md transition flex items-center justify-center gap-2">
+                                <i class="fa-solid fa-check-double"></i> Complete & Get +50 PTS
+                            </button>
+                        ` : `
+                            <button onclick="navigateTo('game-play-${lessonId}')" class="flex-1 sm:flex-none bg-amber-600 hover:bg-amber-700 text-white px-5 py-3 rounded-xl font-bold text-xs sm:text-sm shadow-md transition flex items-center justify-center gap-2">
+                                <i class="fa-solid fa-gamepad"></i> Play Lesson Game
+                            </button>
+                            ${getNextLessonId(lessonId) ? `
+                                <button onclick="navigateTo('${getNextLessonId(lessonId)}')" class="flex-1 sm:flex-none bg-stone-800 hover:bg-stone-900 text-white px-5 py-3 rounded-xl font-bold text-xs sm:text-sm shadow-md transition flex items-center justify-center gap-2">
+                                    Next Lesson <i class="fa-solid fa-arrow-right"></i>
+                                </button>
+                            ` : ''}
+                        `}
+                    </div>
+                </div>
+            `;
+        }
+
+        // Card Flip Function for Vocab
+        function flipCard(cardEl) {
+            const inner = cardEl.querySelector('.transform-style-3d');
+            inner.classList.toggle('rotate-y-180');
+        }
+
+        // Complete Lesson Action
+        function completeLesson(lessonId) {
+            if (!state.completedLessons.includes(lessonId)) {
+                state.completedLessons.push(lessonId);
+                addPoints(50);
+                showToast('Lesson Completed! +50 Points Earned! 🪙', 'success');
+                renderSidebarNav();
+            }
+            
+            // Re-render current lesson with unlocked choices
+            navigateTo(lessonId);
+        }
+
+        function getNextLessonId(currentId) {
+            const keys = Object.keys(LESSON_DATA);
+            const idx = keys.indexOf(currentId);
+            if (idx >= 0 && idx < keys.length - 1) {
+                return keys[idx + 1];
+            }
+            return null;
+        }
+
+        /* ==========================================================================
+           ALL GAMES HUB RENDERER
+           ========================================================================== */
+
+        function renderGamesHub(container) {
+            const keys = Object.keys(LESSON_DATA);
+            
+            let gameCardsHtml = keys.map(lessonId => {
+                const lesson = LESSON_DATA[lessonId];
+                const isUnlocked = state.completedLessons.includes(lessonId);
+
+                if (lessonId === 'lesson-4') {
+                    // Lesson 4 is setup walkthrough, not arcade mini-game
+                    return `
+                        <div class="bg-surfaceCream/50 border border-stone-200 rounded-2xl p-5 flex flex-col justify-between">
+                            <div>
+                                <div class="flex items-center justify-between mb-3">
+                                    <span class="text-xs font-bold text-stone-400 uppercase">${lesson.shortTitle}</span>
+                                    <span class="text-xs bg-stone-200 text-stone-600 px-2 py-0.5 rounded-md font-bold">Guided Setup</span>
+                                </div>
+                                <h4 class="font-extrabold text-stone-800 text-base mb-1">Interactive 2FA Walkthrough</h4>
+                                <p class="text-xs text-stone-500">Step-by-step 2FA setup guide for iOS, Android, Google, and Microsoft accounts.</p>
+                            </div>
+                            <button onclick="navigateTo('lesson-4')" class="mt-4 w-full bg-stone-200 hover:bg-stone-300 text-stone-700 py-2 rounded-xl text-xs font-bold transition">
+                                Open Walkthrough
+                            </button>
+                        </div>
+                    `;
+                }
+
+                return `
+                    <div class="relative bg-white border border-stone-200 rounded-2xl p-5 card-shadow flex flex-col justify-between overflow-hidden">
+                        <div>
+                            <div class="flex items-center justify-between mb-3">
+                                <span class="text-xs font-bold text-stone-400 uppercase">${lesson.shortTitle}</span>
+                                ${isUnlocked 
+                                    ? `<span class="text-xs bg-forestLight text-forestAccent font-extrabold px-2.5 py-0.5 rounded-full border border-forestAccent/20">Unlocked</span>`
+                                    : `<span class="text-xs bg-stone-100 text-stone-500 font-bold px-2 py-0.5 rounded-full"><i class="fa-solid fa-lock text-[10px]"></i> Locked</span>`
+                                }
+                            </div>
+                            <h4 class="font-extrabold text-stone-800 text-base mb-1">Mini-Game: ${lesson.shortTitle.replace(/^\d+\.\s*/, '')}</h4>
+                            <p class="text-xs text-stone-500">Test your skills, earn bonus points, and protect your identity in this interactive challenge.</p>
+                        </div>
+
+                        ${isUnlocked ? `
+                            <button onclick="navigateTo('game-play-${lessonId}')" class="mt-4 w-full bg-amber-600 hover:bg-amber-700 text-white py-2.5 rounded-xl text-xs font-extrabold shadow-sm transition flex items-center justify-center gap-2">
+                                <i class="fa-solid fa-play"></i> Launch Game
+                            </button>
+                        ` : `
+                            <div class="mt-4 w-full bg-stone-100 border border-stone-200 text-stone-400 py-2.5 rounded-xl text-xs font-bold text-center flex items-center justify-center gap-2">
+                                <i class="fa-solid fa-lock"></i> Complete ${lesson.shortTitle} First
+                            </div>
+                        `}
+                    </div>
+                `;
+            }).join('');
+
+            container.innerHTML = `
+                <div>
+                    <div class="border-b border-stone-200 pb-4 mb-6">
+                        <span class="text-xs font-bold text-stone-400 uppercase tracking-wider">Arcade Hub</span>
+                        <h2 class="text-2xl sm:text-3xl font-black text-stone-800 tracking-tight mt-1">🎮 All Cybersecurity Mini-Games</h2>
+                        <p class="text-xs sm:text-sm text-stone-500 mt-1">Finish lesson modules to unlock corresponding mini-games. Win rounds to rack up Avatar points!</p>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                        ${gameCardsHtml}
+                    </div>
+                </div>
+            `;
+        }
+
+        /* ==========================================================================
+           MINI-GAMES ENGINE (LESSONS 1 TO 8)
+           ========================================================================== */
+
+        function renderGameView(container, lessonId) {
+            container.innerHTML = `<div id="game-canvas-inner" class="w-full"></div>`;
+            const inner = document.getElementById('game-canvas-inner');
+
+            switch(lessonId) {
+                case 'lesson-1': renderGameLesson1(inner); break;
+                case 'lesson-2': renderGameLesson2(inner); break;
+                case 'lesson-3': renderGameLesson3(inner); break;
+                case 'lesson-4': navigateTo('lesson-4'); break;
+                case 'lesson-5': renderGameLesson5(inner); break;
+                case 'lesson-6': renderGameLesson6(inner); break;
+                case 'lesson-7': renderGameLesson7(inner); break;
+                case 'lesson-8': renderGameLesson8(inner); break;
+                default: navigateTo('games-hub');
+            }
+        }
+
+        // --- GAME 1: Cyber Attack Spotter ---
+        function renderGameLesson1(container) {
+            let score = 0;
+            let currentRound = 1;
+
+            const rounds = [
+                {
+                    title: 'Round 1: Phishing Email Check',
+                    instructions: 'Review these two incoming emails. Select the SUS / Malicious email!',
+                    optionA: { sender: 'support@netflix.com', subject: 'Your Monthly Receipt', text: 'Thank you for your payment. View receipt online.', isSus: false },
+                    optionB: { sender: 'security-alert@netfIix-update-pay.com', subject: 'ACCOUNT SUSPENDED IMMEDIATELY!', text: 'Click here immediately or your account will be deleted forever!', isSus: true }
+                },
+                {
+                    title: 'Round 2: Smishing SMS Check',
+                    instructions: 'Which text message is a malicious Smishing scam?',
+                    optionA: { sender: '+1-800-BANK', subject: 'SMS Alert', text: 'Security Code: 492019. Do not share this code with anyone.', isSus: false },
+                    optionB: { sender: '+1-555-9821', subject: 'Delivery Alert', text: 'USPS: Package on hold! Pay $1.99 fee at usps-claim-now.org to release.', isSus: true }
+                },
+                {
+                    title: 'Round 3: Flashing Download Website Check',
+                    instructions: 'Is this flashing website banner SUS or SAFE?',
+                    isWebsiteCheck: true,
+                    webTitle: 'FREE GAME MODS & COINS!',
+                    webSub: '⚡ FLASHING CLICK HERE TO DOWNLOAD NOW ⚡',
+                    isSus: true
+                },
+                {
+                    title: 'Round 4: Ransomware Scenario',
+                    instructions: 'A popup locks your screen demanding $500 in gift cards! What should you do?',
+                    isScenario: true,
+                    choices: [
+                        { text: 'Pay the $500 immediately to get files back', correct: false, note: 'Incorrect! Scammers will take money and lock more files.' },
+                        { text: 'Disconnect Wi-Fi immediately & tell parent / IT admin', correct: true, note: 'Correct! Disconnecting stops malware spread and experts can help recover.' }
+                    ]
+                }
+            ];
+
+            function loadRound(rIdx) {
+                const rData = rounds[rIdx];
+                if (!rData) {
+                    // Completed Game
+                    addPoints(score * 25);
+                    container.innerHTML = `
+                        <div class="text-center py-8 space-y-4">
+                            <div class="text-5xl">🏆</div>
+                            <h3 class="text-2xl font-black text-stone-800">Game 1 Completed!</h3>
+                            <p class="text-stone-600 font-medium">You scored ${score} out of ${rounds.length}!</p>
+                            <div class="text-amber-600 font-extrabold text-lg">+${score * 25} PTS Earned!</div>
+                            <div class="flex justify-center space-x-3 pt-4">
+                                <button onclick="navigateTo('games-hub')" class="bg-stone-800 text-white px-5 py-2.5 rounded-xl font-bold text-sm">Return to Hub</button>
+                                <button onclick="navigateTo('lesson-2')" class="bg-forestAccent text-white px-5 py-2.5 rounded-xl font-bold text-sm">Next Lesson <i class="fa-solid fa-arrow-right"></i></button>
+                            </div>
+                        </div>
+                    `;
+                    return;
+                }
+
+                let gameHtml = `
+                    <div>
+                        <div class="flex items-center justify-between border-b border-stone-200 pb-3 mb-4">
+                            <span class="text-xs font-bold text-stone-400 uppercase">Game 1: Cyber Attacks (${rIdx + 1}/${rounds.length})</span>
+                            <span class="text-xs font-extrabold text-amber-600">Score: ${score}</span>
+                        </div>
+                        <h3 class="font-extrabold text-stone-800 text-lg mb-1">${rData.title}</h3>
+                        <p class="text-xs text-stone-500 mb-6">${rData.instructions}</p>
+                `;
+
+                if (rData.isWebsiteCheck) {
+                    gameHtml += `
+                        <div class="bg-amber-100 border-2 border-dashed border-amber-500 rounded-2xl p-6 text-center mb-6 badge-pulse">
+                            <div class="text-xs font-black text-roseWarn uppercase tracking-widest mb-2">🚨 HIGH SUSPECT WEBSITE 🚨</div>
+                            <h4 class="text-2xl font-black text-stone-900">${rData.webTitle}</h4>
+                            <p class="text-sm font-bold text-stone-700 mt-2">${rData.webSub}</p>
+                            <button class="mt-4 bg-roseWarn text-white font-extrabold px-6 py-2 rounded-full text-xs shadow-lg animate-bounce">
+                                ⬇️ DOWNLOAD ALL NOW (FREE.EXE)
+                            </button>
+                        </div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <button onclick="checkRoundAnswer(true, ${rData.isSus}, ${rIdx})" class="bg-roseWarn hover:bg-rose-700 text-white font-bold py-3 rounded-xl text-sm transition">🚨 SUS (Malicious)</button>
+                            <button onclick="checkRoundAnswer(false, ${rData.isSus}, ${rIdx})" class="bg-forestAccent hover:bg-forestDark text-white font-bold py-3 rounded-xl text-sm transition">✅ SAFE</button>
+                        </div>
+                    `;
+                } else if (rData.isScenario) {
+                    gameHtml += `
+                        <div class="space-y-3 mb-6">
+                            ${rData.choices.map((c, i) => `
+                                <button onclick="checkScenarioChoice(${c.correct}, '${c.note}', ${rIdx})" class="w-full text-left p-4 rounded-xl border border-stone-200 hover:border-forestAccent hover:bg-forestLight/40 transition font-medium text-xs sm:text-sm text-stone-800">
+                                    ${c.text}
+                                </button>
+                            `).join('')}
+                        </div>
+                    `;
+                } else {
+                    gameHtml += `
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                            <!-- Option A -->
+                            <div onclick="checkRoundAnswer(true, ${rData.optionA.isSus}, ${rIdx})" class="p-4 border-2 border-stone-200 hover:border-forestAccent rounded-2xl cursor-pointer transition bg-surfaceCream/40 flex flex-col justify-between space-y-2">
+                                <div class="text-[11px] font-bold text-stone-400 uppercase">Message A</div>
+                                <div>
+                                    <div class="text-xs font-bold text-stone-800">From: ${rData.optionA.sender}</div>
+                                    <div class="text-xs font-semibold text-stone-600">Sub: ${rData.optionA.subject}</div>
+                                    <p class="text-xs text-stone-500 mt-2 italic">"${rData.optionA.text}"</p>
+                                </div>
+                                <div class="text-center pt-2">
+                                    <span class="text-xs bg-stone-800 text-white px-3 py-1 rounded-lg font-bold">Select Message A</span>
+                                </div>
+                            </div>
+
+                            <!-- Option B -->
+                            <div onclick="checkRoundAnswer(true, ${rData.optionB.isSus}, ${rIdx})" class="p-4 border-2 border-stone-200 hover:border-forestAccent rounded-2xl cursor-pointer transition bg-surfaceCream/40 flex flex-col justify-between space-y-2">
+                                <div class="text-[11px] font-bold text-stone-400 uppercase">Message B</div>
+                                <div>
+                                    <div class="text-xs font-bold text-stone-800">From: ${rData.optionB.sender}</div>
+                                    <div class="text-xs font-semibold text-stone-600">Sub: ${rData.optionB.subject}</div>
+                                    <p class="text-xs text-stone-500 mt-2 italic">"${rData.optionB.text}"</p>
+                                </div>
+                                <div class="text-center pt-2">
+                                    <span class="text-xs bg-stone-800 text-white px-3 py-1 rounded-lg font-bold">Select Message B</span>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }
+
+                gameHtml += `</div>`;
+                container.innerHTML = gameHtml;
+            }
+
+            window.checkRoundAnswer = function(userPickedSus, actualIsSus, rIdx) {
+                if (userPickedSus === actualIsSus) {
+                    score++;
+                    showToast('Correct! Great cyber eye! 🎯', 'success');
+                } else {
+                    showToast('Oops! That was sneaky scam text.', 'error');
+                }
+                loadRound(rIdx + 1);
+            };
+
+            window.checkScenarioChoice = function(isCorrect, note, rIdx) {
+                if (isCorrect) {
+                    score++;
+                    showToast('Correct Protocol! 🚨', 'success');
+                } else {
+                    showToast(note, 'error');
+                }
+                loadRound(rIdx + 1);
+            };
+
+            loadRound(0);
+        }
+
+        // --- GAME 2: Social Engineering "Sus or Safe" ---
+        function renderGameLesson2(container) {
+            let score = 0;
+            const prompts = [
+                { text: 'SMS: "YOU WON A FREE $500 GIFT CARD! CLICK LINK IN 2 MINS TO CLAIM!"', isSus: true },
+                { text: 'POPUP: "CRITICAL SYSTEM THREAT DETECTED! PAY $50 TO CLEAR VIRUS NOW!"', isSus: true },
+                { text: 'TEXT FROM MOM: "Hey honey, can you pick up milk on your way home?"', isSus: false }
+            ];
+            let current = 0;
+
+            function renderPrompt() {
+                if (current >= prompts.length) {
+                    addPoints(score * 25);
+                    container.innerHTML = `
+                        <div class="text-center py-8 space-y-4">
+                            <div class="text-5xl">🎭</div>
+                            <h3 class="text-2xl font-black text-stone-800">Game 2 Completed!</h3>
+                            <p class="text-stone-600">You scored ${score} out of ${prompts.length}!</p>
+                            <div class="flex justify-center space-x-3 pt-4">
+                                <button onclick="navigateTo('games-hub')" class="bg-stone-800 text-white px-5 py-2.5 rounded-xl font-bold text-sm">Return to Hub</button>
+                                <button onclick="navigateTo('lesson-3')" class="bg-forestAccent text-white px-5 py-2.5 rounded-xl font-bold text-sm">Next Lesson <i class="fa-solid fa-arrow-right"></i></button>
+                            </div>
+                        </div>
+                    `;
+                    return;
+                }
+
+                const item = prompts[current];
+                container.innerHTML = `
+                    <div class="space-y-6">
+                        <div class="flex justify-between items-center border-b border-stone-200 pb-3">
+                            <span class="text-xs font-bold text-stone-400 uppercase">Game 2: Urgency Check (${current + 1}/${prompts.length})</span>
+                            <span class="text-xs font-extrabold text-amber-600">Score: ${score}</span>
+                        </div>
+                        
+                        <div class="bg-surfaceCream p-8 rounded-3xl border border-stone-300 text-center shadow-inner">
+                            <div class="text-xs font-bold text-stone-400 uppercase tracking-widest mb-3">Incoming Notification</div>
+                            <div class="text-lg sm:text-xl font-black text-stone-800 italic">"${item.text}"</div>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4">
+                            <button onclick="answerGame2(true)" class="bg-roseWarn hover:bg-rose-700 text-white font-extrabold py-4 rounded-2xl text-base transition shadow-md">
+                                🚨 SUS (Trap)
+                            </button>
+                            <button onclick="answerGame2(false)" class="bg-forestAccent hover:bg-forestDark text-white font-extrabold py-4 rounded-2xl text-base transition shadow-md">
+                                ✅ SAFE
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }
+
+            window.answerGame2 = function(userPickedSus) {
+                if (userPickedSus === prompts[current].isSus) {
+                    score++;
+                    showToast('Spot on! You defeated the urgency trap! 🛡️', 'success');
+                } else {
+                    showToast('Oops! That was a social engineering trick.', 'error');
+                }
+                current++;
+                renderPrompt();
+            };
+
+            renderPrompt();
+        }
+
+        // --- GAME 3: Passphrase Builder ---
+        function renderGameLesson3(container) {
+            let selectedObjects = [];
+            const objectOptions = ['Pizza', 'Rocket', 'Guitar', 'Dragon', 'Monkey', 'Skateboard', 'Pancake', 'Taco'];
+
+            function renderBuilder() {
+                container.innerHTML = `
+                    <div class="space-y-6">
+                        <div class="border-b border-stone-200 pb-3">
+                            <span class="text-xs font-bold text-stone-400 uppercase">Game 3: Passphrase Builder</span>
+                            <h3 class="text-xl font-extrabold text-stone-800 mt-1">Pick 4 Random Objects to Forge an Unbreakable Passphrase!</h3>
+                        </div>
+
+                        <div class="bg-surfaceCream p-6 rounded-2xl border border-stone-300 text-center">
+                            <div class="text-xs font-bold text-stone-400 uppercase tracking-wider mb-2">Your Passphrase Preview</div>
+                            <div id="passphrase-preview" class="text-xl font-mono font-black text-forestAccent bg-white py-3 px-4 rounded-xl border border-stone-200 inline-block min-w-[280px]">
+                                ${selectedObjects.length > 0 ? selectedObjects.join('-') + '-77!' : 'Select items below...'}
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                            ${objectOptions.map(obj => `
+                                <button onclick="toggleObject('${obj}')" class="p-3 rounded-xl font-bold text-xs border transition ${
+                                    selectedObjects.includes(obj) 
+                                        ? 'bg-forestAccent text-white border-forestAccent shadow-sm' 
+                                        : 'bg-white text-stone-700 border-stone-200 hover:border-stone-400'
+                                }">
+                                    ${obj}
+                                </button>
+                            `).join('')}
+                        </div>
+
+                        <div class="flex justify-between items-center pt-4 border-t border-stone-200">
+                            <button onclick="selectedObjects=[]; renderBuilder();" class="text-xs text-stone-500 hover:text-stone-800 font-bold">Reset</button>
+                            <button onclick="submitPassphrase()" class="bg-forestAccent hover:bg-forestDark text-white px-6 py-2.5 rounded-xl font-extrabold text-xs shadow-md transition">
+                                Test Strength & Submit
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }
+
+            window.toggleObject = function(obj) {
+                if (selectedObjects.includes(obj)) {
+                    selectedObjects = selectedObjects.filter(x => x !== obj);
+                } else if (selectedObjects.length < 4) {
+                    selectedObjects.push(obj);
+                } else {
+                    showToast('Pick exactly 4 items!', 'info');
+                }
+                renderBuilder();
+            };
+
+            window.submitPassphrase = function() {
+                if (selectedObjects.length < 4) {
+                    showToast('Please select 4 objects to finish passphrase!', 'error');
+                    return;
+                }
+                addPoints(75);
+                showToast('Strong Passphrase Created! +75 PTS! 🗝️', 'success');
+                container.innerHTML = `
+                    <div class="text-center py-8 space-y-4">
+                        <div class="text-5xl">🔐</div>
+                        <h3 class="text-2xl font-black text-stone-800">Unbreakable Passphrase Created!</h3>
+                        <p class="text-stone-600 font-mono text-lg font-bold">${selectedObjects.join('-')}-77!</p>
+                        <p class="text-xs text-stone-500">This passphrase would take a supercomputer 50,000 years to crack!</p>
+                        <div class="flex justify-center space-x-3 pt-4">
+                            <button onclick="navigateTo('games-hub')" class="bg-stone-800 text-white px-5 py-2.5 rounded-xl font-bold text-sm">Return to Hub</button>
+                            <button onclick="navigateTo('lesson-4')" class="bg-forestAccent text-white px-5 py-2.5 rounded-xl font-bold text-sm">Next Lesson <i class="fa-solid fa-arrow-right"></i></button>
+                        </div>
+                    </div>
+                `;
+            };
+
+            renderBuilder();
+        }
+
+        // --- GAME 5: Privacy Matrix (Share or Keep Private) ---
+        function renderGameLesson5(container) {
+            const items = [
+                { title: 'Photo of your Face', safe: false },
+                { title: 'Photo of your Pet Cat', safe: true },
+                { title: 'Your Full Home Address', safe: false },
+                { title: 'A photo of a plain white bedroom wall', safe: true },
+                { title: 'Your School Name & Schedule', safe: false },
+                { title: 'What food you ate for breakfast', safe: true }
+            ];
+            let current = 0;
+            let score = 0;
+
+            function renderCard() {
+                if (current >= items.length) {
+                    addPoints(score * 20);
+                    container.innerHTML = `
+                        <div class="text-center py-8 space-y-4">
+                            <div class="text-5xl">🪧</div>
+                            <h3 class="text-2xl font-black text-stone-800">Privacy Master Challenge Done!</h3>
+                            <p class="text-stone-600">You scored ${score} out of ${items.length}!</p>
+                            <div class="flex justify-center space-x-3 pt-4">
+                                <button onclick="navigateTo('games-hub')" class="bg-stone-800 text-white px-5 py-2.5 rounded-xl font-bold text-sm">Return to Hub</button>
+                                <button onclick="navigateTo('lesson-6')" class="bg-forestAccent text-white px-5 py-2.5 rounded-xl font-bold text-sm">Next Lesson <i class="fa-solid fa-arrow-right"></i></button>
+                            </div>
+                        </div>
+                    `;
+                    return;
+                }
+
+                const item = items[current];
+                container.innerHTML = `
+                    <div class="space-y-6">
+                        <div class="flex justify-between items-center border-b border-stone-200 pb-3">
+                            <span class="text-xs font-bold text-stone-400 uppercase">Game 5: Share or Keep Private (${current + 1}/${items.length})</span>
+                            <span class="text-xs font-extrabold text-amber-600">Score: ${score}</span>
+                        </div>
+
+                        <div class="bg-surfaceCream/80 p-8 rounded-3xl border border-stone-300 text-center">
+                            <div class="text-xs font-bold text-stone-400 uppercase tracking-widest mb-2">Item to Evaluate</div>
+                            <div class="text-2xl font-black text-stone-800">${item.title}</div>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4">
+                            <button onclick="answerPrivacy(true)" class="bg-forestAccent hover:bg-forestDark text-white font-extrabold py-4 rounded-2xl text-sm transition">
+                                ✅ Safe to Share
+                            </button>
+                            <button onclick="answerPrivacy(false)" class="bg-roseWarn hover:bg-rose-700 text-white font-extrabold py-4 rounded-2xl text-sm transition">
+                                🛑 Keep Private!
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }
+
+            window.answerPrivacy = function(userPickedSafe) {
+                if (userPickedSafe === items[current].safe) {
+                    score++;
+                    showToast('Correct Privacy Decision! 🛡️', 'success');
+                } else {
+                    showToast('Incorrect. Remember the Billboard Rule!', 'error');
+                }
+                current++;
+                renderCard();
+            };
+
+            renderCard();
+        }
+
+        // --- GAME 6: VPN Sequence Order ---
+        function renderGameLesson6(container) {
+            let steps = [
+                '1. Turn off Auto-Connect to public Wi-Fi',
+                '2. Open your trusted VPN app',
+                '3. Activate encrypted VPN tunnel',
+                '4. Safely access sensitive info'
+            ];
+            // Shuffle
+            let currentOrder = [...steps].sort(() => Math.random() - 0.5);
+
+            function renderSeq() {
+                container.innerHTML = `
+                    <div class="space-y-6">
+                        <div class="border-b border-stone-200 pb-3">
+                            <span class="text-xs font-bold text-stone-400 uppercase">Game 6: Public Wi-Fi Protocol</span>
+                            <h3 class="text-lg font-extrabold text-stone-800 mt-1">Tap steps in the correct order to connect securely!</h3>
+                        </div>
+
+                        <div class="space-y-2">
+                            ${currentOrder.map((st, i) => `
+                                <div class="bg-surfaceCream p-4 rounded-xl border border-stone-200 flex items-center justify-between">
+                                    <span class="font-bold text-stone-800 text-sm">${st}</span>
+                                    <div class="space-x-1">
+                                        <button onclick="moveStep(${i}, -1)" class="bg-white border px-2 py-1 rounded text-xs font-bold"><i class="fa-solid fa-arrow-up"></i></button>
+                                        <button onclick="moveStep(${i}, 1)" class="bg-white border px-2 py-1 rounded text-xs font-bold"><i class="fa-solid fa-arrow-down"></i></button>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+
+                        <button onclick="checkSequence()" class="w-full bg-forestAccent hover:bg-forestDark text-white py-3 rounded-xl font-extrabold text-sm shadow-md transition">
+                            Verify Sequence
+                        </button>
+                    </div>
+                `;
+            }
+
+            window.moveStep = function(idx, dir) {
+                const target = idx + dir;
+                if (target >= 0 && target < currentOrder.length) {
+                    const temp = currentOrder[idx];
+                    currentOrder[idx] = currentOrder[target];
+                    currentOrder[target] = temp;
+                    renderSeq();
+                }
+            };
+
+            window.checkSequence = function() {
+                const isCorrect = currentOrder.every((val, i) => val === steps[i]);
+                if (isCorrect) {
+                    addPoints(100);
+                    showToast('Perfect VPN Protocol! +100 PTS 📶', 'success');
+                    container.innerHTML = `
+                        <div class="text-center py-8 space-y-4">
+                            <div class="text-5xl">📶</div>
+                            <h3 class="text-2xl font-black text-stone-800">Connection Encrypted!</h3>
+                            <p class="text-stone-600">You successfully ordered the public Wi-Fi protocol!</p>
+                            <div class="flex justify-center space-x-3 pt-4">
+                                <button onclick="navigateTo('games-hub')" class="bg-stone-800 text-white px-5 py-2.5 rounded-xl font-bold text-sm">Return to Hub</button>
+                                <button onclick="navigateTo('lesson-7')" class="bg-forestAccent text-white px-5 py-2.5 rounded-xl font-bold text-sm">Next Lesson <i class="fa-solid fa-arrow-right"></i></button>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    showToast('Incorrect sequence. Try ordering steps 1 to 4!', 'error');
+                }
+            };
+
+            renderSeq();
+        }
+
+        // --- GAME 7: AI & Deepfake Simulator ---
+        function renderGameLesson7(container) {
+            let callerIdx = 0;
+            let score = 0;
+
+            const callers = [
+                { caller: 'Unknown Number (+1-555-0192)', text: 'Hey, I am in big trouble! Send $200 right now!', codeWordGiven: 'Banana', isDeepfake: true },
+                { caller: 'Uncle Jim (Voice Call)', text: 'Hey buddy! Mom asked me to check on you. By the way, safe word is Pancake!', codeWordGiven: 'Pancake', isDeepfake: false },
+                { caller: 'Unknown Video Call', text: 'It\'s your cousin! I lost my wallet. Transmit funds fast!', codeWordGiven: 'None', isDeepfake: true }
+            ];
+
+            function renderCaller() {
+                if (callerIdx >= callers.length) {
+                    addPoints(score * 30);
+                    container.innerHTML = `
+                        <div class="text-center py-8 space-y-4">
+                            <div class="text-5xl">🤖</div>
+                            <h3 class="text-2xl font-black text-stone-800">Deepfake Detector Done!</h3>
+                            <p class="text-stone-600">You detected ${score} out of ${callers.length} correctly!</p>
+                            <div class="flex justify-center space-x-3 pt-4">
+                                <button onclick="navigateTo('games-hub')" class="bg-stone-800 text-white px-5 py-2.5 rounded-xl font-bold text-sm">Return to Hub</button>
+                                <button onclick="navigateTo('lesson-8')" class="bg-forestAccent text-white px-5 py-2.5 rounded-xl font-bold text-sm">Next Lesson <i class="fa-solid fa-arrow-right"></i></button>
+                            </div>
+                        </div>
+                    `;
+                    return;
+                }
+
+                const c = callers[callerIdx];
+                container.innerHTML = `
+                    <div class="space-y-6">
+                        <div class="flex justify-between items-center border-b border-stone-200 pb-3">
+                            <span class="text-xs font-bold text-stone-400 uppercase">Game 7: Deepfake Caller Test (${callerIdx + 1}/${callers.length})</span>
+                            <span class="text-xs font-bold text-forestAccent">Your Secret Safe Word: "${state.safeWord}"</span>
+                        </div>
+
+                        <div class="bg-stone-900 text-white p-6 rounded-3xl text-center shadow-xl space-y-3">
+                            <div class="text-xs font-bold text-stone-400 uppercase">Incoming Call...</div>
+                            <div class="text-xl font-extrabold text-amber-400">${c.caller}</div>
+                            <div class="p-4 bg-stone-800 rounded-2xl text-xs sm:text-sm italic text-stone-200">
+                                "${c.text}"
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4">
+                            <button onclick="answerDeepfake(true)" class="bg-roseWarn hover:bg-rose-700 text-white font-extrabold py-4 rounded-2xl text-xs sm:text-sm transition">
+                                🚨 AI DEEPFAKE ALERT!
+                            </button>
+                            <button onclick="answerDeepfake(false)" class="bg-forestAccent hover:bg-forestDark text-white font-extrabold py-4 rounded-2xl text-xs sm:text-sm transition">
+                                ✅ REAL FAMILY MEMBER
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }
+
+            window.answerDeepfake = function(userGuessedDeepfake) {
+                const c = callers[callerIdx];
+                if (userGuessedDeepfake === c.isDeepfake) {
+                    score++;
+                    showToast('Correct Deepfake Detection! 🤖', 'success');
+                } else {
+                    showToast('Wrong! The safe word didn\'t match!', 'error');
+                }
+                callerIdx++;
+                renderCaller();
+            };
+
+            renderCaller();
+        }
+
+        // --- GAME 8: Emergency Recovery Sequence ---
+        function renderGameLesson8(container) {
+            container.innerHTML = `
+                <div class="space-y-6">
+                    <div class="border-b border-stone-200 pb-3">
+                        <span class="text-xs font-bold text-stone-400 uppercase">Game 8: Emergency Protocol</span>
+                        <h3 class="text-lg font-extrabold text-stone-800 mt-1">What are the 3 emergency steps if you accidentally click a virus link?</h3>
+                    </div>
+
+                    <div class="grid grid-cols-1 gap-3">
+                        <div class="p-4 bg-surfaceCream rounded-2xl border border-stone-200 font-extrabold text-stone-800 text-sm flex items-center gap-3">
+                            <span class="w-8 h-8 rounded-full bg-forestAccent text-white flex items-center justify-center">1</span>
+                            Disconnect / Unplug Wi-Fi & Internet
+                        </div>
+                        <div class="p-4 bg-surfaceCream rounded-2xl border border-stone-200 font-extrabold text-stone-800 text-sm flex items-center gap-3">
+                            <span class="w-8 h-8 rounded-full bg-forestAccent text-white flex items-center justify-center">2</span>
+                            Tell a trusted Adult / Parent / IT Admin
+                        </div>
+                        <div class="p-4 bg-surfaceCream rounded-2xl border border-stone-200 font-extrabold text-stone-800 text-sm flex items-center gap-3">
+                            <span class="w-8 h-8 rounded-full bg-forestAccent text-white flex items-center justify-center">3</span>
+                            Reset compromised passwords from a safe device
+                        </div>
+                    </div>
+
+                    <button onclick="finishCourseMastery()" class="w-full bg-forestAccent hover:bg-forestDark text-white py-4 rounded-2xl font-black text-base shadow-lg transition">
+                        🎓 Complete Cybersecurity Course!
+                    </button>
+                </div>
+            `;
+
+            window.finishCourseMastery = function() {
+                addPoints(200);
+                showToast('COURSE MASTERED! +200 PTS BONUS! 🏆', 'success');
+                container.innerHTML = `
+                    <div class="text-center py-10 space-y-4">
+                        <div class="text-6xl animate-bounce">🛡️🏆</div>
+                        <h2 class="text-3xl font-black text-stone-800">CONGRATULATIONS!</h2>
+                        <p class="text-stone-600 text-base max-w-md mx-auto">You have completed all modules and mastered the fundamentals of digital defense!</p>
+                        <div class="text-amber-600 font-black text-xl">+200 PTS Graduation Bonus!</div>
+                        <button onclick="navigateTo('lesson-0')" class="mt-4 bg-stone-800 text-white px-6 py-3 rounded-xl font-bold text-sm">Return to Orientation</button>
+                    </div>
+                `;
+            };
+        }
+
+        /* ==========================================================================
+           AVATAR SHOP & POINTS ENGINE
+           ========================================================================== */
+
+        function addPoints(amount) {
+            state.points += amount;
+            updatePointsDisplay();
+        }
+
+        function updatePointsDisplay() {
+            document.getElementById('user-points').innerText = state.points;
+            document.getElementById('shop-points-display').innerText = state.points;
+        }
+
+        function toggleAvatarShop() {
+            const modal = document.getElementById('avatar-modal');
+            if (modal.classList.contains('hidden')) {
+                modal.classList.remove('hidden');
+                setTimeout(() => {
+                    modal.classList.remove('opacity-0');
+                    modal.querySelector('div').classList.remove('scale-95');
+                }, 10);
+            } else {
+                modal.classList.add('opacity-0');
+                modal.querySelector('div').classList.add('scale-95');
+                setTimeout(() => {
+                    modal.classList.add('hidden');
+                }, 300);
+            }
+        }
+
+        function renderShopItems() {
+            const container = document.getElementById('shop-items-grid');
+            container.innerHTML = SHOP_ITEMS.map(item => {
+                const isOwned = state.inventory.includes(item.id);
+                const isEquipped = state.equippedAvatar === item.id;
+
+                return `
+                    <div class="p-3 bg-stone-50 border border-stone-200 rounded-xl flex flex-col justify-between text-center space-y-2">
+                        <div class="text-3xl">${item.emoji}</div>
+                        <div>
+                            <div class="font-extrabold text-stone-800 text-xs">${item.name}</div>
+                            <div class="text-[10px] text-stone-500">${item.desc}</div>
+                        </div>
+                        
+                        ${isEquipped ? `
+                            <span class="bg-forestLight text-forestAccent text-[10px] font-extrabold py-1 rounded-lg">Equipped</span>
+                        ` : isOwned ? `
+                            <button onclick="equipItem('${item.id}')" class="bg-stone-800 hover:bg-stone-900 text-white text-[10px] font-bold py-1 rounded-lg">Equip</button>
+                        ` : `
+                            <button onclick="buyItem('${item.id}', ${item.cost})" class="bg-amber-500 hover:bg-amber-600 text-white text-[10px] font-bold py-1 rounded-lg flex items-center justify-center gap-1">
+                                <i class="fa-solid fa-coins"></i> ${item.cost} PTS
+                            </button>
+                        `}
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function buyItem(itemId, cost) {
+            if (state.points >= cost) {
+                state.points -= cost;
+                state.inventory.push(itemId);
+                state.equippedAvatar = itemId;
+                updatePointsDisplay();
+                updateAvatarDisplay();
+                renderShopItems();
+                showToast('Item purchased & equipped! 🧙‍♂️', 'success');
+            } else {
+                showToast('Not enough points! Finish more games to earn coins.', 'error');
+            }
+        }
+
+        function equipItem(itemId) {
+            state.equippedAvatar = itemId;
+            updateAvatarDisplay();
+            renderShopItems();
+            showToast('Avatar updated!', 'info');
+        }
+
+        function updateAvatarDisplay() {
+            const activeItem = SHOP_ITEMS.find(x => x.id === state.equippedAvatar);
+            if (activeItem) {
+                document.getElementById('avatar-mini-preview').innerText = activeItem.emoji;
+                document.getElementById('avatar-full-display').childNodes[0].nodeValue = activeItem.emoji;
+                document.getElementById('avatar-title-display').innerText = activeItem.name;
+                document.getElementById('avatar-gear-desc').innerText = `Equipped: ${activeItem.name}`;
+            }
+        }
+
+        /* ==========================================================================
+           NOTIFICATION TOAST ENGINE
+           ========================================================================== */
+
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            
+            let bgClass = 'bg-stone-800 text-white';
+            if (type === 'success') bgClass = 'bg-forestAccent text-white';
+            if (type === 'error') bgClass = 'bg-roseWarn text-white';
+
+            toast.className = `${bgClass} px-4 py-3 rounded-xl shadow-xl text-xs sm:text-sm font-bold flex items-center space-x-2 transform translate-y-4 opacity-0 transition-all duration-300 pointer-events-auto`;
+            toast.innerHTML = `
+                <i class="fa-solid ${type === 'success' ? 'fa-circle-check' : type === 'error' ? 'fa-triangle-exclamation' : 'fa-info-circle'}"></i>
+                <span>${message}</span>
+            `;
+
+            container.appendChild(toast);
+
+            setTimeout(() => {
+                toast.classList.remove('translate-y-4', 'opacity-0');
+            }, 10);
+
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'translate-y-4');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
