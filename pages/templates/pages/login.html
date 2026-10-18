@@ -467,8 +467,11 @@
         <!-- OAuth Providers Section -->
         <div class="oauth-group">
           <!-- Google OAuth Button -->
-          <form method="post" action="{% url 'oauth_start' 'google' %}">
+          <form method="post" action="{% provider_login_url 'google' %}">
             {% csrf_token %}
+            {% if request.GET.next %}
+              <input type="hidden" name="next" value="{{ request.GET.next }}">
+            {% endif %}
             <button type="submit" class="btn-oauth btn-oauth-google" id="googleOAuthBtn" aria-label="Sign in with Google">
               <svg viewBox="0 0 24 24" aria-hidden="true">
                 <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
@@ -481,8 +484,11 @@
           </form>
 
           <!-- Microsoft OAuth Button -->
-          <form method="post" action="{% url 'oauth_start' 'microsoft' %}">
+          <form method="post" action="{% provider_login_url 'microsoft' %}">
             {% csrf_token %}
+            {% if request.GET.next %}
+              <input type="hidden" name="next" value="{{ request.GET.next }}">
+            {% endif %}
             <button type="submit" class="btn-oauth btn-oauth-microsoft" id="microsoftOAuthBtn" aria-label="Sign in with Microsoft">
               <svg viewBox="0 0 21 21" aria-hidden="true">
                 <rect x="1" y="1" width="9" height="9" fill="#f25022"/>

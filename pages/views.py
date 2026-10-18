@@ -41,14 +41,34 @@ class LoginPageView(View):
 class OAuthStartView(View):
     """
     Handles initiation of Google and Microsoft OAuth sign-ins.
-    In development/demo mode without external OAuth secrets configured,
-    provides an automatic sign-in simulation with a demo user account.
+    Redirects to allauth OAuth login endpoint if configured,
+    or falls back to demo account simulation in development.
     """
     def get(self, request, provider, *args, **kwargs):
         provider = provider.lower()
         if provider not in ('google', 'microsoft'):
             messages.error(request, f"Unsupported OAuth provider: {provider}")
             return redirect('login')
+
+        from allauth.socialaccount.adapter import get_adapter
+        from urllib.parse import urlencode
+
+        adapter = get_adapter()
+        app = None
+        try:
+            app = adapter.get_app(request, provider)
+        except Exception:
+            pass
+
+        if app and app.client_id:
+            try:
+                login_url = reverse(f"{provider}_login")
+                next_param = request.GET.get('next') or request.POST.get('next')
+                if next_param:
+                    login_url = f"{login_url}?{urlencode({'next': next_param})}"
+                return redirect(login_url)
+            except Exception:
+                pass
 
         User = get_user_model()
         demo_username = f"{provider}_explorer"

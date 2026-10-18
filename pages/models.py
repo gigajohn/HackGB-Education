@@ -58,10 +58,12 @@ def create_or_save_user_profile(sender, instance, created, **kwargs):
 
 # Connect allauth signal safely with lazy import
 try:
-    from allauth.account.signals import user_signed_up
+    from allauth.account.signals import user_signed_up, user_logged_in
+    from allauth.socialaccount.signals import social_account_added
 
-    @receiver(user_signed_up)
-    def populate_profile_from_social(request, user, **kwargs):
+    def _sync_social_profile(user):
+        if not user or not user.is_authenticated:
+            return
         profile, _ = Profile.objects.get_or_create(user=user)
         if apps.is_installed('allauth.socialaccount'):
             from allauth.socialaccount.models import SocialAccount
@@ -74,5 +76,18 @@ try:
                 elif social_acc.provider == 'microsoft':
                     profile.avatar = 'microsoft'
                 profile.save()
+
+    @receiver(user_signed_up)
+    def populate_profile_from_social(request, user, **kwargs):
+        _sync_social_profile(user)
+
+    @receiver(social_account_added)
+    def populate_profile_on_social_added(request, sociallogin, **kwargs):
+        if sociallogin and sociallogin.user:
+            _sync_social_profile(sociallogin.user)
+
+    @receiver(user_logged_in)
+    def populate_profile_on_login(request, user, **kwargs):
+        _sync_social_profile(user)
 except (ImportError, RuntimeError):
     pass
