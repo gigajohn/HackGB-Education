@@ -66,19 +66,39 @@ const legalContent = {
   }
 };
 
-document.querySelectorAll("[data-legal]").forEach((button) => {
-  button.addEventListener("click", () => {
-    const item = legalContent[button.dataset.legal];
-    if (!item || !legalDialog || !legalTitle || !legalBody) return;
-    legalTitle.textContent = item.title;
-    legalBody.innerHTML = item.body;
-    if (typeof legalDialog.showModal === "function") legalDialog.showModal();
+// Function to apply the selected age mode
+function setAgeMode(mode) {
+  // 1. Remove all mode classes from body and add the active one
+  document.body.classList.remove('theme-kid', 'theme-teen', 'theme-adult');
+  document.body.classList.add(`theme-${mode}`);
+
+  // 2. Update active state and aria-pressed attributes on the pills
+  document.querySelectorAll('.mode-pill').forEach(btn => {
+    const isCurrent = btn.getAttribute('data-mode') === mode;
+    if (isCurrent) {
+      btn.classList.add('is-active');
+      btn.setAttribute('aria-pressed', 'true');
+    } else {
+      btn.classList.remove('is-active');
+      btn.setAttribute('aria-pressed', 'false');
+    }
+  });
+
+  // 3. Save preference so it persists on reload
+  localStorage.setItem('susorsafe_mode', mode);
+}
+
+// Initialize on page load
+document.addEventListener('DOMContentLoaded', () => {
+  // Default to 'teen' if no preference is saved yet
+  const savedMode = localStorage.getItem('susorsafe_mode') || 'teen';
+  setAgeMode(savedMode);
+
+  // Attach click listeners to your existing mode pills
+  document.querySelectorAll('.mode-pill').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const mode = btn.getAttribute('data-mode');
+      setAgeMode(mode);
+    });
   });
 });
-
-if (legalClose && legalDialog) {
-  legalClose.addEventListener("click", () => legalDialog.close());
-  legalDialog.addEventListener("click", (event) => {
-    if (event.target === legalDialog) legalDialog.close();
-  });
-}

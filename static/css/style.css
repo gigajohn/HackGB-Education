@@ -293,6 +293,57 @@ footer { border-top: 1px solid #e0e6ff; padding: 26px 0; color: #73758c; font-si
   .reveal { opacity: 1; transform: none; }
 }
 
+/* ==========================================================================
+   AGE THEME VARIABLES (Linked to your data-mode attributes)
+   ========================================================================== */
+
+/* DEFAULT / TEEN MODE */
+:root, body.theme-teen {
+  --bg-main: #12131C;
+  --bg-card: #1C1D2A;
+  --text-main: #E2E8F0;
+  --text-muted: #94A3B8;
+  --muted-2: #64748B;
+  --border-color: rgba(255, 255, 255, 0.12);
+  --mint: #30D158;
+  --sc: #C8F65A;
+  --accent: #5E5CE6;
+}
+
+/* KID MODE (Bright, playful, childish colors) */
+body.theme-kid {
+  --bg-main: #FFF8E7;
+  --bg-card: #FFFFFF;
+  --text-main: #2D3142;
+  --text-muted: #4F5D75;
+  --muted-2: #6C757D;
+  --border-color: #FFD166;
+  --mint: #06D6A0;
+  --sc: #FFD166;
+  --accent: #FF477E;
+}
+
+/* ADULT / SENIOR MODE (Soft warm ivory background, high-contrast readable text) */
+body.theme-adult {
+  --bg-main: #F8F5F0;
+  --bg-card: #FFFFFF;
+  --text-main: #111827;
+  --text-muted: #374151;
+  --muted-2: #4B5563;
+  --border-color: #D1D5DB;
+  --mint: #2E7D32;
+  --sc: #3A7852;
+  --accent: #1E3A8A;
+  font-size: 110%; /* Slightly larger font for easier reading */
+}
+
+/* Smooth transition when switching themes */
+body {
+  background-color: var(--bg-main);
+  color: var(--text-main);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
 
 
 /* Animated logo and navigation header */
@@ -339,7 +390,85 @@ footer { border-top: 1px solid #e0e6ff; padding: 26px 0; color: #73758c; font-si
 @media (prefers-reduced-motion: reduce) {
   header.site-header, .brand-logo, .nav-links a { animation: none !important; transition: none !important; }
 }
+/* ==========================================================================
+   PASSWORD STRENGTH & DIALOG STYLES USING THEMES
+   ========================================================================== */
+body {
+  background-color: var(--bg-main);
+  color: var(--text-main);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
 
+.strength[data-level="4"] {
+  --sc: var(--sc);
+}
+
+.strength .bars i.is-on {
+  background: var(--sc);
+  box-shadow: 0 0 12px -2px var(--sc);
+}
+
+.strength-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4px 12px;
+  margin-top: 9px;
+  font-size: .85rem;
+  flex-wrap: wrap;
+}
+
+.strength-label {
+  font-weight: 800;
+  color: var(--sc);
+}
+
+.strength-time {
+  color: var(--text-muted);
+  text-align: right;
+}
+
+.strength-time b {
+  color: var(--text-main);
+  font-weight: 700;
+}
+
+.chat-head small {
+  display: block;
+  font-size: .75rem;
+  color: var(--text-muted);
+}
+
+.chat-head .online {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: .65rem;
+  letter-spacing: .04em;
+  color: var(--mint);
+  white-space: nowrap;
+}
+
+.chat-head .online::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--mint);
+}
+
+/* Responsive Media Queries */
+@media (max-width: 768px) {
+  .strength-meta {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2px;
+  }
+  .strength-time {
+    text-align: left;
+  }
+}
 /* Animated footer */
 .site-footer {
   position: relative;
