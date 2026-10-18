@@ -1,6 +1,6 @@
 ### SusOrSafe
 
-* [www.susorsaf.courses](http://www.susorsaf.courses)
+* [www.susorsafe.courses](http://www.susorsafe.courses)
 * [www.susorsafe.study](http://www.susorsafe.study)
 
 
