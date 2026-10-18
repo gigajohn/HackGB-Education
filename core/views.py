@@ -5,32 +5,34 @@ from django.contrib.auth.forms import UserCreationForm
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import redirect, render
 from django.templatetags.static import static
+from django.urls import reverse
 
 
 def home(request):
     return app_page(request, "home")
 
 
-def profile(request):
-    return render(request, "profile.html")
-
-
 def app_page(request, page):
+    if page in {"toolkit", "parents", "install"}:
+        page = "about"
+
     page_titles = {
         "home": "SusOrSafe — Cybersecurity you can play",
-        "lessons": "Lessons · SusOrSafe",
-        "games": "Games · SusOrSafe",
-        "toolkit": "Safety toolkit · SusOrSafe",
-        "parents": "Parents & teachers · SusOrSafe",
-        "install": "Install SusOrSafe",
-        "about": "About SusOrSafe",
-        "profile": "My profile · SusOrSafe",
+        "lessons": "Lessons & games · SusOrSafe",
+        "about": "About & help · SusOrSafe",
     }
-
     return render(request, "home.html", {
         "page": page,
         "page_title": page_titles[page],
     })
+
+
+def games_page(request):
+    return redirect(f"{reverse('lessons')}#games")
+
+
+def about_section(request, section):
+    return redirect(f"{reverse('about')}#{section}")
 
 
 def signup(request):
@@ -61,7 +63,7 @@ def signup(request):
 
 
 def support_hub(request):
-    return render(request, "support/hub.html")
+    return redirect(f"{reverse('about')}#support")
 
 
 def support_subscribe(request):
